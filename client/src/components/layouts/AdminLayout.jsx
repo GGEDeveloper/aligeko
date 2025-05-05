@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Container, Row, Col, Button } from 'react-bootstrap';
 import AdminSidebar from '../ui/AdminSidebar';
 
 const AdminLayout = () => {
@@ -11,66 +10,52 @@ const AdminLayout = () => {
   };
   
   return (
-    <div className="admin-layout d-flex vh-100">
+    <div className="flex h-screen bg-neutral-200">
       {/* Sidebar */}
       <div 
-        className={`sidebar-wrapper ${sidebarOpen ? 'open' : 'closed'}`} 
-        style={{ 
-          width: sidebarOpen ? '280px' : '0',
-          transition: 'width 0.3s ease',
-          overflowX: 'hidden',
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          height: '100vh',
-          zIndex: 1000,
-          backgroundColor: '#343a40'
-        }}
+        className={`fixed top-0 left-0 h-full z-40 transition-smooth ${
+          sidebarOpen ? 'w-72' : 'w-0'
+        } bg-primary-700 overflow-hidden shadow-lg`}
       >
         <AdminSidebar />
       </div>
       
       {/* Main Content */}
       <div 
-        className="main-content flex-grow-1 bg-light"
-        style={{ 
-          marginLeft: sidebarOpen ? '280px' : '0',
-          transition: 'margin-left 0.3s ease',
-          minHeight: '100vh'
-        }}
+        className={`flex-1 transition-smooth ${
+          sidebarOpen ? 'ml-72' : 'ml-0'
+        } min-h-screen`}
       >
-        <div className="p-3 border-bottom bg-white d-flex justify-content-between align-items-center shadow-sm">
-          <Button 
-            variant="outline-secondary" 
-            size="sm" 
+        <header className="flex justify-between items-center p-4 bg-white border-b border-neutral-300 shadow-soft">
+          <button 
             onClick={toggleSidebar}
-            className="d-md-none"
+            className="md:hidden btn-outline"
+            aria-label="Toggle sidebar"
           >
             <i className={`bi ${sidebarOpen ? 'bi-x-lg' : 'bi-list'}`}></i>
-          </Button>
+          </button>
           
-          <Button 
-            variant="outline-secondary" 
-            size="sm" 
+          <button 
             onClick={toggleSidebar}
-            className="d-none d-md-block"
+            className="hidden md:block btn-outline"
+            aria-label="Toggle sidebar"
           >
             <i className={`bi ${sidebarOpen ? 'bi-chevron-left' : 'bi-chevron-right'}`}></i>
-          </Button>
+          </button>
           
-          <div className="d-flex align-items-center">
-            <Button variant="outline-secondary" size="sm" className="me-2">
+          <div className="flex items-center space-x-2">
+            <button className="btn-outline p-2" aria-label="Notifications">
               <i className="bi bi-bell"></i>
-            </Button>
-            <Button variant="outline-secondary" size="sm">
+            </button>
+            <button className="btn-outline p-2" aria-label="Settings">
               <i className="bi bi-gear"></i>
-            </Button>
+            </button>
           </div>
-        </div>
+        </header>
         
-        <Container fluid className="py-4">
+        <main className="p-6">
           <Outlet />
-        </Container>
+        </main>
       </div>
     </div>
   );

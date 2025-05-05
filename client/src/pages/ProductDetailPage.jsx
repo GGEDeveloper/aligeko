@@ -1,20 +1,5 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Button,
-  Spinner,
-  Alert,
-  Badge,
-  Tabs,
-  Tab,
-  Table,
-  Form,
-  Modal
-} from 'react-bootstrap';
 import { 
   useGetProductByIdQuery, 
   useDeleteProductMutation 
@@ -57,22 +42,21 @@ const ProductDetailPage = () => {
   // Render loading state
   if (isLoading) {
     return (
-      <Container className="py-5 text-center">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-      </Container>
+      <div className="py-12 text-center">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
+      </div>
     );
   }
   
   // Render error state
   if (isError) {
     return (
-      <Container className="py-5">
-        <Alert variant="danger">
-          Error loading product: {error?.data?.message || 'Unknown error occurred'}
-        </Alert>
-      </Container>
+      <div className="py-6">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {error?.data?.message || 'Unknown error occurred'}</span>
+        </div>
+      </div>
     );
   }
   
@@ -95,336 +79,367 @@ const ProductDetailPage = () => {
     const totalStock = getTotalStock();
     
     if (totalStock <= 0) {
-      return <Badge bg="danger">Out of Stock</Badge>;
+      return <span className="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Out of Stock</span>;
     } else if (totalStock < 10) {
-      return <Badge bg="warning">Low Stock</Badge>;
+      return <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Low Stock</span>;
     } else {
-      return <Badge bg="success">In Stock</Badge>;
+      return <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">In Stock</span>;
     }
   };
   
   return (
-    <Container className="py-4">
+    <div className="py-6">
       {/* Breadcrumb */}
-      <div className="mb-4">
-        <Link to="/products" className="text-decoration-none">
-          <i className="bi bi-arrow-left me-2"></i>
+      <div className="mb-6">
+        <Link to="/products" className="text-primary-600 hover:text-primary-700 transition-smooth flex items-center">
+          <i className="bi bi-arrow-left mr-2"></i>
           Back to Products
         </Link>
       </div>
       
       {/* Product Header */}
-      <Row className="mb-4">
-        <Col>
+      <div className="flex flex-col md:flex-row justify-between mb-6">
+        <div>
           <h1 className="mb-2">{product.name}</h1>
-          <div className="d-flex align-items-center mb-2">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
             {product.Category && (
-              <Badge bg="info" className="me-2">{product.Category.name}</Badge>
+              <span className="inline-block bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded">
+                {product.Category.name}
+              </span>
             )}
             {product.Producer && (
-              <Badge bg="secondary" className="me-2">{product.Producer.name}</Badge>
+              <span className="inline-block bg-neutral-100 text-neutral-800 text-xs px-2 py-1 rounded">
+                {product.Producer.name}
+              </span>
             )}
             {getStockStatusBadge()}
           </div>
-          <p className="text-muted">Product ID: {product.id}</p>
-        </Col>
-        <Col xs="auto" className="d-flex gap-2 align-items-start">
+          <p className="text-neutral-600 text-sm">Product ID: {product.id}</p>
+        </div>
+        <div className="mt-4 md:mt-0 flex gap-2">
           <Link to={`/products/${id}/edit`}>
-            <Button variant="outline-primary">
-              <i className="bi bi-pencil me-1"></i> Edit
-            </Button>
+            <button className="btn-outline flex items-center">
+              <i className="bi bi-pencil mr-1"></i> Edit
+            </button>
           </Link>
-          <Button 
-            variant="outline-danger" 
+          <button 
+            className={`border border-red-500 text-red-500 hover:bg-red-50 px-4 py-2 rounded-md transition-smooth flex items-center ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={() => setShowDeleteModal(true)}
             disabled={isDeleting}
           >
             {isDeleting ? (
               <>
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                  className="me-1"
-                />
+                <div className="animate-spin h-4 w-4 border-t-2 border-red-500 rounded-full mr-2"></div>
                 Deleting...
               </>
             ) : (
               <>
-                <i className="bi bi-trash me-1"></i> Delete
+                <i className="bi bi-trash mr-1"></i> Delete
               </>
             )}
-          </Button>
-        </Col>
-      </Row>
+          </button>
+        </div>
+      </div>
       
       {/* Product Content */}
-      <Row>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Product Image */}
-        <Col md={4} className="mb-4">
-          <Card>
+        <div className="md:col-span-1">
+          <div className="card">
             {product.Images && product.Images.length > 0 ? (
-              <Card.Img
-                variant="top"
+              <img
                 src={product.Images[0].url}
                 alt={product.name}
-                className="img-fluid rounded"
+                className="w-full h-64 object-cover rounded-t-lg"
               />
             ) : (
-              <div className="text-center bg-light p-5">
-                <i className="bi bi-image text-muted" style={{ fontSize: '5rem' }}></i>
-                <p className="mt-3">No image available</p>
+              <div className="w-full h-64 bg-neutral-200 flex flex-col items-center justify-center rounded-t-lg">
+                <i className="bi bi-image text-neutral-400 text-5xl"></i>
+                <p className="mt-3 text-neutral-500">No image available</p>
               </div>
             )}
             {product.Images && product.Images.length > 1 && (
-              <Card.Body>
-                <Row className="g-2">
+              <div className="p-4">
+                <div className="grid grid-cols-3 gap-2">
                   {product.Images.slice(1).map((image, index) => (
-                    <Col xs={4} key={image.id || index}>
+                    <div key={image.id || index}>
                       <img
                         src={image.url}
                         alt={`${product.name} ${index + 2}`}
-                        className="img-thumbnail"
-                        style={{ width: '100%', height: '60px', objectFit: 'cover' }}
+                        className="w-full h-16 object-cover rounded border border-neutral-300"
                       />
-                    </Col>
+                    </div>
                   ))}
-                </Row>
-              </Card.Body>
+                </div>
+              </div>
             )}
-          </Card>
-        </Col>
+          </div>
+        </div>
         
         {/* Product Details Tabs */}
-        <Col md={8}>
-          <Card>
-            <Card.Header>
-              <Tabs
-                activeKey={activeTab}
-                onSelect={(k) => setActiveTab(k)}
-                className="mb-0"
-              >
-                <Tab eventKey="details" title="Details">
-                  <Card.Body>
-                    <Row className="mb-3">
-                      <Col md={3} className="fw-bold">Description:</Col>
-                      <Col md={9}>{product.description}</Col>
-                    </Row>
-                    <Row className="mb-3">
-                      <Col md={3} className="fw-bold">SKU:</Col>
-                      <Col md={9}>{product.sku}</Col>
-                    </Row>
-                    <Row className="mb-3">
-                      <Col md={3} className="fw-bold">Base Price:</Col>
-                      <Col md={9}>${parseFloat(product.base_price).toFixed(2)}</Col>
-                    </Row>
-                    <Row className="mb-3">
-                      <Col md={3} className="fw-bold">Producer:</Col>
-                      <Col md={9}>{product.Producer?.name || 'N/A'}</Col>
-                    </Row>
-                    <Row className="mb-3">
-                      <Col md={3} className="fw-bold">Category:</Col>
-                      <Col md={9}>{product.Category?.name || 'N/A'}</Col>
-                    </Row>
-                    <Row className="mb-3">
-                      <Col md={3} className="fw-bold">Unit:</Col>
-                      <Col md={9}>
-                        {product.Unit?.name || 'N/A'} 
-                        {product.Unit?.moq && (
-                          <span className="text-muted ms-2">
-                            (Min Order: {product.Unit.moq})
-                          </span>
-                        )}
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col md={3} className="fw-bold">Created At:</Col>
-                      <Col md={9}>
-                        {new Date(product.created_at).toLocaleDateString()}
-                      </Col>
-                    </Row>
-                  </Card.Body>
-                </Tab>
-                <Tab eventKey="variants" title="Variants">
-                  <Card.Body>
-                    {!product.Variants || product.Variants.length === 0 ? (
-                      <Alert variant="info">No variants available for this product.</Alert>
-                    ) : (
-                      <Table responsive>
-                        <thead>
+        <div className="md:col-span-2">
+          <div className="card">
+            {/* Tabs Header */}
+            <div className="border-b border-neutral-300">
+              <nav className="flex flex-wrap">
+                <button
+                  className={`px-4 py-3 font-medium border-b-2 transition-smooth ${
+                    activeTab === 'details'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+                  }`}
+                  onClick={() => setActiveTab('details')}
+                >
+                  Details
+                </button>
+                <button
+                  className={`px-4 py-3 font-medium border-b-2 transition-smooth ${
+                    activeTab === 'variants'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+                  }`}
+                  onClick={() => setActiveTab('variants')}
+                >
+                  Variants
+                </button>
+                <button
+                  className={`px-4 py-3 font-medium border-b-2 transition-smooth ${
+                    activeTab === 'pricing'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+                  }`}
+                  onClick={() => setActiveTab('pricing')}
+                >
+                  Pricing
+                </button>
+                <button
+                  className={`px-4 py-3 font-medium border-b-2 transition-smooth ${
+                    activeTab === 'images'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+                  }`}
+                  onClick={() => setActiveTab('images')}
+                >
+                  Images
+                </button>
+              </nav>
+            </div>
+            
+            {/* Tab Content */}
+            <div className="p-4">
+              {activeTab === 'details' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="font-semibold text-neutral-700">Description:</div>
+                    <div className="md:col-span-2">{product.description}</div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="font-semibold text-neutral-700">SKU:</div>
+                    <div className="md:col-span-2">{product.sku}</div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="font-semibold text-neutral-700">Base Price:</div>
+                    <div className="md:col-span-2 font-medium text-secondary-500">
+                      ${parseFloat(product.base_price).toFixed(2)}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="font-semibold text-neutral-700">Producer:</div>
+                    <div className="md:col-span-2">{product.Producer?.name || 'N/A'}</div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="font-semibold text-neutral-700">Category:</div>
+                    <div className="md:col-span-2">{product.Category?.name || 'N/A'}</div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="font-semibold text-neutral-700">Unit:</div>
+                    <div className="md:col-span-2">
+                      {product.Unit?.name || 'N/A'} 
+                      {product.Unit?.moq && (
+                        <span className="text-neutral-500 ml-2">
+                          (Min Order: {product.Unit.moq})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="font-semibold text-neutral-700">Created At:</div>
+                    <div className="md:col-span-2">
+                      {new Date(product.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {activeTab === 'variants' && (
+                <div>
+                  {product.Variants && product.Variants.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-full text-sm">
+                        <thead className="bg-neutral-100">
                           <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>SKU</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Actions</th>
+                            <th className="px-4 py-3 text-left font-medium text-neutral-700">#</th>
+                            <th className="px-4 py-3 text-left font-medium text-neutral-700">SKU</th>
+                            <th className="px-4 py-3 text-left font-medium text-neutral-700">Attributes</th>
+                            <th className="px-4 py-3 text-left font-medium text-neutral-700">Price</th>
+                            <th className="px-4 py-3 text-left font-medium text-neutral-700">Stock</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          {product.Variants.map(variant => (
-                            <tr key={variant.id}>
-                              <td>{variant.id}</td>
-                              <td>{variant.name}</td>
-                              <td>{variant.sku}</td>
-                              <td>
-                                ${parseFloat(variant.Price?.amount || 0).toFixed(2)}
+                        <tbody className="divide-y divide-neutral-200">
+                          {product.Variants.map((variant, index) => (
+                            <tr key={variant.id} className="hover:bg-neutral-50">
+                              <td className="px-4 py-3">{index + 1}</td>
+                              <td className="px-4 py-3">{variant.sku}</td>
+                              <td className="px-4 py-3">
+                                {variant.VariantAttributes && variant.VariantAttributes.map((attr, idx) => (
+                                  <span key={attr.id || idx} className="block">
+                                    <span className="font-medium">{attr.attribute_name}:</span> {attr.value}
+                                  </span>
+                                ))}
                               </td>
-                              <td>
-                                {variant.Stock?.quantity || 0}
-                                {variant.Stock?.quantity <= 10 && (
-                                  <Badge 
-                                    bg={variant.Stock?.quantity <= 0 ? "danger" : "warning"}
-                                    className="ms-2"
-                                  >
-                                    {variant.Stock?.quantity <= 0 ? "Out of Stock" : "Low Stock"}
-                                  </Badge>
-                                )}
+                              <td className="px-4 py-3 font-medium text-secondary-500">
+                                ${parseFloat(variant.price || product.base_price).toFixed(2)}
                               </td>
-                              <td>
-                                <Button 
-                                  variant="outline-primary" 
-                                  size="sm"
-                                  as={Link}
-                                  to={`/products/${id}/variants/${variant.id}/edit`}
-                                >
-                                  Edit
-                                </Button>
+                              <td className="px-4 py-3">
+                                {variant.Stock ? variant.Stock.quantity : 'N/A'}
                               </td>
                             </tr>
                           ))}
                         </tbody>
-                      </Table>
-                    )}
-                    <div className="text-end mt-3">
-                      <Button 
-                        variant="primary" 
-                        size="sm"
-                        as={Link}
-                        to={`/products/${id}/variants/add`}
-                      >
-                        <i className="bi bi-plus-circle me-1"></i>
-                        Add Variant
-                      </Button>
+                      </table>
                     </div>
-                  </Card.Body>
-                </Tab>
-                <Tab eventKey="pricing" title="Pricing">
-                  <Card.Body>
-                    <Form>
-                      <Row className="mb-3">
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label>Base Price</Form.Label>
-                            <Form.Control
-                              type="number"
-                              value={product.base_price}
-                              readOnly
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group>
-                            <Form.Label>Discount</Form.Label>
-                            <Form.Control
-                              type="number"
-                              value={product.discount || 0}
-                              readOnly
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      {product.Prices && product.Prices.length > 0 ? (
-                        <Table responsive className="mt-4">
-                          <thead>
-                            <tr>
-                              <th>ID</th>
-                              <th>Price Type</th>
-                              <th>Amount</th>
-                              <th>Start Date</th>
-                              <th>End Date</th>
-                              <th>Actions</th>
+                  ) : (
+                    <div className="text-center py-8 text-neutral-600">
+                      No variants available for this product.
+                    </div>
+                  )}
+                  
+                  <div className="mt-4 flex justify-end">
+                    <button className="btn-outline flex items-center">
+                      <i className="bi bi-plus-lg mr-1"></i> Add Variant
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {activeTab === 'pricing' && (
+                <div>
+                  {product.PriceTiers && product.PriceTiers.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-full text-sm">
+                        <thead className="bg-neutral-100">
+                          <tr>
+                            <th className="px-4 py-3 text-left font-medium text-neutral-700">#</th>
+                            <th className="px-4 py-3 text-left font-medium text-neutral-700">Quantity Range</th>
+                            <th className="px-4 py-3 text-left font-medium text-neutral-700">Price</th>
+                            <th className="px-4 py-3 text-left font-medium text-neutral-700">Discount</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-200">
+                          {product.PriceTiers.map((tier, index) => (
+                            <tr key={tier.id} className="hover:bg-neutral-50">
+                              <td className="px-4 py-3">{index + 1}</td>
+                              <td className="px-4 py-3">
+                                {tier.min_quantity} - {tier.max_quantity || '∞'}
+                              </td>
+                              <td className="px-4 py-3 font-medium text-secondary-500">
+                                ${parseFloat(tier.price).toFixed(2)}
+                              </td>
+                              <td className="px-4 py-3">
+                                {tier.discount_percentage ? `${tier.discount_percentage}%` : 'N/A'}
+                              </td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {product.Prices.map(price => (
-                              <tr key={price.id}>
-                                <td>{price.id}</td>
-                                <td>{price.type}</td>
-                                <td>${parseFloat(price.amount).toFixed(2)}</td>
-                                <td>
-                                  {price.start_date ? new Date(price.start_date).toLocaleDateString() : 'N/A'}
-                                </td>
-                                <td>
-                                  {price.end_date ? new Date(price.end_date).toLocaleDateString() : 'N/A'}
-                                </td>
-                                <td>
-                                  <Button 
-                                    variant="outline-primary" 
-                                    size="sm"
-                                    as={Link}
-                                    to={`/products/${id}/prices/${price.id}/edit`}
-                                  >
-                                    Edit
-                                  </Button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </Table>
-                      ) : (
-                        <Alert variant="info" className="mt-4">No special pricing available for this product.</Alert>
-                      )}
-                      <div className="text-end mt-3">
-                        <Button 
-                          variant="primary" 
-                          size="sm"
-                          as={Link}
-                          to={`/products/${id}/prices/add`}
-                        >
-                          <i className="bi bi-plus-circle me-1"></i>
-                          Add Special Price
-                        </Button>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-neutral-600">
+                      No special pricing tiers available for this product.
+                    </div>
+                  )}
+                  
+                  <div className="mt-4 flex justify-end">
+                    <button className="btn-outline flex items-center">
+                      <i className="bi bi-plus-lg mr-1"></i> Add Price Tier
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              {activeTab === 'images' && (
+                <div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {product.Images && product.Images.length > 0 ? (
+                      product.Images.map((image, index) => (
+                        <div key={image.id || index} className="relative group">
+                          <img
+                            src={image.url}
+                            alt={`${product.name} ${index + 1}`}
+                            className="w-full h-48 object-cover rounded border border-neutral-300"
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            <button className="text-white bg-red-500 hover:bg-red-600 p-2 rounded-full mx-1">
+                              <i className="bi bi-trash"></i>
+                            </button>
+                            <button className="text-white bg-neutral-700 hover:bg-neutral-800 p-2 rounded-full mx-1">
+                              <i className="bi bi-arrows-move"></i>
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center py-8 text-neutral-600">
+                        No images available for this product.
                       </div>
-                    </Form>
-                  </Card.Body>
-                </Tab>
-              </Tabs>
-            </Card.Header>
-          </Card>
-        </Col>
-      </Row>
+                    )}
+                  </div>
+                  
+                  <div className="mt-4 flex justify-end">
+                    <button className="btn-outline flex items-center">
+                      <i className="bi bi-cloud-upload mr-1"></i> Upload Images
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
       
       {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Delete</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to delete the product <strong>{product.name}</strong>? This action cannot be undone.
-          
-          {isDeleteError && (
-            <Alert variant="danger" className="mt-3">
-              {deleteError?.data?.message || 'Error deleting product'}
-            </Alert>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Cancel
-          </Button>
-          <Button 
-            variant="danger" 
-            onClick={handleDeleteProduct}
-            disabled={isDeleting}
-          >
-            {isDeleting ? 'Deleting...' : 'Delete Product'}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </Container>
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+            <h3 className="mb-4 text-lg font-medium">Confirm Delete</h3>
+            <p className="mb-4 text-neutral-600">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                className="btn-outline"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-smooth"
+                onClick={handleDeleteProduct}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

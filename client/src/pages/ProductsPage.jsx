@@ -1,18 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Button, 
-  Form, 
-  InputGroup,
-  Pagination,
-  Spinner,
-  Alert,
-  Badge
-} from 'react-bootstrap';
 import { useGetProductsQuery } from '../store/api/productApi';
 
 const ProductsPage = () => {
@@ -80,22 +67,21 @@ const ProductsPage = () => {
   // Render loading state
   if (isLoading) {
     return (
-      <Container className="py-5 text-center">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-      </Container>
+      <div className="py-12 text-center">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
+      </div>
     );
   }
   
   // Render error state
   if (isError) {
     return (
-      <Container className="py-5">
-        <Alert variant="danger">
-          Error loading products: {error?.data?.message || 'Unknown error occurred'}
-        </Alert>
-      </Container>
+      <div className="py-6">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {error?.data?.message || 'Unknown error occurred'}</span>
+        </div>
+      </div>
     );
   }
   
@@ -103,245 +89,246 @@ const ProductsPage = () => {
   const { products, totalItems, totalPages } = data || { products: [], totalItems: 0, totalPages: 0 };
   
   return (
-    <Container className="py-4">
-      <Row className="mb-4">
-        <Col>
-          <h1 className="mb-3">Products</h1>
-          <p className="text-muted">
+    <div className="py-6">
+      <div className="flex flex-col md:flex-row justify-between mb-6">
+        <div>
+          <h1>Products</h1>
+          <p className="text-neutral-600">
             Browse and manage products in your inventory
           </p>
-        </Col>
-        <Col xs="auto" className="align-self-center">
+        </div>
+        <div className="mt-4 md:mt-0 md:self-center">
           <Link to="/products/add">
-            <Button variant="primary">
-              <i className="bi bi-plus"></i> Add New Product
-            </Button>
+            <button className="btn-primary flex items-center">
+              <i className="bi bi-plus mr-2"></i> Add New Product
+            </button>
           </Link>
-        </Col>
-      </Row>
+        </div>
+      </div>
       
       {/* Filters */}
-      <Card className="mb-4">
-        <Card.Header>
-          <h5 className="mb-0">Filter Products</h5>
-        </Card.Header>
-        <Card.Body>
-          <Form onSubmit={handleFilterSubmit}>
-            <Row className="g-3">
+      <div className="card mb-6">
+        <div className="border-b border-neutral-300 px-4 py-3">
+          <h3 className="mb-0">Filter Products</h3>
+        </div>
+        <div className="p-4">
+          <form onSubmit={handleFilterSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Search */}
-              <Col md={6} lg={4}>
-                <Form.Group>
-                  <Form.Label>Search</Form.Label>
-                  <InputGroup>
-                    <InputGroup.Text>
-                      <i className="bi bi-search"></i>
-                    </InputGroup.Text>
-                    <Form.Control
-                      type="text"
-                      placeholder="Search products..."
-                      name="search"
-                      value={filters.search}
-                      onChange={handleFilterChange}
-                    />
-                  </InputGroup>
-                </Form.Group>
-              </Col>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Search</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i className="bi bi-search text-neutral-500"></i>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    name="search"
+                    value={filters.search}
+                    onChange={handleFilterChange}
+                    className="border border-neutral-300 rounded-md pl-10 pr-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+              </div>
               
               {/* Category Filter */}
-              <Col md={6} lg={4}>
-                <Form.Group>
-                  <Form.Label>Category</Form.Label>
-                  <Form.Select
-                    name="category"
-                    value={filters.category}
-                    onChange={handleFilterChange}
-                  >
-                    <option value="">All Categories</option>
-                    <option value="1">Electronics</option>
-                    <option value="2">Clothing</option>
-                    <option value="3">Home & Garden</option>
-                    {/* Add more categories here */}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Category</label>
+                <select
+                  name="category"
+                  value={filters.category}
+                  onChange={handleFilterChange}
+                  className="border border-neutral-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">All Categories</option>
+                  <option value="1">Electronics</option>
+                  <option value="2">Clothing</option>
+                  <option value="3">Home & Garden</option>
+                  {/* Add more categories here */}
+                </select>
+              </div>
               
               {/* Producer Filter */}
-              <Col md={6} lg={4}>
-                <Form.Group>
-                  <Form.Label>Producer</Form.Label>
-                  <Form.Select
-                    name="producer"
-                    value={filters.producer}
-                    onChange={handleFilterChange}
-                  >
-                    <option value="">All Producers</option>
-                    <option value="1">Samsung</option>
-                    <option value="2">Apple</option>
-                    <option value="3">Sony</option>
-                    {/* Add more producers here */}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Producer</label>
+                <select
+                  name="producer"
+                  value={filters.producer}
+                  onChange={handleFilterChange}
+                  className="border border-neutral-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">All Producers</option>
+                  <option value="1">Samsung</option>
+                  <option value="2">Apple</option>
+                  <option value="3">Sony</option>
+                  {/* Add more producers here */}
+                </select>
+              </div>
               
               {/* Price Range */}
-              <Col md={6} lg={4}>
-                <Form.Group>
-                  <Form.Label>Price Range</Form.Label>
-                  <Row>
-                    <Col>
-                      <Form.Control
-                        type="number"
-                        placeholder="Min"
-                        name="minPrice"
-                        value={filters.minPrice}
-                        onChange={handleFilterChange}
-                      />
-                    </Col>
-                    <Col xs="auto" className="align-self-center">
-                      -
-                    </Col>
-                    <Col>
-                      <Form.Control
-                        type="number"
-                        placeholder="Max"
-                        name="maxPrice"
-                        value={filters.maxPrice}
-                        onChange={handleFilterChange}
-                      />
-                    </Col>
-                  </Row>
-                </Form.Group>
-              </Col>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Price Range</label>
+                <div className="flex items-center">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    name="minPrice"
+                    value={filters.minPrice}
+                    onChange={handleFilterChange}
+                    className="border border-neutral-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                  <span className="mx-2">-</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    name="maxPrice"
+                    value={filters.maxPrice}
+                    onChange={handleFilterChange}
+                    className="border border-neutral-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+              </div>
               
               {/* Sort By */}
-              <Col md={6} lg={4}>
-                <Form.Group>
-                  <Form.Label>Sort By</Form.Label>
-                  <Form.Select
-                    name="sortBy"
-                    value={filters.sortBy}
-                    onChange={handleFilterChange}
-                  >
-                    <option value="created_at">Date Added</option>
-                    <option value="name">Name</option>
-                    <option value="price">Price</option>
-                    <option value="stock">Stock</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Sort By</label>
+                <select
+                  name="sortBy"
+                  value={filters.sortBy}
+                  onChange={handleFilterChange}
+                  className="border border-neutral-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="created_at">Date Added</option>
+                  <option value="name">Name</option>
+                  <option value="price">Price</option>
+                  <option value="stock">Stock</option>
+                </select>
+              </div>
               
               {/* Sort Order */}
-              <Col md={6} lg={4}>
-                <Form.Group>
-                  <Form.Label>Order</Form.Label>
-                  <Form.Select
-                    name="sortOrder"
-                    value={filters.sortOrder}
-                    onChange={handleFilterChange}
-                  >
-                    <option value="asc">Ascending</option>
-                    <option value="desc">Descending</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              
-              {/* Action Buttons */}
-              <Col xs={12} className="d-flex mt-4">
-                <Button variant="primary" type="submit" className="me-2">
-                  Apply Filters
-                </Button>
-                <Button variant="outline-secondary" onClick={handleResetFilters} type="button">
-                  Reset
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-        </Card.Body>
-      </Card>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Order</label>
+                <select
+                  name="sortOrder"
+                  value={filters.sortOrder}
+                  onChange={handleFilterChange}
+                  className="border border-neutral-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex mt-6">
+              <button type="submit" className="btn-primary mr-2">
+                Apply Filters
+              </button>
+              <button type="button" onClick={handleResetFilters} className="btn-outline">
+                Reset
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
       
       {/* Results */}
-      <Row className="mb-2">
-        <Col>
-          <p className="text-muted">
-            Showing {products.length} of {totalItems} products
-          </p>
-        </Col>
-        <Col xs="auto">
-          <Form.Select
-            value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(Number(e.target.value))}
-            size="sm"
-          >
-            <option value="10">10 per page</option>
-            <option value="20">20 per page</option>
-            <option value="50">50 per page</option>
-            <option value="100">100 per page</option>
-          </Form.Select>
-        </Col>
-      </Row>
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+        <p className="text-sm text-neutral-600 mb-2 sm:mb-0">
+          Showing {products.length} of {totalItems} products
+        </p>
+        <select
+          value={itemsPerPage}
+          onChange={(e) => setItemsPerPage(Number(e.target.value))}
+          className="border border-neutral-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+        >
+          <option value="10">10 per page</option>
+          <option value="20">20 per page</option>
+          <option value="50">50 per page</option>
+          <option value="100">100 per page</option>
+        </select>
+      </div>
       
       {/* Product Grid */}
       {products.length === 0 ? (
-        <Alert variant="info">
+        <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative" role="alert">
           No products found. Try adjusting your filters.
-        </Alert>
+        </div>
       ) : (
-        <Row xs={1} md={2} lg={3} xl={4} className="g-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {products.map(product => (
-            <Col key={product.id}>
-              <Card className="h-100 product-card">
-                {product.Images && product.Images[0] ? (
-                  <Card.Img 
-                    variant="top" 
-                    src={product.Images[0].url} 
-                    alt={product.name}
-                    style={{ height: '180px', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div className="text-center bg-light" style={{ height: '180px', paddingTop: '75px' }}>
-                    <i className="bi bi-image text-muted" style={{ fontSize: '2rem' }}></i>
-                  </div>
-                )}
-                <Card.Body>
-                  <Card.Title className="text-truncate">{product.name}</Card.Title>
-                  <Card.Text className="mb-1 text-truncate">
-                    {product.description}
-                  </Card.Text>
-                  <div className="mb-2">
-                    {product.Category && (
-                      <Badge bg="info" className="me-1">{product.Category.name}</Badge>
-                    )}
-                    {product.Producer && (
-                      <Badge bg="secondary">{product.Producer.name}</Badge>
-                    )}
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div className="fw-bold text-primary">
-                      ${parseFloat(product.price).toFixed(2)}
-                    </div>
-                    <Link to={`/products/${product.id}`}>
-                      <Button variant="outline-primary" size="sm">View</Button>
-                    </Link>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
+            <div key={product.id} className="card h-full transition-smooth hover:shadow-lg">
+              {product.Images && product.Images[0] ? (
+                <img 
+                  src={product.Images[0].url} 
+                  alt={product.name}
+                  className="w-full h-44 object-cover rounded-t-lg"
+                />
+              ) : (
+                <div className="w-full h-44 bg-neutral-200 flex items-center justify-center rounded-t-lg">
+                  <i className="bi bi-image text-neutral-400 text-3xl"></i>
+                </div>
+              )}
+              <div className="p-4">
+                <h4 className="font-semibold mb-1 text-primary-700 truncate">{product.name}</h4>
+                <p className="mb-2 text-sm text-neutral-600 line-clamp-2">
+                  {product.description}
+                </p>
+                <div className="mb-3 flex flex-wrap gap-1">
+                  {product.Category && (
+                    <span className="inline-block bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded">
+                      {product.Category.name}
+                    </span>
+                  )}
+                  {product.Producer && (
+                    <span className="inline-block bg-neutral-100 text-neutral-800 text-xs px-2 py-1 rounded">
+                      {product.Producer.name}
+                    </span>
+                  )}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-secondary-500">
+                    ${parseFloat(product.price).toFixed(2)}
+                  </span>
+                  <Link to={`/products/${product.id}`}>
+                    <button className="btn-outline py-1 px-3 text-sm">View</button>
+                  </Link>
+                </div>
+              </div>
+            </div>
           ))}
-        </Row>
+        </div>
       )}
       
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="d-flex justify-content-center mt-4">
-          <Pagination>
-            <Pagination.First 
+        <div className="flex justify-center mt-8">
+          <nav className="flex items-center">
+            <button 
               onClick={() => setCurrentPage(1)} 
               disabled={currentPage === 1}
-            />
-            <Pagination.Prev 
+              className={`mx-1 px-2 py-1 rounded ${
+                currentPage === 1 
+                  ? 'text-neutral-400 cursor-not-allowed' 
+                  : 'text-primary-700 hover:bg-primary-50'
+              }`}
+            >
+              <i className="bi bi-chevron-double-left"></i>
+            </button>
+            
+            <button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
               disabled={currentPage === 1}
-            />
+              className={`mx-1 px-2 py-1 rounded ${
+                currentPage === 1 
+                  ? 'text-neutral-400 cursor-not-allowed' 
+                  : 'text-primary-700 hover:bg-primary-50'
+              }`}
+            >
+              <i className="bi bi-chevron-left"></i>
+            </button>
             
             {[...Array(totalPages).keys()].map(page => {
               const pageNumber = page + 1;
@@ -350,32 +337,51 @@ const ProductsPage = () => {
                   pageNumber === totalPages || 
                   (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2)) {
                 return (
-                  <Pagination.Item 
+                  <button 
                     key={page} 
-                    active={pageNumber === currentPage}
                     onClick={() => setCurrentPage(pageNumber)}
+                    className={`mx-1 min-w-[2rem] h-8 flex items-center justify-center rounded ${
+                      pageNumber === currentPage 
+                        ? 'bg-primary-500 text-white' 
+                        : 'text-primary-700 hover:bg-primary-50'
+                    }`}
                   >
                     {pageNumber}
-                  </Pagination.Item>
+                  </button>
                 );
               } else if (pageNumber === currentPage - 3 || pageNumber === currentPage + 3) {
-                return <Pagination.Ellipsis key={page} />;
+                return <span key={page} className="mx-1">...</span>;
               }
               return null;
             })}
             
-            <Pagination.Next 
+            <button 
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
               disabled={currentPage === totalPages}
-            />
-            <Pagination.Last 
+              className={`mx-1 px-2 py-1 rounded ${
+                currentPage === totalPages 
+                  ? 'text-neutral-400 cursor-not-allowed' 
+                  : 'text-primary-700 hover:bg-primary-50'
+              }`}
+            >
+              <i className="bi bi-chevron-right"></i>
+            </button>
+            
+            <button 
               onClick={() => setCurrentPage(totalPages)} 
               disabled={currentPage === totalPages}
-            />
-          </Pagination>
+              className={`mx-1 px-2 py-1 rounded ${
+                currentPage === totalPages 
+                  ? 'text-neutral-400 cursor-not-allowed' 
+                  : 'text-primary-700 hover:bg-primary-50'
+              }`}
+            >
+              <i className="bi bi-chevron-double-right"></i>
+            </button>
+          </nav>
         </div>
       )}
-    </Container>
+    </div>
   );
 };
 

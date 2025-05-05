@@ -1,11 +1,11 @@
-import React from 'react';
-import { Nav, Accordion } from 'react-bootstrap';
+import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 const AdminSidebar = () => {
   const location = useLocation();
   const { user } = useSelector((state) => state.auth);
+  const [expandedMenus, setExpandedMenus] = useState({});
   
   // Check if the current route starts with the given path
   const isActive = (path) => {
@@ -21,6 +21,13 @@ const AdminSidebar = () => {
     }
     
     return user.role === requiredRoles;
+  };
+  
+  const toggleSubmenu = (index) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
   };
   
   // Admin sidebar links with their required roles
@@ -140,78 +147,99 @@ const AdminSidebar = () => {
   ];
   
   return (
-    <div className="admin-sidebar bg-dark text-white p-3">
-      <h5 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-2 mb-4 text-white">
-        <span>B2B Admin</span>
-      </h5>
+    <div className="h-full flex flex-col p-4 text-white">
+      <div className="flex items-center justify-center mb-6 pt-2">
+        <h1 className="text-xl font-bold text-white">AliTools B2B</h1>
+      </div>
       
-      <Nav className="flex-column">
-        {sidebarLinks.map((link, index) => {
-          // Skip links that the user doesn't have permission for
-          if (!hasRole(link.roles)) return null;
-          
-          // If the link has a submenu, render it as an accordion
-          if (link.submenu) {
-            return (
-              <Accordion 
-                key={index} 
-                className="sidebar-accordion mb-2"
-                defaultActiveKey={isActive(link.path) ? `panel-${index}` : null}
-              >
-                <Accordion.Item eventKey={`panel-${index}`} className="bg-dark border-0">
-                  <Accordion.Header className="sidebar-accordion-header">
-                    <i className={`bi ${link.icon} me-2`}></i>
-                    {link.name}
-                  </Accordion.Header>
-                  <Accordion.Body className="p-0">
-                    <Nav className="flex-column ps-3 my-2">
+      <nav className="flex-1 overflow-y-auto">
+        <ul className="space-y-2">
+          {sidebarLinks.map((link, index) => {
+            // Skip links that the user doesn't have permission for
+            if (!hasRole(link.roles)) return null;
+            
+            // Check if the link is active
+            const active = isActive(link.path);
+            
+            // Set the expanded state based on active state
+            if (active && !expandedMenus[index]) {
+              expandedMenus[index] = true;
+            }
+            
+            // If the link has a submenu, render it as a collapsible menu
+            if (link.submenu) {
+              return (
+                <li key={index}>
+                  <button
+                    className={`w-full flex items-center justify-between p-2 rounded-md transition-smooth ${
+                      active ? 'bg-primary-600 text-white' : 'text-neutral-100 hover:bg-primary-600/50'
+                    }`}
+                    onClick={() => toggleSubmenu(index)}
+                  >
+                    <div className="flex items-center">
+                      <i className={`bi ${link.icon} mr-3 text-lg`}></i>
+                      <span>{link.name}</span>
+                    </div>
+                    <i className={`bi ${expandedMenus[index] ? 'bi-chevron-down' : 'bi-chevron-right'}`}></i>
+                  </button>
+                  
+                  {expandedMenus[index] && (
+                    <ul className="pl-6 mt-2 space-y-1">
                       {link.submenu.map((submenu, subIndex) => (
-                        <Nav.Item key={subIndex}>
+                        <li key={subIndex}>
                           <NavLink
                             to={submenu.path}
                             className={({ isActive }) =>
-                              `nav-link py-2 ${isActive ? 'active' : ''}`
+                              `block p-2 rounded-md transition-smooth ${
+                                isActive 
+                                  ? 'bg-primary-500/30 text-white' 
+                                  : 'text-neutral-300 hover:bg-primary-500/20 hover:text-white'
+                              }`
                             }
                           >
-                            <i className="bi bi-arrow-right-short me-1"></i>
-                            {submenu.name}
+                            <div className="flex items-center">
+                              <i className="bi bi-arrow-right-short mr-2"></i>
+                              <span>{submenu.name}</span>
+                            </div>
                           </NavLink>
-                        </Nav.Item>
+                        </li>
                       ))}
-                    </Nav>
-                  </Accordion.Body>
-                </Accordion.Item>
-              </Accordion>
+                    </ul>
+                  )}
+                </li>
+              );
+            }
+            
+            // Otherwise, render a regular link
+            return (
+              <li key={index}>
+                <NavLink
+                  to={link.path}
+                  className={({ isActive }) =>
+                    `flex items-center p-2 rounded-md transition-smooth ${
+                      isActive 
+                        ? 'bg-primary-600 text-white' 
+                        : 'text-neutral-100 hover:bg-primary-600/50'
+                    }`
+                  }
+                >
+                  <i className={`bi ${link.icon} mr-3 text-lg`}></i>
+                  <span>{link.name}</span>
+                </NavLink>
+              </li>
             );
-          }
-          
-          // Otherwise, render a regular link
-          return (
-            <Nav.Item key={index} className="mb-2">
-              <NavLink
-                to={link.path}
-                className={({ isActive }) =>
-                  `nav-link py-2 ${isActive ? 'active' : ''}`
-                }
-              >
-                <i className={`bi ${link.icon} me-2`}></i>
-                {link.name}
-              </NavLink>
-            </Nav.Item>
-          );
-        })}
-      </Nav>
+          })}
+        </ul>
+      </nav>
       
-      <div className="mt-5 pt-3 border-top border-secondary">
-        <div className="px-3 py-2 d-flex align-items-center">
-          <div className="d-flex align-items-center">
-            <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style={{ width: '32px', height: '32px' }}>
-              <i className="bi bi-person"></i>
-            </div>
-            <div>
-              <div className="small text-white">{user?.name || 'User'}</div>
-              <div className="small text-muted">{user?.role || 'Role'}</div>
-            </div>
+      <div className="mt-auto pt-4 border-t border-primary-600">
+        <div className="flex items-center p-2">
+          <div className="flex-shrink-0 mr-3 bg-secondary-500 text-white rounded-full w-10 h-10 flex items-center justify-center">
+            <i className="bi bi-person"></i>
+          </div>
+          <div>
+            <div className="text-sm font-medium text-white">{user?.name || 'User'}</div>
+            <div className="text-xs text-primary-300">{user?.role || 'Role'}</div>
           </div>
         </div>
       </div>
