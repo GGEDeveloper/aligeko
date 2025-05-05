@@ -21,8 +21,7 @@ Category.init({
   modelName: 'Category',
   tableName: 'categories',
   timestamps: true,
-  underscored: true, // Use snake_case for table fields
-  freezeTableName: true
+  underscored: true // Ensure column names use snake_case
 });
 
 export default Category; 

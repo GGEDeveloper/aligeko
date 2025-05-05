@@ -14,18 +14,14 @@ Unit.init({
   },
   moq: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    validate: {
-      min: 1
-    }
+    allowNull: false
   }
 }, {
   sequelize,
   modelName: 'Unit',
   tableName: 'units',
   timestamps: true,
-  underscored: true,
-  freezeTableName: true
+  underscored: true // Ensure column names use snake_case
 });
 
 export default Unit; 

@@ -4,53 +4,69 @@ import Product from './product.model';
 import Category from './category.model';
 import Producer from './producer.model';
 import Unit from './unit.model';
-// Import other models here
-// import Order from './order.model';
-// import Customer from './customer.model';
+import Variant from './variant.model';
+import Stock from './stock.model';
+import Price from './price.model';
+import Image from './image.model';
+import Customer from './customer.model';
+import Address from './address.model';
+import Order from './order.model';
+import OrderItem from './order-item.model';
+import Shipment from './shipment.model';
 
 // Define model associations
 const setupAssociations = () => {
-  // Product and Category associations (many-to-many)
-  Product.belongsToMany(Category, { 
-    through: 'product_categories',
-    foreignKey: 'product_id',
-    otherKey: 'category_id',
-    as: 'categories'
-  });
-  
-  Category.belongsToMany(Product, { 
-    through: 'product_categories',
-    foreignKey: 'category_id',
-    otherKey: 'product_id',
-    as: 'products'
-  });
-  
-  // Product belongs to Producer
-  Product.belongsTo(Producer, {
-    foreignKey: 'producer_id',
-    as: 'producer'
-  });
-  
-  // Producer has many Products
-  Producer.hasMany(Product, {
-    foreignKey: 'producer_id',
-    as: 'products'
-  });
-  
-  // Product belongs to Unit
-  Product.belongsTo(Unit, {
-    foreignKey: 'unit_id',
-    as: 'unit'
-  });
-  
-  // Unit has many Products
-  Unit.hasMany(Product, {
-    foreignKey: 'unit_id',
-    as: 'products'
-  });
-  
-  // Example: User.hasMany(Order);
-  // Example: Order.belongsTo(User);
+  // User -> Customer
+  User.hasOne(Customer, { foreignKey: 'user_id' });
+  Customer.belongsTo(User, { foreignKey: 'user_id' });
+
+  // Customer -> Addresses
+  Customer.hasMany(Address, { foreignKey: 'customer_id' });
+  Address.belongsTo(Customer, { foreignKey: 'customer_id' });
+
+  // Customer -> Orders
+  Customer.hasMany(Order, { foreignKey: 'customer_id' });
+  Order.belongsTo(Customer, { foreignKey: 'customer_id' });
+
+  // Address -> Orders (shipping and billing)
+  Address.hasMany(Order, { foreignKey: 'shipping_address_id', as: 'ShippingAddress' });
+  Address.hasMany(Order, { foreignKey: 'billing_address_id', as: 'BillingAddress' });
+  Order.belongsTo(Address, { foreignKey: 'shipping_address_id', as: 'ShippingAddress' });
+  Order.belongsTo(Address, { foreignKey: 'billing_address_id', as: 'BillingAddress' });
+
+  // Order -> OrderItems
+  Order.hasMany(OrderItem, { foreignKey: 'order_id' });
+  OrderItem.belongsTo(Order, { foreignKey: 'order_id' });
+
+  // Order -> Shipments
+  Order.hasMany(Shipment, { foreignKey: 'order_id' });
+  Shipment.belongsTo(Order, { foreignKey: 'order_id' });
+
+  // Product -> Variants
+  Product.hasMany(Variant, { foreignKey: 'product_id' });
+  Variant.belongsTo(Product, { foreignKey: 'product_id' });
+
+  // Variant -> Stock
+  Variant.hasMany(Stock, { foreignKey: 'variant_id' });
+  Stock.belongsTo(Variant, { foreignKey: 'variant_id' });
+
+  // Variant -> Price
+  Variant.hasMany(Price, { foreignKey: 'variant_id' });
+  Price.belongsTo(Variant, { foreignKey: 'variant_id' });
+
+  // Variant -> OrderItem
+  Variant.hasMany(OrderItem, { foreignKey: 'variant_id' });
+  OrderItem.belongsTo(Variant, { foreignKey: 'variant_id' });
+
+  // Product -> Images
+  Product.hasMany(Image, { foreignKey: 'product_id' });
+  Image.belongsTo(Product, { foreignKey: 'product_id' });
+
+  // User -> Order (approvals and cancellations)
+  User.hasMany(Order, { foreignKey: 'approved_by', as: 'ApprovedOrders' });
+  User.hasMany(Order, { foreignKey: 'cancelled_by', as: 'CancelledOrders' });
+  Order.belongsTo(User, { foreignKey: 'approved_by', as: 'ApprovedBy' });
+  Order.belongsTo(User, { foreignKey: 'cancelled_by', as: 'CancelledBy' });
 };
 
 // Initialize associations
@@ -63,9 +79,15 @@ export {
   Category,
   Producer,
   Unit,
-  // Export other models
-  // Order,
-  // Customer
+  Variant,
+  Stock,
+  Price,
+  Image,
+  Customer,
+  Address,
+  Order,
+  OrderItem,
+  Shipment
 };
 
 export default {
@@ -75,6 +97,13 @@ export default {
   Category,
   Producer,
   Unit,
-  // Order,
-  // Customer
+  Variant,
+  Stock,
+  Price,
+  Image,
+  Customer,
+  Address,
+  Order,
+  OrderItem,
+  Shipment
 }; 

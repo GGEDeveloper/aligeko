@@ -1,25 +1,32 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
 
-class Producer extends Model {}
+class Image extends Model {}
 
-Producer.init({
+Image.init({
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
   },
-  name: {
-    type: DataTypes.TEXT,
+  product_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-    unique: true
+    references: {
+      model: 'products',
+      key: 'id'
+    }
+  },
+  url: {
+    type: DataTypes.TEXT,
+    allowNull: false
   }
 }, {
   sequelize,
-  modelName: 'Producer',
-  tableName: 'producers',
+  modelName: 'Image',
+  tableName: 'images',
   timestamps: true,
   underscored: true // Ensure column names use snake_case
 });
 
-export default Producer; 
+export default Image; 

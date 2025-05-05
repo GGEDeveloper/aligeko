@@ -20,10 +20,7 @@ Product.init({
   ean: {
     type: DataTypes.TEXT,
     allowNull: true,
-    unique: true,
-    validate: {
-      is: /^\d{13}$/
-    }
+    unique: true
   },
   producer_code: {
     type: DataTypes.TEXT,
@@ -55,40 +52,14 @@ Product.init({
   },
   url: {
     type: DataTypes.TEXT,
-    allowNull: true,
-    validate: {
-      isUrl: true
-    }
-  },
-  producer_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'producers',
-      key: 'id'
-    }
-  },
-  unit_id: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-    references: {
-      model: 'units',
-      key: 'id'
-    }
+    allowNull: true
   }
 }, {
   sequelize,
   modelName: 'Product',
   tableName: 'products',
   timestamps: true,
-  underscored: true, // Use snake_case for table fields
-  freezeTableName: true,
-  indexes: [
-    {
-      name: 'idx_products_name',
-      fields: ['name']
-    }
-  ]
+  underscored: true // Ensure column names use snake_case
 });
 
 export default Product; 
