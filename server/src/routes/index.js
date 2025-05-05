@@ -1,9 +1,9 @@
 import { Router } from 'express';
 // Import route modules
 import authRoutes from './auth.routes';
-// import productRoutes from './product.routes';
-// import orderRoutes from './order.routes';
-// import customerRoutes from './customer.routes';
+import productRoutes from './product.routes';
+import customerRoutes from './customer.routes';
+import orderRoutes from './order.routes';
 // import adminRoutes from './admin.routes';
 
 const router = Router();
@@ -13,9 +13,9 @@ const API_PREFIX = '/v1';
 
 // Define routes
 router.use(`${API_PREFIX}/auth`, authRoutes);
-// router.use(`${API_PREFIX}/products`, productRoutes);
-// router.use(`${API_PREFIX}/orders`, orderRoutes);
-// router.use(`${API_PREFIX}/customers`, customerRoutes);
+router.use(`${API_PREFIX}/products`, productRoutes);
+router.use(`${API_PREFIX}/customers`, customerRoutes);
+router.use(`${API_PREFIX}/orders`, orderRoutes);
 // router.use(`${API_PREFIX}/admin`, adminRoutes);
 
 // API documentation route
