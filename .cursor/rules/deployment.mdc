@@ -1,0 +1,144 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Deployment Patterns
+
+This rule documents the standard deployment patterns for the AliTools B2B E-commerce platform.
+
+## Vercel Deployment
+
+- **Required Configuration:**
+  - `vercel.json` in project root (see example below)
+  - Environment variables in Vercel dashboard
+  - Database migration strategy
+
+- **File References:**
+  - [vercel.json](mdc:vercel.json) - Vercel configuration
+  - [database.js](mdc:server/src/config/database.js) - Database configuration
+  - [Deployment Guide](mdc:server/docs/deployment/vercel-neon-deployment.md) - Step-by-step instructions
+
+- **Standard `vercel.json` Configuration:**
+  ```json
+  {
+    "version": 2,
+    "builds": [
+      {
+        "src": "server/dist/index.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "client/build/**",
+        "use": "@vercel/static"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/api/(.*)",
+        "dest": "server/dist/index.js"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "client/build/$1"
+      }
+    ],
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+  ```
+
+## Database Configuration
+
+- **Neon PostgreSQL:**
+  - Use `NEON_DB_URL` environment variable
+  - SSL configuration required
+  - Database models sync only in development
+
+- **✅ DO: Configure database connection with production mode:**
+  ```javascript
+  // Proper Neon configuration
+  if (NODE_ENV === 'production' && NEON_DB_URL) {
+    sequelize = new Sequelize(NEON_DB_URL, {
+      dialect: 'postgres',
+      logging: false,
+      ssl: true,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      }
+    });
+  }
+  ```
+
+- **❌ DON'T: Use hardcoded credentials or sync in production:**
+  ```javascript
+  // Never do this
+  sequelize = new Sequelize('database', 'username', 'password', {
+    host: 'localhost',
+    dialect: 'postgres'
+  });
+  
+  // Avoid model syncing in production
+  await sequelize.sync({ force: true }); // DANGEROUS in production!
+  ```
+
+## Environment Variables
+
+- **Required Variables:**
+  - `NODE_ENV=production`
+  - `JWT_SECRET=your_strong_jwt_secret`
+  - `JWT_EXPIRATION=1h`
+  - `JWT_REFRESH_EXPIRATION=7d`
+  - `NEON_DB_URL=postgres://user:password@host/dbname?sslmode=require`
+
+- **Variable Storage:**
+  - Store in Vercel dashboard under "Environment Variables"
+  - Never commit secrets to the repository
+  - Use `.env.example` for documenting required variables
+
+## Migrations
+
+- **Strategy Options:**
+  - Manual migration before deployment
+  - Post-deployment hooks
+  - Migration service/serverless function
+
+- **✅ DO: Use sequelize-cli for migrations:**
+  ```bash
+  # Run migrations against production database
+  NODE_ENV=production NEON_DB_URL=your_connection_string npm run db:migrate
+  ```
+
+- **❌ DON'T: Use sync() in production:**
+  ```javascript
+  // Avoid using sync() as it can destroy data
+  sequelize.sync({ force: true }); // NEVER in production
+  ```
+
+## Test Strategy
+
+- Create a staging deployment first
+- Verify API endpoints with Postman/Insomnia
+- Test database connections and queries
+- Validate authentication flows
+- Check client-side rendering and API integrations
+
+## Monitoring & Debugging
+
+- Use Vercel deployment logs
+- Set up error tracking (Sentry recommended)
+- Monitor database performance with Neon tools
+- Check SSL/TLS certificate validity
+
+## Rollback Procedure
+
+1. Identify the last stable deployment in Vercel
+2. Use Vercel's "Rollback" feature
+3. Verify database schema compatibility
+4. Test critical functionality after rollback
+
+

@@ -1,0 +1,77 @@
+# Ali Tools B2B E-commerce Platform - Product Requirements Document
+
+## Project Overview
+Ali Tools B2B E-commerce is a wholesale tool distribution platform enabling approved merchants to view prices and place orders. The platform integrates with the GEKO API for real-time inventory management and includes secure login, product management, order processing, and basic shipment tracking.
+
+## Technical Architecture
+- Frontend: React.js with Redux Toolkit, React Router, and Tailwind CSS
+- Backend: Node.js with Express.js and Sequelize ORM
+- Database: PostgreSQL hosted on Neon
+- Deployment: Vercel (development) and Dominios.pt (production)
+
+## Core Requirements
+
+### Authentication and Authorization
+1. Secure login system using JWT with password hashing via bcrypt
+2. Two-factor authentication required for admin users, optional for customers
+3. Role-based access control (admin vs. customer)
+4. Customer registration with approval workflow
+
+### Product Management
+1. Integration with GEKO API for product data
+2. Product listing with prices hidden for unauthenticated users
+3. Product categorization and search functionality
+4. Image management with format and dimension constraints
+
+### Order Processing
+1. Shopping cart functionality
+2. Order placement with approval workflow
+3. Manual verification for orders above threshold
+4. Order status tracking
+
+### Admin Features
+1. Customer approval management
+2. Order approval and processing
+3. Product catalog management
+4. Reporting and analytics
+
+### Customer Features
+1. Product browsing and search
+2. Price visibility (authenticated only)
+3. Order history and tracking
+4. Account management
+
+## User Interface
+- Clean, professional, and modern aesthetic reflecting AliTools brand identity
+- Responsive design with mobile-first approach
+- Accessible according to WCAG 2.1 AA standards
+- Standardized UI components ensuring consistency
+
+## Integration Requirements
+1. GEKO API integration for inventory and product data
+2. Regular synchronization with configurable frequency
+3. Error handling and conflict resolution strategies
+
+## Performance Requirements
+1. API response time SLAs for different endpoint types
+2. Caching strategies for different data types
+3. Resource limits for database connections and API requests
+
+## Security Requirements
+1. CSRF protection
+2. Input sanitization
+3. Parameterized queries
+4. Authorization checks
+5. Encryption for sensitive data
+
+## Future Enhancements
+1. Personalized product lists
+2. Saved shopping carts
+3. Custom pricing per customer
+4. Enhanced analytics
+5. Advanced shipment tracking
+
+## Compliance Requirements
+1. Data retention policies in line with regulations
+2. Privacy protection for customer data
+3. Secure handling of business information 
