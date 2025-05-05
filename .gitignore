@@ -1,5 +1,26 @@
+# Dependency directories
+node_modules/
+.pnp/
+.pnp.js
+
+# Build output
+dist/
+build/
+out/
+.next/
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -23,7 +44,18 @@ node_modules/
 
 # OS specific
 .DS_Store
+Thumbs.db
 
 # Task files
 tasks.json
-tasks/ 
+tasks/
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Cursor specific (contém chaves de API)
+.cursor/mcp.json
+.cursorrules 
