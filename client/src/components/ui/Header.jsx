@@ -16,27 +16,27 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow-md">
+    <header className="bg-white shadow-soft">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-blue-700">AliTools</span>
-            <span className="text-sm font-medium text-gray-600">B2B</span>
+            <span className="text-xl font-bold text-primary-500">AliTools</span>
+            <span className="text-sm font-medium text-secondary-500">B2B</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-blue-600">
+            <Link to="/" className="text-neutral-800 hover:text-primary-600 transition-smooth">
               Home
             </Link>
-            <Link to="/products" className="text-gray-700 hover:text-blue-600">
+            <Link to="/products" className="text-neutral-800 hover:text-primary-600 transition-smooth">
               Products
             </Link>
-            <Link to="/about" className="text-gray-700 hover:text-blue-600">
+            <Link to="/about" className="text-neutral-800 hover:text-primary-600 transition-smooth">
               About
             </Link>
-            <Link to="/contact" className="text-gray-700 hover:text-blue-600">
+            <Link to="/contact" className="text-neutral-800 hover:text-primary-600 transition-smooth">
               Contact
             </Link>
           </nav>
@@ -45,18 +45,18 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-neutral-700">
                   Welcome, {user?.firstName}
                 </span>
                 <Link
                   to="/dashboard"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-primary-600 hover:text-primary-700 transition-smooth"
                 >
                   Dashboard
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                  className="btn-danger"
                 >
                   Logout
                 </button>
@@ -65,13 +65,13 @@ const Header = () => {
               <>
                 <Link
                   to="/login"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-primary-600 hover:text-primary-700 transition-smooth"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  className="btn-primary"
                 >
                   Register
                 </Link>
@@ -85,7 +85,7 @@ const Header = () => {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <svg
-              className="w-6 h-6"
+              className="w-6 h-6 text-primary-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -112,32 +112,32 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 pt-4 border-t">
+          <div className="md:hidden mt-4 pt-4 border-t border-neutral-300">
             <nav className="flex flex-col space-y-4">
               <Link
                 to="/"
-                className="text-gray-700 hover:text-blue-600"
+                className="text-neutral-800 hover:text-primary-600 transition-smooth"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 to="/products"
-                className="text-gray-700 hover:text-blue-600"
+                className="text-neutral-800 hover:text-primary-600 transition-smooth"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Products
               </Link>
               <Link
                 to="/about"
-                className="text-gray-700 hover:text-blue-600"
+                className="text-neutral-800 hover:text-primary-600 transition-smooth"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About
               </Link>
               <Link
                 to="/contact"
-                className="text-gray-700 hover:text-blue-600"
+                className="text-neutral-800 hover:text-primary-600 transition-smooth"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
@@ -147,7 +147,7 @@ const Header = () => {
                 <>
                   <Link
                     to="/dashboard"
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-primary-600 hover:text-primary-700 transition-smooth"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dashboard
@@ -157,7 +157,7 @@ const Header = () => {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-left"
+                    className="btn-danger text-left"
                   >
                     Logout
                   </button>
@@ -166,14 +166,14 @@ const Header = () => {
                 <>
                   <Link
                     to="/login"
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-primary-600 hover:text-primary-700 transition-smooth"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-center"
+                    className="btn-primary text-center"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Register
