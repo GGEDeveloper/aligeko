@@ -1,30 +1,32 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "server/dist/index.js",
-      "use": "@vercel/node"
+    { 
+      "src": "api/index.js", 
+      "use": "@vercel/node",
+      "config": {
+        "build": {
+          "commands": [
+            "cd server && npm run build && npm run db:migrate:prod && npm run db:seed:prod"
+          ]
+        }
+      }
     },
-    {
-      "src": "client/dist/**",
-      "use": "@vercel/static"
-    }
+    { "src": "client/dist/**", "use": "@vercel/static" }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server/dist/index.js"
-    },
-    {
-      "src": "/(.*\\.(js|css|ico|png|jpg|svg|json))",
-      "dest": "client/dist/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "client/dist/index.html"
-    }
+    { "src": "/api/(.*)", "dest": "api/index.js" },
+    { "src": "/(.*)", "dest": "client/dist/$1" }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "NEON_DB_URL": "postgres://neondb_owner:npg_NEjIVhxi8JZ2@ep-young-scene-abkud0t0-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require",
+    "DB_SSL": "true",
+    "DB_HOST": "ep-young-scene-abkud0t0-pooler.eu-west-2.aws.neon.tech",
+    "DB_PORT": "5432",
+    "DB_USER": "neondb_owner",
+    "DB_PASSWORD": "npg_NEjIVhxi8JZ2",
+    "DB_NAME": "neondb",
+    "SEED_DATA": "true"
   }
 } 

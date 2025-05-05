@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 
 // Layouts
 import MainLayout from './components/layouts/MainLayout';
+import AdminLayout from './components/layouts/AdminLayout';
 
 // Components
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -21,6 +22,10 @@ import TwoFactorSettingsPage from './pages/auth/TwoFactorSettingsPage';
 // User
 import DashboardPage from './pages/user/DashboardPage';
 
+// Product Pages
+import ProductsPage from './pages/ProductsPage';
+import ProductDetailPage from './pages/ProductDetailPage';
+
 function App() {
   return (
     <>
@@ -37,12 +42,19 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
         
-        {/* Protected routes */}
+        {/* Protected routes - Admin Layout */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<MainLayout />}>
+          <Route element={<AdminLayout />}>
             <Route path="dashboard" element={<DashboardPage />} />
+            
+            {/* Product routes */}
+            <Route path="products" element={<ProductsPage />} />
+            <Route path="products/:id" element={<ProductDetailPage />} />
+            
+            {/* Account routes */}
             <Route path="account/two-factor" element={<TwoFactorSettingsPage />} />
-            {/* Adicionar mais rotas protegidas aqui */}
+            
+            {/* More admin routes can be added here */}
           </Route>
         </Route>
       </Routes>

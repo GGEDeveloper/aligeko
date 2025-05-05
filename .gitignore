@@ -59,3 +59,4 @@ tasks/
 # Cursor specific (contém chaves de API)
 .cursor/mcp.json
 .cursorrules 
+.vercel

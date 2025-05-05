@@ -22,4 +22,4 @@ Producer.init({
   underscored: true // Ensure column names use snake_case
 });
 
-export default Producer; 
+export default Producer;

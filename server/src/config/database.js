@@ -13,13 +13,27 @@ const {
   DB_NAME,
   DB_SSL,
   NEON_DB_URL,
+  POSTGRES_URL,  // Vercel Postgres connection string
   NODE_ENV
 } = process.env;
 
 // Create Sequelize instance
 let sequelize;
 
-if (NODE_ENV === 'production' && NEON_DB_URL) {
+// Prioridade: POSTGRES_URL (Vercel) > NEON_DB_URL > configuração individual
+if (NODE_ENV === 'production' && POSTGRES_URL) {
+  // Use Vercel Postgres connection URL
+  sequelize = new Sequelize(POSTGRES_URL, {
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
+  });
+} else if (NODE_ENV === 'production' && NEON_DB_URL) {
   // Use Neon DB URL for production
   sequelize = new Sequelize(NEON_DB_URL, {
     dialect: 'postgres',
