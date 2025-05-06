@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Logo from './Logo';
 
 /**
  * Footer component that follows the AliTools design system
@@ -19,13 +20,14 @@ const Footer = ({
   if (simplified) {
     return (
       <footer className={`bg-white border-t border-neutral-200 py-4 ${className}`} {...props}>
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 sm:px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <img 
-                src="/client/src/assets/logos/png/primary/alitools_primary_fullcolor_100px.png" 
-                alt="AliTools" 
-                className="h-8"
+            <div className="mb-4 md:mb-0 p-2">
+              <Logo 
+                variant="primary" 
+                size="medium" 
+                withLink={true}
+                className="m-1"
               />
             </div>
             <div className="text-sm text-neutral-500">
@@ -40,16 +42,17 @@ const Footer = ({
   // Full footer for main pages
   return (
     <footer className={`bg-primary text-white ${className}`} {...props}>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-6 sm:px-4 py-8">
         {/* Main footer content */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and about */}
           <div className="col-span-1">
-            <div className="mb-4">
-              <img 
-                src="/client/src/assets/logos/png/mono/alitools_mono_white.png" 
-                alt="AliTools" 
-                className="h-10"
+            <div className="mb-6 p-3">
+              <Logo 
+                variant="mono" 
+                size="large" 
+                withLink={true}
+                className="m-1"
               />
             </div>
             <p className="text-neutral-300 mb-4">

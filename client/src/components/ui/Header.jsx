@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import logo from '../../assets/logos/png/primary/alitools_primary_fullcolor_100px.png';
+import Logo from './Logo';
 
 /**
  * Header component that follows the AliTools design system
@@ -27,21 +27,20 @@ const Header = ({
       className={`bg-white border-b border-neutral-200 shadow-sm w-full z-20 ${className}`}
       {...props}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6 sm:px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <a href="/" className="flex items-center">
-              <img 
-                src={logo} 
-                alt="AliTools" 
-                className="h-10"
-              />
-            </a>
+          {/* Logo - Agora usando o componente Logo com tamanho correto */}
+          <div className="flex-shrink-0 mr-8 md:mr-6 sm:mr-4 py-4">
+            <Logo 
+              variant="primary" 
+              size="medium" 
+              linkTo="/" 
+              className="m-1"
+            />
           </div>
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex space-x-6">
             <a href="/products" className="text-primary hover:text-brand transition-colors font-medium">
               Produtos
             </a>

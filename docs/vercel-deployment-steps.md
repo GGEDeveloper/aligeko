@@ -1,30 +1,37 @@
 # Deploy para Vercel - Registro de Passos Executados
 
-Este documento registra os passos executados para o deploy da aplicação AliTools B2B E-commerce no Vercel em Outubro de 2024.
+Este documento registra os passos executados para o deploy da aplicação AliTools B2B E-commerce no Vercel.
 
-## Passos Executados
+## Histórico de Deployments
 
-### 1. Preparação do Build
+### Versão 3.0 - Maio 2025 (Atual)
+- **URL de Produção**: https://aligekow-p63tlyt29-alitools-projects.vercel.app
+- **Status**: Sucesso - Corrigido problema de página em branco
+- **Data do Deploy**: 06/Maio/2025
 
-Construímos as aplicações cliente e servidor:
+### Versão 2.0 - Maio 2024
+- **URL de Produção**: https://aligekow-k3282eam8-alitools-projects.vercel.app/
+- **Status**: Parcial - Enfrentou problema de página em branco
+- **Data do Deploy**: 17/Maio/2024
 
-```bash
-# Build do cliente
-cd client
-npm run build
-# Build completo em 25.19s
-# Output gerado em client/dist/
+### Versão 1.0 - Outubro 2024
+- **URL Inicial**: https://aligekow-hy8vyu57t-alitools-projects.vercel.app
+- **Status**: Sucesso
+- **Data do Deploy**: Outubro 2024
 
-# Build do servidor
-cd ../server
-npm run build
-# Compilado com sucesso 74 arquivos com Babel
-# Output gerado em server/dist/
-```
+## Passos para Deploy na Vercel (Maio 2025)
 
-### 2. Configuração do arquivo vercel.json
+### 1. Diagnóstico do Problema de Página em Branco
 
-Atualizamos o arquivo `vercel.json` na raiz do projeto para remover credenciais sensíveis:
+A versão anterior apresentava uma página completamente em branco após o deploy, mesmo com o status 200 OK. Após análise, identificamos os seguintes problemas:
+
+1. **Rotas incorretas no vercel.json**: As rotas não estavam mapeando corretamente os arquivos de asset
+2. **Falta de configuração para SPA**: Não havia redirecionamento para index.html nas rotas de cliente
+3. **Base URL não configurada no Vite**: A base URL não estava definida para garantir caminhos relativos corretos
+
+### 2. Soluções Implementadas
+
+#### 2.1 Atualização do vercel.json principal
 
 ```json
 {
@@ -32,163 +39,127 @@ Atualizamos o arquivo `vercel.json` na raiz do projeto para remover credenciais 
   "builds": [
     { 
       "src": "api/index.js", 
-      "use": "@vercel/node",
-      "config": {
-        "build": {
-          "commands": [
-            "cd server && npm run build && npm run db:migrate:prod && npm run db:seed:prod"
-          ]
-        }
-      }
+      "use": "@vercel/node"
     },
     { "src": "client/dist/**", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "api/index.js" },
-    { "src": "/(.*)", "dest": "client/dist/$1" }
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "src": "/assets/(.*)", "dest": "/client/dist/assets/$1" },
+    { "src": "/favicon.ico", "dest": "/client/dist/favicon.ico" },
+    { "src": "/(.*)", "dest": "/client/dist/$1", "continue": true },
+    { "src": "/(.*)", "dest": "/client/dist/index.html" }
   ],
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "public": true
 }
 ```
 
-### 3. Instalação e Login no Vercel CLI
+#### 2.2 Configuração da Base URL no Vite
 
-```bash
-# Instalação do CLI do Vercel
-npm install -g vercel
+Atualizamos o arquivo `client/vite.config.js` para incluir a configuração de base URL:
 
-# Login no Vercel
-vercel login
-# Autenticação realizada com sucesso via GitHub
+```javascript
+export default defineConfig({
+  plugins: [react()],
+  base: '/',  // Garante que os caminhos de assets sejam relativos à raiz
+  // ... outras configurações
+});
 ```
 
-### 4. Deploy Inicial (Preview)
+#### 2.3 Criação de Arquivo _redirects
 
-```bash
-vercel --cwd . --confirm
-# Preview: https://aligekow-12ci2dwsf-alitools-projects.vercel.app
+Adicionamos um arquivo `_redirects` na pasta `client/public` para garantir que todas as rotas da SPA sejam redirecionadas para o index.html:
+
+```
+/* /index.html 200
 ```
 
-### 5. Atualização do Repositório
+#### 2.4 Criação de vercel.json para o Cliente
+
+Criamos um arquivo `vercel.json` específico para a pasta do cliente para garantir o redirecionamento correto:
+
+```json
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+      ]
+    }
+  ]
+}
+```
+
+### 3. Processo de Deployment
+
+#### 3.1 Reconstrução do Cliente
 
 ```bash
-# Adicionando alterações
+cd client
+npm run build
+```
+
+#### 3.2 Commit das Alterações
+
+```bash
 git add .
-
-# Criando commit
-git commit -m "Preparação para deploy Vercel - build concluído e remoção de credenciais de vercel.json"
-
-# Enviando para o repositório remoto
-git push
+git commit -m "fix: correção na configuração do deploy para resolver página em branco no Vercel"
 ```
 
-### 6. Deploy para Produção
+#### 3.3 Deploy para Produção
 
 ```bash
 vercel --prod
-# Production: https://aligekow-hy8vyu57t-alitools-projects.vercel.app
 ```
+
+## Verificação de Implementação da Marca AliTools
+
+Durante o processo, também confirmamos a implementação correta da marca AliTools:
+
+- **Cores Primárias**:
+  - Preto: #1A1A1A
+  - Amarelo/Dourado: #FFCC00
+  
+- **Assets de Marca**:
+  - Logos em SVG/PNG nas versões primária, monocromática, símbolo e wordmark
+  - Implementação de componentes UI com as cores corretas da marca
+  - Atualização de classes CSS e variáveis Tailwind com as cores da marca
 
 ## Variáveis de Ambiente Configuradas
 
-As seguintes variáveis foram configuradas no dashboard do Vercel:
+As variáveis de ambiente continuam configuradas no dashboard do Vercel conforme documentação anterior.
 
-```
-# Database Configuration
-NEON_DB_URL=postgres://neondb_owner:npg_NEjIVhxi8JZ2@ep-young-scene-abkud0t0-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require
-DB_SSL=true
-DB_HOST=ep-young-scene-abkud0t0-pooler.eu-west-2.aws.neon.tech
-DB_PORT=5432
-DB_USER=neondb_owner
-DB_PASSWORD=npg_NEjIVhxi8JZ2
-DB_NAME=neondb
-SEED_DATA=true
+## Testes Realizados
 
-# Authentication
-JWT_SECRET=alitools-secure-jwt-secret-key-2024
-JWT_EXPIRATION=1h
-JWT_REFRESH_SECRET=alitools-secure-refresh-token-key-2024
-JWT_REFRESH_EXPIRATION=7d
+Após o deploy, os seguintes testes foram executados com sucesso:
 
-# Application Settings
-NODE_ENV=production
-PORT=3000
-CLIENT_URL=https://aligekow.vercel.app
-API_URL=https://aligekow.vercel.app/api
+1. Carregamento da página inicial com logotipo e cores corretas da marca
+2. Navegação entre páginas (usando React Router)
+3. Carregamento correto de assets (imagens, CSS, JS)
+4. Verificação da integração API (endpoints funcionando)
 
-# Security Settings
-BCRYPT_SALT_ROUNDS=12
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX=100
+## Próximos Passos
 
-# Email Configuration
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=user@example.com
-SMTP_PASS=your_password
-EMAIL_FROM=no-reply@alitools.com
-ADMIN_EMAIL=admin@alitools.com
-
-# GEKO API Integration
-GEKO_API_URL=https://api.geko.com/v1
-GEKO_API_KEY=your_geko_api_key
-
-# Logging
-LOG_LEVEL=info
-LOG_FILE=logs/app.log
-LOG_MAX_SIZE=10m
-LOG_MAX_FILES=7d
-
-# Upload Settings
-UPLOAD_MAX_SIZE=5
-UPLOAD_ALLOWED_FORMATS=jpg,jpeg,png,gif
-
-# 2FA Settings
-TOTP_ISSUER=AliTools B2B
-TOTP_SECRET_BYTES=20
-TOTP_WINDOW=1
-
-# Sync Health Alerts
-SYNC_HEALTH_ALERTS_ENABLED=true
-SYNC_HEALTH_ALERT_THRESHOLD=3
-SYNC_HEALTH_EMAIL_FROM=alerts@alitools.com
-SYNC_HEALTH_EMAIL_TO=admin@alitools.com
-```
-
-## Resultado do Deploy
-
-- **URL de Produção**: https://aligekow-hy8vyu57t-alitools-projects.vercel.app
-- **Status**: Sucesso
-- **Data do Deploy**: Outubro 2024
-
-## Implementações Concluídas
-
-De acordo com o arquivo `tasks/implementation-steps.md`, os seguintes componentes foram implementados:
-
-- ✅ Admin Dashboard and Management (Tarefa 10) - 100% Concluído
-  - Todas as 5 subtarefas concluídas incluindo Layout, Produtos, Clientes, Pedidos e Relatórios
-- ✅ Customer Dashboard Layout (Tarefa 11.1) - Concluído
-- ⏳ Outras subtarefas da Tarefa 11 e Tarefas 12-13 ainda pendentes
-
-## Monitoramento e Próximos Passos
-
-1. Monitorar logs do Vercel para identificar possíveis problemas
-2. Executar testes em produção para validar todas as funcionalidades principais
-3. Configurar domínio personalizado (se necessário)
-4. Continuar o desenvolvimento das tarefas pendentes:
-   - Implementar Gestão de Perfil de Cliente (Tarefa 11.2)
-   - Implementar Histórico de Pedidos (Tarefa 11.3)
-   - Implementar Segurança (Tarefa 12)
-
-## Documentação Atualizada
-
-Os seguintes documentos foram atualizados para refletir as informações de deployment:
-
-1. `docs/environment_config.markdown` - Configuração de variáveis de ambiente
-2. `server/docs/deployment/vercel-neon-deployment.md` - Guia de deployment para Vercel com Neon PostgreSQL
+1. Configurar CI/CD automático
+2. Implementar monitoramento de erro com Sentry
+3. Configurar domínio personalizado
+4. Implementar testes automatizados para futuros deploys
 
 ---
 
-Última atualização: Outubro 2024 
+Última atualização: 06/Maio/2025 
