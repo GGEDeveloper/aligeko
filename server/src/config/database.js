@@ -20,6 +20,25 @@ const {
 // Create Sequelize instance
 let sequelize;
 
+// Database configuration object for Sequelize CLI
+const config = {
+  development: {
+    dialect: 'postgres'
+  },
+  test: {
+    dialect: 'postgres'
+  },
+  production: {
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
+  }
+};
+
 // Prioridade: POSTGRES_URL (Vercel) > NEON_DB_URL > configuração individual
 if (NODE_ENV === 'production' && POSTGRES_URL) {
   // Use Vercel Postgres connection URL
@@ -33,8 +52,9 @@ if (NODE_ENV === 'production' && POSTGRES_URL) {
       }
     }
   });
-} else if (NODE_ENV === 'production' && NEON_DB_URL) {
-  // Use Neon DB URL for production
+  config.production.use_env_variable = 'POSTGRES_URL';
+} else if (NEON_DB_URL) {
+  // Use Neon DB URL for production or development with Neon
   sequelize = new Sequelize(NEON_DB_URL, {
     dialect: 'postgres',
     logging: false,
@@ -46,6 +66,8 @@ if (NODE_ENV === 'production' && POSTGRES_URL) {
       }
     }
   });
+  config.development.use_env_variable = 'NEON_DB_URL';
+  config.production.use_env_variable = 'NEON_DB_URL';
 } else {
   // Use local database for development
   sequelize = new Sequelize({
@@ -64,6 +86,13 @@ if (NODE_ENV === 'production' && POSTGRES_URL) {
       }
     } : {}
   });
+  
+  // Set up config for local connection
+  config.development.host = DB_HOST || 'localhost';
+  config.development.port = DB_PORT || 5432;
+  config.development.username = DB_USER || 'postgres';
+  config.development.password = DB_PASSWORD || 'postgres';
+  config.development.database = DB_NAME || 'alitools_b2b';
 }
 
 // Test database connection
@@ -88,3 +117,6 @@ export const configureDatabase = async () => {
 
 // Export the sequelize instance
 export default sequelize; 
+
+// CommonJS exports for Sequelize CLI
+module.exports = config; 

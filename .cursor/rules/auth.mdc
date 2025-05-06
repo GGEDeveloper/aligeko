@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: auth authentication middleware controllers
+globs: 
 alwaysApply: false
 ---
 # Autenticação e Autorização
@@ -170,10 +170,10 @@ export const validate = (req, res, next) => {
 
 ## Referências
 
-- [Documentação de Autenticação](server/docs/auth-api.md)
-- [Fluxo de Autenticação](server/docs/authentication-flow.md)
-- [Controlador de Autenticação](server/src/controllers/auth.controller.js)
-- [Middleware de Autenticação](server/src/middleware/auth.middleware.js)
+- [Documentação de Autenticação](mdc:server/docs/auth-api.md)
+- [Fluxo de Autenticação](mdc:server/docs/authentication-flow.md)
+- [Controlador de Autenticação](mdc:server/src/controllers/auth.controller.js)
+- [Middleware de Autenticação](mdc:server/src/middleware/auth.middleware.js)
 
 # Authentication Patterns
 

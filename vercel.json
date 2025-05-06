@@ -19,14 +19,6 @@
     { "src": "/(.*)", "dest": "client/dist/$1" }
   ],
   "env": {
-    "NODE_ENV": "production",
-    "NEON_DB_URL": "postgres://neondb_owner:npg_NEjIVhxi8JZ2@ep-young-scene-abkud0t0-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require",
-    "DB_SSL": "true",
-    "DB_HOST": "ep-young-scene-abkud0t0-pooler.eu-west-2.aws.neon.tech",
-    "DB_PORT": "5432",
-    "DB_USER": "neondb_owner",
-    "DB_PASSWORD": "npg_NEjIVhxi8JZ2",
-    "DB_NAME": "neondb",
-    "SEED_DATA": "true"
+    "NODE_ENV": "production"
   }
 } 
