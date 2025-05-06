@@ -108,23 +108,141 @@ Atualizamos o arquivo `client/vercel.json` para incluir a configuração `traili
 }
 ```
 
-## Processo de Deploy
+## Atualização - Solução Adicional
 
-Após as alterações, o processo para deploy inclui:
+Após o deploy inicial, o problema persistiu. Implementamos uma solução mais robusta:
 
-1. Reconstruir o cliente:
-   ```
-   cd client
-   npm run build
-   ```
+### 1. Criação de Servidor Express Simples
 
-2. Garantir que os arquivos `client/dist/vercel.json` e `client/dist/_redirects` estejam presentes no build
+Criamos um servidor Express no arquivo `index.js` na raiz do projeto para lidar com rotas SPAs:
 
-3. Fazer deploy normalmente para o Vercel:
-   ```
-   vercel --prod
-   ```
+```javascript
+// Simple Express server for SPA
+const express = require('express');
+const path = require('path');
+const app = express();
 
-## Resultado
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/dist')));
 
-As alterações resolvem o problema de 404 garantindo que todas as rotas no lado do cliente sejam redirecionadas corretamente para o `index.html`, permitindo que o React Router assuma o controle da navegação. 
+// API routes can be added here
+app.get('/api/hello', (req, res) => {
+  res.json({ message: 'Hello from AliTools API!' });
+});
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+});
+
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
+
+module.exports = app;
+```
+
+### 2. Simplificação do vercel.json
+
+Simplificamos o `vercel.json` na raiz do projeto para melhor compatibilidade e direcionamos todo o tráfego para o novo servidor Express:
+
+```json
+{
+  "version": 2,
+  "builds": [
+    { 
+      "src": "index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { 
+      "src": "/(.*)", 
+      "dest": "index.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "public": true
+}
+```
+
+Esta configuração é mais simples e redireciona todas as solicitações para nosso servidor Express, que então gerencia as rotas da SPA.
+
+### 3. Página 404.html no Diretório Público
+
+Adicionamos um arquivo `404.html` na pasta `client/public` que automaticamente redireciona para a página principal:
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Ali Tools B2B</title>
+    <script type="text/javascript">
+      // Código para SPA redirect baseado na solução GitHub Pages SPA
+      var pathSegmentsToKeep = 0;
+
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    </script>
+  </head>
+  <body>
+    Redirecionando para a Ali Tools B2B...
+  </body>
+</html>
+```
+
+### 4. Atualização do package.json
+
+Atualizamos o `package.json` na raiz do projeto para incluir o Express e definir o script de inicialização:
+
+```json
+{
+  "name": "alitools-b2b",
+  "version": "1.0.0",
+  "description": "AliTools B2B E-commerce Platform",
+  "main": "index.js",
+  "engines": {
+    "node": ">=16.x"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "build": "cd client && npm run build",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+```
+
+### 5. Removido o Arquivo Corrompido
+
+Removemos o arquivo `client/dist/vercel.json` que estava corrompido e impedindo o funcionamento correto.
+
+## Nova Estratégia de Deploy
+
+Com essas alterações, o Vercel reconhecerá o projeto como uma aplicação Node.js/Express e usará o arquivo `index.js` como ponto de entrada, facilitando o gerenciamento de rotas para SPAs.
+
+O processo de deploy continua o mesmo:
+
+```
+vercel --prod
+```
+
+## Resultado Esperado
+
+Estas alterações devem resolver definitivamente o problema de rotas 404, pois agora estamos usando uma abordagem híbrida:
+1. Servidor Express para lidar com rotas no lado do servidor
+2. Arquivos de redirecionamento para o caso do servidor não ser ativado corretamente
+3. Configuração simplificada do Vercel para evitar conflitos 

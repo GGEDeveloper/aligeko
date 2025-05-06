@@ -4,7 +4,18 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 
 ## Histórico de Deployments
 
-### Versão 6.0 - Maio 2025 (Atual)
+### Versão 7.0 - Maio 2025 (Atual)
+- **URL de Produção**: TBD após deploy
+- **Status**: Pendente de deploy - Implementação de solução Express para SPA routing
+- **Data do Deploy**: 07/Maio/2025
+- **Melhorias**:
+  - Implementação de servidor Express.js para gerenciamento de rotas
+  - Simplificação da configuração do Vercel
+  - Criação de página 404.html para redirecionamento automático
+  - Atualização do package.json para comportar a nova estrutura
+  - Documentação detalhada da solução em docs/vercel-routing-fix.md
+
+### Versão 6.0 - Maio 2025
 - **URL de Produção**: TBD após deploy
 - **Status**: Pendente de deploy - Correção para erro 404 na navegação
 - **Data do Deploy**: 06/Maio/2025

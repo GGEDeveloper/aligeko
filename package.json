@@ -1,14 +1,14 @@
 {
   "name": "alitools-b2b",
   "version": "1.0.0",
-  "description": "B2B E-commerce platform for AliTools",
+  "description": "AliTools B2B E-commerce Platform",
   "main": "index.js",
   "scripts": {
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",
-    "build": "npm run build:server && npm run build:client",
-    "start": "cd server && npm start",
+    "build": "cd client && npm run build",
+    "start": "node index.js",
     "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
     "test": "cd server && npm test",
     "vercel-build": "npm run build",
@@ -25,10 +25,11 @@
   "license": "ISC",
   "dependencies": {
     "concurrently": "^8.2.2",
+    "express": "^4.21.2",
     "recharts": "^2.15.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=16.x"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
