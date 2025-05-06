@@ -1,12 +1,20 @@
 /**
  * Auth middleware module
- * Re-exports functionality from auth.middleware.js
+ * Re-exports functionality from auth.middleware.js with proper middleware aliases
  */
 
-const { verifyToken, requireAuth, requireAdmin } = require('./auth.middleware');
+const { checkAuth, checkRole, checkRoleOrSelf } = require('./auth.middleware');
+
+// Standard auth middleware ready to use (not as factory functions)
+const requireAuth = checkAuth;
+const requireAdmin = checkRole('admin');
+const requireCustomer = checkRole('customer');
 
 module.exports = {
-  verifyToken,
+  verifyToken: checkAuth,
   requireAuth,
-  requireAdmin
+  requireAdmin,
+  requireCustomer,
+  checkRole,
+  checkRoleOrSelf
 }; 
