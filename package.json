@@ -5,13 +5,13 @@
   "main": "index.js",
   "scripts": {
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "build:client": "cd client && npm run build",
+    "build:client": "cd client && npm install && npm run build",
     "build:server": "cd server && npm run build",
-    "build": "cd client && npm run build",
+    "build": "npm run build:client",
     "start": "node index.js",
     "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
     "test": "cd server && npm test",
-    "vercel-build": "npm run build",
+    "vercel-build": "npm run build:client",
     "steps": "node tasks/step-tracker.js",
     "steps:report": "node -e \"try { const tracker = require('./tasks/step-tracker.js'); const tasks = tracker.parseStepsFile(); tracker.displayProgressReport(tasks); } catch(e) { console.error('Error loading steps tracker:', e.message); }\""
   },

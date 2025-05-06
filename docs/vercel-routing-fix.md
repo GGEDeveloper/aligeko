@@ -240,6 +240,85 @@ O processo de deploy continua o mesmo:
 vercel --prod
 ```
 
+## Validação Local
+
+Após implementar todas as alterações, realizamos uma validação local antes do deploy:
+
+1. Executamos `npm run vercel-build` - Build completada com sucesso
+2. Checamos a presença de todos os arquivos necessários em `client/dist/`
+3. Iniciamos o servidor Express com `npm start` 
+4. Testamos a rota da API com `curl http://localhost:5000/api/hello`
+5. Verificamos que o servidor responde corretamente com status 200
+
+Não foram encontrados erros durante o processo de validação, o que indica que a configuração está pronta para deploy.
+
+## Correção do Erro de Build do Vercel
+
+Durante o deploy no Vercel, encontramos o seguinte erro:
+
+```
+[21:52:03.676] sh: line 1: vite: command not found
+[21:52:03.701] Error: Command "npm run vercel-build" exited with 127
+```
+
+O problema está na ausência do Vite no ambiente de build do Vercel. Para resolver isso, implementamos as seguintes modificações:
+
+### 1. Atualização do package.json principal
+
+Modificamos os scripts de build para garantir que as dependências do cliente sejam instaladas antes de executar o build:
+
+```json
+"scripts": {
+  "build:client": "cd client && npm install && npm run build",
+  "vercel-build": "npm run build:client"
+}
+```
+
+### 2. Configuração do build no vercel.json
+
+Atualizamos o vercel.json para incluir a construção específica do cliente:
+
+```json
+"builds": [
+  { 
+    "src": "index.js",
+    "use": "@vercel/node"
+  },
+  {
+    "src": "client/package.json",
+    "use": "@vercel/static-build",
+    "config": {
+      "distDir": "dist"
+    }
+  }
+]
+```
+
+### 3. Adição de script vercel-build no cliente
+
+Adicionamos um script específico para o build do Vercel no package.json do cliente:
+
+```json
+"scripts": {
+  "build": "vite build",
+  "vercel-build": "vite build"
+}
+```
+
+Esta abordagem garante que o Vite esteja disponível durante o processo de build no ambiente do Vercel.
+
+## Validação Local
+
+Após implementar todas as alterações, realizamos uma validação local antes do deploy:
+
+1. Executamos `npm run vercel-build` - Build completada com sucesso
+2. Checamos a presença de todos os arquivos necessários em `client/dist/`
+3. Iniciamos o servidor Express com `npm start` 
+4. Testamos a rota da API com `curl http://localhost:5000/api/hello`
+5. Verificamos que o servidor responde corretamente com status 200
+
+Não foram encontrados erros durante o processo de validação, o que indica que a configuração está pronta para deploy.
+
 ## Resultado Esperado
 
 Estas alterações devem resolver definitivamente o problema de rotas 404, pois agora estamos usando uma abordagem híbrida:
