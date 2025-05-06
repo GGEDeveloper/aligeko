@@ -4,7 +4,18 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 
 ## Histórico de Deployments
 
-### Versão 5.0 - Maio 2025 (Atual)
+### Versão 6.0 - Maio 2025 (Atual)
+- **URL de Produção**: TBD após deploy
+- **Status**: Pendente de deploy - Correção para erro 404 na navegação
+- **Data do Deploy**: 06/Maio/2025
+- **Melhorias**:
+  - Correção de erro 404 nas rotas SPA
+  - Configuração aprimorada do vercel.json
+  - Adição de arquivos _redirects para roteamento adequado 
+  - Compatibilidade com Netlify adicionada via netlify.toml
+  - Documentação detalhada em docs/vercel-routing-fix.md
+
+### Versão 5.0 - Maio 2025
 - **URL de Produção**: https://aligekow-5yv5tthre-alitools-projects.vercel.app
 - **Status**: Sucesso - Corrigido tamanho dos ícones e visualização do header/footer
 - **Data do Deploy**: 06/Maio/2025
