@@ -5,7 +5,7 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 ## Histórico de Deployments
 
 ### Versão 11.0 - Maio 2025 (Atual)
-- **URL de Produção**: https://aligekow-3t44a6ute-alitools-projects.vercel.app
+- **URL de Produção**: https://alitools-b2b.vercel.app
 - **Status**: Sucesso - Resolução definitiva para problemas de renderização no cliente
 - **Data do Deploy**: 07/Maio/2025
 - **Melhorias**:

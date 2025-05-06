@@ -256,4 +256,6 @@ Esta abordagem não apenas resolve os problemas de build e renderização, mas t
 
 ---
 
+**Update (07/Maio/2025)**: Após a implementação bem-sucedida da solução descrita acima, o projeto foi migrado para um domínio personalizado e agora está disponível em [https://alitools-b2b.vercel.app](https://alitools-b2b.vercel.app).
+
 Última atualização: 07/Maio/2025 
