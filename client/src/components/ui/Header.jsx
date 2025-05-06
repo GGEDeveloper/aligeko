@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import logo from '../../assets/logos/png/primary/alitools_primary_fullcolor_100px.png';
 
 /**
  * Header component that follows the AliTools design system
@@ -32,7 +33,7 @@ const Header = ({
           <div className="flex-shrink-0">
             <a href="/" className="flex items-center">
               <img 
-                src="/client/src/assets/logos/png/primary/alitools_primary_fullcolor_100px.png" 
+                src={logo} 
                 alt="AliTools" 
                 className="h-10"
               />

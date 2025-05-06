@@ -1,9 +1,9 @@
+/* Import AliTools Design Tokens */
+@import './assets/styles/design-tokens/index.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import AliTools Design Tokens */
-@import './assets/styles/design-tokens/index.css';
 
 /* Custom styles below this line */
 body {
