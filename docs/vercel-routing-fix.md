@@ -13,9 +13,11 @@ ID: cdg1::mcsnd-1746563914348-8b34072487b1
 
 Isso ocorria porque o Vercel não estava redirecionando corretamente as rotas da SPA (Single Page Application) para o `index.html`.
 
-## Solução Implementada
+## Cronologia de Soluções
 
-### 1. Correção do `vercel.json` Principal
+### Fase 1: Primeira Tentativa
+
+#### 1. Correção do `vercel.json` Principal
 
 Modificamos o arquivo `vercel.json` na raiz do projeto para corrigir o gerenciamento de rotas:
 
@@ -47,7 +49,7 @@ Principais modificações:
 - Substituímos a linha `{ "src": "/(.*)", "dest": "/client/dist/$1", "continue": true }` por `{ "handle": "filesystem" }`
 - Mantivemos a regra de fallback para o index.html
 
-### 2. Adição de `vercel.json` no Diretório `client/dist`
+#### 2. Adição de `vercel.json` no Diretório `client/dist`
 
 Adicionamos um arquivo `vercel.json` no diretório de build para garantir que as rotas sejam tratadas corretamente:
 
@@ -60,7 +62,7 @@ Adicionamos um arquivo `vercel.json` no diretório de build para garantir que as
 }
 ```
 
-### 3. Criação de Arquivo `_redirects`
+#### 3. Criação de Arquivo `_redirects`
 
 Adicionamos um arquivo `_redirects` no diretório `client/dist` para garantir compatibilidade com plataformas que suportam esse formato:
 
@@ -68,7 +70,7 @@ Adicionamos um arquivo `_redirects` no diretório `client/dist` para garantir co
 /* /index.html 200
 ```
 
-### 4. Configuração Adicional do Netlify
+#### 4. Configuração Adicional do Netlify
 
 Criamos um arquivo `netlify.toml` para garantir compatibilidade caso o projeto seja hospedado no Netlify no futuro:
 
@@ -79,7 +81,7 @@ Criamos um arquivo `netlify.toml` para garantir compatibilidade caso o projeto s
   status = 200
 ```
 
-### 5. Atualização do `client/vercel.json`
+#### 5. Atualização do `client/vercel.json`
 
 Atualizamos o arquivo `client/vercel.json` para incluir a configuração `trailingSlash: false`:
 
@@ -108,11 +110,11 @@ Atualizamos o arquivo `client/vercel.json` para incluir a configuração `traili
 }
 ```
 
-## Atualização - Solução Adicional
+### Fase 2: Solução Express
 
 Após o deploy inicial, o problema persistiu. Implementamos uma solução mais robusta:
 
-### 1. Criação de Servidor Express Simples
+#### 1. Criação de Servidor Express Simples
 
 Criamos um servidor Express no arquivo `index.js` na raiz do projeto para lidar com rotas SPAs:
 
@@ -144,7 +146,7 @@ app.listen(port, () => {
 module.exports = app;
 ```
 
-### 2. Simplificação do vercel.json
+#### 2. Simplificação do vercel.json
 
 Simplificamos o `vercel.json` na raiz do projeto para melhor compatibilidade e direcionamos todo o tráfego para o novo servidor Express:
 
@@ -172,7 +174,7 @@ Simplificamos o `vercel.json` na raiz do projeto para melhor compatibilidade e d
 
 Esta configuração é mais simples e redireciona todas as solicitações para nosso servidor Express, que então gerencia as rotas da SPA.
 
-### 3. Página 404.html no Diretório Público
+#### 3. Página 404.html no Diretório Público
 
 Adicionamos um arquivo `404.html` na pasta `client/public` que automaticamente redireciona para a página principal:
 
@@ -202,7 +204,7 @@ Adicionamos um arquivo `404.html` na pasta `client/public` que automaticamente r
 </html>
 ```
 
-### 4. Atualização do package.json
+#### 4. Atualização do package.json
 
 Atualizamos o `package.json` na raiz do projeto para incluir o Express e definir o script de inicialização:
 
@@ -226,21 +228,15 @@ Atualizamos o `package.json` na raiz do projeto para incluir o Express e definir
 }
 ```
 
-### 5. Removido o Arquivo Corrompido
+#### 5. Removido o Arquivo Corrompido
 
 Removemos o arquivo `client/dist/vercel.json` que estava corrompido e impedindo o funcionamento correto.
 
-## Nova Estratégia de Deploy
+### Fase 3: Resolução de Problemas de Build
 
-Com essas alterações, o Vercel reconhecerá o projeto como uma aplicação Node.js/Express e usará o arquivo `index.js` como ponto de entrada, facilitando o gerenciamento de rotas para SPAs.
+Ao tentar implementar a solução Express, encontramos erros durante o processo de build:
 
-O processo de deploy continua o mesmo:
-
-```
-vercel --prod
-```
-
-## Correção do Erro de Build do Vercel
+#### 1. Correção do Erro de Build "vite: command not found"
 
 Durante o deploy no Vercel, encontramos o seguinte erro:
 
@@ -249,51 +245,45 @@ Durante o deploy no Vercel, encontramos o seguinte erro:
 [21:52:03.701] Error: Command "npm run vercel-build" exited with 127
 ```
 
-O problema está na ausência do Vite no ambiente de build do Vercel. Para resolver isso, implementamos as seguintes modificações:
+O problema estava na ausência do Vite no ambiente de build do Vercel. Para resolver isso, implementamos as seguintes modificações:
 
-### 1. Atualização do package.json principal
-
-Modificamos os scripts de build para garantir que as dependências do cliente sejam instaladas antes de executar o build:
-
-```json
-"scripts": {
-  "build:client": "cd client && npm install && npm run build",
-  "vercel-build": "npm run build:client"
-}
-```
-
-### 2. Configuração do build no vercel.json
-
-Atualizamos o vercel.json para incluir a construção específica do cliente:
-
-```json
-"builds": [
-  { 
-    "src": "index.js",
-    "use": "@vercel/node"
-  },
-  {
-    "src": "client/package.json",
-    "use": "@vercel/static-build",
-    "config": {
-      "distDir": "dist"
-    }
+* **Atualização do package.json principal**:
+  
+  ```json
+  "scripts": {
+    "build:client": "cd client && npm install && npm run build",
+    "vercel-build": "npm run build:client"
   }
-]
-```
+  ```
 
-### 3. Adição de script vercel-build no cliente
+* **Configuração do build no vercel.json**:
+  
+  ```json
+  "builds": [
+    { 
+      "src": "index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ]
+  ```
 
-Adicionamos um script específico para o build do Vercel no package.json do cliente:
+* **Adição de script vercel-build no cliente**:
+  
+  ```json
+  "scripts": {
+    "build": "vite build",
+    "vercel-build": "vite build"
+  }
+  ```
 
-```json
-"scripts": {
-  "build": "vite build",
-  "vercel-build": "vite build"
-}
-```
-
-## Correção do Erro de Dependência Recharts
+#### 2. Correção do Erro de Dependência Recharts
 
 Após corrigir o erro do Vite, enfrentamos outro problema durante o build:
 
@@ -303,9 +293,7 @@ Após corrigir o erro do Vite, enfrentamos outro problema durante o build:
 [21:56:34.647] This is most likely unintended because it can break your application at runtime.
 ```
 
-O problema é que o componente `AdminDashboardPage.jsx` importa a biblioteca `recharts` para criar gráficos, mas essa dependência não estava listada no `package.json` do cliente. Para resolver:
-
-1. Adicionamos `recharts` à lista de dependências no `package.json` do cliente:
+O problema é que o componente `AdminDashboardPage.jsx` importa a biblioteca `recharts` para criar gráficos, mas essa dependência não estava listada no `package.json` do cliente. Para resolver, adicionamos `recharts` à lista de dependências:
 
 ```json
 "dependencies": {
@@ -316,51 +304,36 @@ O problema é que o componente `AdminDashboardPage.jsx` importa a biblioteca `re
 }
 ```
 
-Esta correção garante que todas as dependências necessárias estejam disponíveis durante o build e no ambiente de execução.
+#### 3. Correção do Erro "vite: command not found" Persistente
 
-## Correção do Erro "vite: command not found"
+Mesmo após a correção anterior, o erro "vite: command not found" persistiu. Realizamos as seguintes modificações:
 
-Após adicionar a dependência `recharts`, encontramos um novo erro durante o processo de build:
+* **Modificação dos scripts de build no cliente**:
+  
+  ```json
+  "scripts": {
+    "build": "npx vite build",
+    "vercel-build": "npx vite build"
+  }
+  ```
 
-```
-[22:00:02.971] sh: line 1: vite: command not found
-[22:00:02.995] Error: Command "npm run vercel-build" exited with 127
-```
+* **Modificação dos scripts de build na raiz**:
+  
+  ```json
+  "scripts": {
+    "build:client": "cd client && npm install && npx vite build"
+  }
+  ```
 
-O problema é que o comando `vite` não está sendo encontrado no PATH do sistema durante o processo de build do Vercel, mesmo com o pacote instalado como dependência de desenvolvimento. Para resolver este problema:
-
-### 1. Modificação dos scripts de build no cliente
-
-Atualizamos os scripts no `client/package.json` para usar `npx` ao chamar o vite:
-
-```json
-"scripts": {
-  "build": "npx vite build",
-  "vercel-build": "npx vite build"
-}
-```
-
-### 2. Modificação dos scripts de build na raiz
-
-Atualizamos o script `build:client` no `package.json` principal para também usar `npx`:
-
-```json
-"scripts": {
-  "build:client": "cd client && npm install && npx vite build"
-}
-```
-
-### 3. Adição do Vite como dependência de desenvolvimento na raiz
-
-Para garantir que o `npx` possa encontrar o `vite`, o adicionamos como dependência de desenvolvimento no package.json principal:
-
-```json
-"devDependencies": {
-  // ... outras dependências ...
-  "sinon": "^20.0.0",
-  "vite": "^5.0.0"
-}
-```
+* **Adição do Vite como dependência de desenvolvimento na raiz**:
+  
+  ```json
+  "devDependencies": {
+    // ... outras dependências ...
+    "sinon": "^20.0.0",
+    "vite": "^5.0.0"
+  }
+  ```
 
 Esta abordagem garante que o Vite esteja disponível durante o processo de build, independentemente do ambiente ou do PATH do sistema.
 

@@ -4,7 +4,18 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 
 ## Histórico de Deployments
 
-### Versão 7.0 - Maio 2025 (Atual)
+### Versão 8.0 - Maio 2025 (Atual)
+- **URL de Produção**: TBD após deploy
+- **Status**: Pendente de deploy - Solução para o erro "vite: command not found"
+- **Data do Deploy**: 07/Maio/2025
+- **Melhorias**:
+  - Uso de `npx` para executar o Vite durante os processos de build
+  - Modificação dos scripts de build no package.json do cliente
+  - Adição do Vite como dependência de desenvolvimento na raiz do projeto
+  - Atualização do script `build:client` no package.json principal
+  - Documentação completa das soluções em vercel-routing-fix.md
+
+### Versão 7.0 - Maio 2025
 - **URL de Produção**: TBD após deploy
 - **Status**: Pendente de deploy - Implementação de solução Express para SPA routing
 - **Data do Deploy**: 07/Maio/2025
