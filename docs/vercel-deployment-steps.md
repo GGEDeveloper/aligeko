@@ -4,7 +4,19 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 
 ## Histórico de Deployments
 
-### Versão 8.0 - Maio 2025 (Atual)
+### Versão 9.0 - Maio 2025 (Atual)
+- **URL de Produção**: Pendente de deploy
+- **Status**: Resolvido - Solução para o erro "vite: command not found"
+- **Data do Deploy**: 07/Maio/2025
+- **Melhorias**:
+  - Simplificação da configuração do Vercel para usar apenas o servidor Express
+  - Remoção da etapa de build separada do cliente que causava conflito de ambientes
+  - Atualização do script `vercel-build` para instalar explicitamente as dependências do cliente
+  - Movida as ferramentas de build críticas (vite, plugin-react) para dependências regulares
+  - Testado o processo de build localmente com sucesso
+  - Documentação detalhada da solução definitiva em docs/vercel-build-fix.md
+
+### Versão 8.0 - Maio 2025
 - **URL de Produção**: TBD após deploy
 - **Status**: Pendente de deploy - Solução para o erro "vite: command not found"
 - **Data do Deploy**: 07/Maio/2025
