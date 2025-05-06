@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AliTools B2B E-commerce Platform",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
     "build:client": "cd client && npm install && npx vite build",
@@ -13,7 +14,7 @@
     "test": "cd server && npm test",
     "vercel-build": "npm install --prefix client && npm run build:client",
     "steps": "node tasks/step-tracker.js",
-    "steps:report": "node -e \"try { const tracker = require('./tasks/step-tracker.js'); const tasks = tracker.parseStepsFile(); tracker.displayProgressReport(tasks); } catch(e) { console.error('Error loading steps tracker:', e.message); }\""
+    "steps:report": "node -e \"try { import('./tasks/step-tracker.js').then(tracker => { const tasks = tracker.parseStepsFile(); tracker.displayProgressReport(tasks); }).catch(e => console.error('Error loading steps tracker:', e.message)); } catch(e) { console.error('Error loading steps tracker:', e.message); }\""
   },
   "keywords": [
     "b2b",

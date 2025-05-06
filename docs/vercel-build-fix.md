@@ -90,6 +90,57 @@ O resultado foi bem-sucedido, confirmando que nossa solução resolveu o problem
 2. O build do Vite foi executado sem erros
 3. Os arquivos foram gerados na pasta `client/dist` conforme esperado
 
+## Problema Adicional: Conflito entre ESM e CommonJS
+
+Após resolver o erro inicial "vite: command not found", enfrentamos um novo problema: o erro "exports is not defined" no navegador. Este erro ocorreu porque:
+
+1. O Vercel detectou código ESM (ES Modules) e tentou convertê-lo para CommonJS
+2. O navegador não reconhece a sintaxe CommonJS (como `Object.defineProperty(exports, "__esModule", {value: true})`)
+
+### Solução para o Problema ESM/CommonJS
+
+Para resolver este problema, implementamos as seguintes alterações:
+
+1. **Adicionamos `"type": "module"` ao package.json principal:**
+   ```json
+   {
+     "name": "alitools-b2b",
+     "version": "1.0.0",
+     "description": "AliTools B2B E-commerce Platform",
+     "main": "index.js",
+     "type": "module",
+     ...
+   }
+   ```
+   Isso indica explicitamente ao Node.js e ao Vercel que nosso código deve ser tratado como ES Modules.
+
+2. **Convertemos o servidor Express (index.js) de CommonJS para ESM:**
+   ```javascript
+   // Antes (CommonJS)
+   const express = require('express');
+   const path = require('path');
+   // ...
+   module.exports = app;
+
+   // Depois (ESM)
+   import express from 'express';
+   import { fileURLToPath } from 'url';
+   import { dirname, join } from 'path';
+   // ...
+   export default app;
+   ```
+
+3. **Atualizamos scripts que usavam `require()` para usar importação dinâmica ESM:**
+   ```javascript
+   // Antes (CommonJS)
+   "steps:report": "node -e \"try { const tracker = require('./tasks/step-tracker.js'); ... }\""
+
+   // Depois (ESM)
+   "steps:report": "node -e \"try { import('./tasks/step-tracker.js').then(tracker => { ... }) }\""
+   ```
+
+Estas alterações garantem que todo o código do projeto seja consistente no uso de ES Modules, evitando problemas de incompatibilidade entre diferentes sistemas de módulos.
+
 ## Recomendações Adicionais
 
 1. **Uso do Express Server**: Manter a abordagem simplificada usando o Express para servir tanto a API quanto os arquivos estáticos.
@@ -100,11 +151,13 @@ O resultado foi bem-sucedido, confirmando que nossa solução resolveu o problem
 
 4. **Cache de Build**: Configurar apropriadamente o cache de build no Vercel para melhorar o tempo de deploy.
 
+5. **Consistência em Sistemas de Módulos**: Manter consistência no uso de ES Modules (ESM) ou CommonJS em todo o projeto, evitando misturar os dois sistemas.
+
 ## Conclusão
 
-A solução implementada resolve o problema "vite: command not found" ao simplificar a configuração de build e garantir que todas as dependências necessárias estejam disponíveis no momento correto do processo de deploy.
+A solução implementada resolve os problemas de build no Vercel, incluindo o erro "vite: command not found" e o conflito entre ESM e CommonJS, ao simplificar a configuração de build e garantir que todas as dependências e sistemas de módulos estejam corretamente configurados.
 
-Esta abordagem não apenas resolve o problema imediato, mas também simplifica a arquitetura de deploy, tornando-a mais robusta para atualizações futuras.
+Esta abordagem não apenas resolve os problemas imediatos, mas também simplifica a arquitetura de deploy, tornando-a mais robusta para atualizações futuras.
 
 ---
 

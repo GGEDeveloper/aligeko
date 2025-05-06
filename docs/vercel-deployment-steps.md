@@ -4,9 +4,20 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 
 ## Histórico de Deployments
 
-### Versão 9.0 - Maio 2025 (Atual)
+### Versão 10.0 - Maio 2025 (Atual)
 - **URL de Produção**: Pendente de deploy
-- **Status**: Resolvido - Solução para o erro "vite: command not found"
+- **Status**: Correção - Resolvido erro "exports is not defined"
+- **Data do Deploy**: 07/Maio/2025
+- **Melhorias**:
+  - Adicionado `"type": "module"` ao package.json para corrigir erro de compatibilidade ESM/CommonJS
+  - Convertido servidor Express de CommonJS para ES Modules
+  - Atualizado scripts que usavam require() para importação dinâmica ESM
+  - Documentação detalhada da solução no docs/vercel-build-fix.md
+  - Garantia de consistência nos sistemas de módulos em todo o projeto
+
+### Versão 9.0 - Maio 2025
+- **URL de Produção**: https://aligekow-kmv15p3gi-alitools-projects.vercel.app
+- **Status**: Sucesso parcial - Resolvido erro "vite: command not found", encontrado erro "exports is not defined"
 - **Data do Deploy**: 07/Maio/2025
 - **Melhorias**:
   - Simplificação da configuração do Vercel para usar apenas o servidor Express
