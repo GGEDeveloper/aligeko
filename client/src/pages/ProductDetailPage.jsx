@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   useGetProductByIdQuery, 
   useDeleteProductMutation 
 } from '../store/api/productApi';
 import { toast } from 'react-hot-toast';
+import { useCart } from '../hooks/useCart';
+import { formatCurrency } from '../utils/formatters';
+import AddToCartNotification from '../components/cart/AddToCartNotification';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('details');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const { addToCart, isInCart, getItemQuantity } = useCart();
   
   // Fetch product data
   const {
@@ -38,6 +45,97 @@ const ProductDetailPage = () => {
     }
     setShowDeleteModal(false);
   };
+  
+  // Find selected variant on component mount
+  useEffect(() => {
+    if (product?.Variants && product.Variants.length > 0) {
+      setSelectedVariant(product.Variants[0]);
+    }
+  }, [product]);
+  
+  // Get current price from selected variant or default product price
+  const getCurrentPrice = () => {
+    if (selectedVariant && selectedVariant.Prices && selectedVariant.Prices.length > 0) {
+      return selectedVariant.Prices[0].amount;
+    } else if (product.Prices && product.Prices.length > 0) {
+      return product.Prices[0].amount;
+    }
+    return product.price || 0;
+  };
+  
+  // Get current stock quantity
+  const getCurrentStock = () => {
+    if (selectedVariant && selectedVariant.Stock) {
+      return selectedVariant.Stock.quantity || 0;
+    }
+    return getTotalStock();
+  };
+  
+  // Handle variant change
+  const handleVariantChange = (variantId) => {
+    const variant = product.Variants.find(v => v.id === Number(variantId));
+    setSelectedVariant(variant);
+    // Reset quantity if needed
+    if (variant && variant.Stock && variant.Stock.quantity < quantity) {
+      setQuantity(Math.min(1, variant.Stock.quantity));
+    }
+  };
+  
+  // Handle quantity change
+  const handleQuantityChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value > 0) {
+      const maxQuantity = getCurrentStock();
+      setQuantity(Math.min(value, maxQuantity));
+    }
+  };
+  
+  // Handle add to cart
+  const handleAddToCart = () => {
+    if (getCurrentStock() <= 0) {
+      toast.error('This product is out of stock');
+      return;
+    }
+    
+    setIsAddingToCart(true);
+    
+    try {
+      const variantData = selectedVariant ? {
+        id: selectedVariant.id,
+        code: selectedVariant.code,
+        name: selectedVariant.name || selectedVariant.code,
+        price: getCurrentPrice()
+      } : null;
+      
+      addToCart(product, quantity, variantData);
+      
+      toast.custom((t) => (
+        <AddToCartNotification 
+          product={product} 
+          quantity={quantity}
+          variant={variantData}
+          t={t} 
+        />
+      ), {
+        duration: 4000,
+        position: 'bottom-right',
+      });
+    } catch (error) {
+      toast.error('Failed to add product to cart');
+      console.error('Add to cart error:', error);
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+  
+  // Check if the current product/variant is in cart
+  const productInCart = selectedVariant 
+    ? isInCart(product.id, { id: selectedVariant.id })
+    : isInCart(product.id);
+  
+  const cartQuantity = selectedVariant
+    ? getItemQuantity(product.id, { id: selectedVariant.id })
+    : getItemQuantity(product.id);
   
   // Render loading state
   if (isLoading) {
@@ -85,6 +183,149 @@ const ProductDetailPage = () => {
     } else {
       return <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">In Stock</span>;
     }
+  };
+  
+  // Inside your render section, add this Add to Cart UI component where appropriate
+  const renderAddToCartSection = () => {
+    const currentPrice = getCurrentPrice();
+    const currentStock = getCurrentStock();
+    const isOutOfStock = currentStock <= 0;
+    
+    return (
+      <div className="card p-4 mb-6">
+        <h3 className="text-lg font-semibold mb-3">Product Options</h3>
+        
+        {/* Variant Selector */}
+        {product.Variants && product.Variants.length > 0 && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-neutral-700 mb-1">
+              Variant
+            </label>
+            <select
+              className="border border-neutral-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+              value={selectedVariant ? selectedVariant.id : ''}
+              onChange={(e) => handleVariantChange(e.target.value)}
+            >
+              {product.Variants.map(variant => (
+                <option 
+                  key={variant.id} 
+                  value={variant.id}
+                  disabled={variant.Stock && variant.Stock.quantity <= 0}
+                >
+                  {variant.name || variant.code} 
+                  {variant.Stock && variant.Stock.quantity <= 0 ? ' (Out of Stock)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        
+        {/* Price */}
+        <div className="mb-4">
+          <span className="text-sm text-neutral-500">Price:</span>
+          <span className="text-2xl font-bold text-primary-600 block">
+            {formatCurrency(currentPrice)}
+          </span>
+        </div>
+        
+        {/* Stock Status */}
+        <div className="mb-4">
+          <span className="text-sm text-neutral-500">Availability:</span>
+          <div className="mt-1">
+            {isOutOfStock ? (
+              <span className="inline-block bg-red-100 text-red-800 text-sm px-2 py-1 rounded">
+                Out of Stock
+              </span>
+            ) : currentStock < 10 ? (
+              <span className="inline-block bg-yellow-100 text-yellow-800 text-sm px-2 py-1 rounded">
+                Low Stock ({currentStock} available)
+              </span>
+            ) : (
+              <span className="inline-block bg-green-100 text-green-800 text-sm px-2 py-1 rounded">
+                In Stock
+              </span>
+            )}
+          </div>
+        </div>
+        
+        {!isOutOfStock && (
+          <>
+            {/* Quantity Selector */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-neutral-700 mb-1">
+                Quantity
+              </label>
+              <div className="flex w-1/3">
+                <button 
+                  className="border border-neutral-300 px-3 py-2 rounded-l-md bg-neutral-50 hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1}
+                >
+                  <i className="bi bi-dash"></i>
+                </button>
+                <input
+                  type="number"
+                  min="1"
+                  max={currentStock}
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  className="border-t border-b border-neutral-300 text-center p-2 w-16 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                />
+                <button 
+                  className="border border-neutral-300 px-3 py-2 rounded-r-md bg-neutral-50 hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  onClick={() => setQuantity(Math.min(quantity + 1, currentStock))}
+                  disabled={quantity >= currentStock}
+                >
+                  <i className="bi bi-plus"></i>
+                </button>
+              </div>
+            </div>
+            
+            {/* Add to Cart Button */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              {productInCart ? (
+                <div className="flex flex-col sm:flex-row gap-3 w-full">
+                  <span className="inline-block bg-primary-100 text-primary-800 px-4 py-2 rounded-md text-center">
+                    In Cart ({cartQuantity})
+                  </span>
+                  <Link 
+                    to="/cart" 
+                    className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-center transition-smooth focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                  >
+                    View Cart
+                  </Link>
+                </div>
+              ) : (
+                <button 
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md transition-smooth focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 flex items-center justify-center"
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart}
+                >
+                  {isAddingToCart ? (
+                    <>
+                      <div className="animate-spin h-5 w-5 border-t-2 border-white rounded-full mr-2"></div>
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-cart-plus mr-2"></i>
+                      Add to Cart
+                    </>
+                  )}
+                </button>
+              )}
+              
+              <button 
+                className="w-full sm:w-auto border border-primary-500 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-md transition-smooth focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+              >
+                <i className="bi bi-heart mr-2"></i>
+                Add to Wishlist
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    );
   };
   
   return (
@@ -439,6 +680,9 @@ const ProductDetailPage = () => {
           </div>
         </div>
       )}
+      
+      {/* Add to Cart Section */}
+      {renderAddToCartSection()}
     </div>
   );
 };

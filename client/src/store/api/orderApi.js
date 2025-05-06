@@ -170,6 +170,23 @@ export const orderApi = createApi({
       providesTags: (result, error, orderId) => [
         { type: 'Order', id: `${orderId}-shipments` }
       ]
+    }),
+    
+    placeOrder: builder.mutation({
+      query: (orderData) => ({
+        url: '/',
+        method: 'POST',
+        body: orderData
+      }),
+      invalidatesTags: ['Order']
+    }),
+
+    cancelOrder: builder.mutation({
+      query: (id) => ({
+        url: `/${id}/cancel`,
+        method: 'POST'
+      }),
+      invalidatesTags: ['Order']
     })
   })
 });
@@ -187,5 +204,7 @@ export const {
   useRemoveOrderItemMutation,
   useCreateShipmentMutation,
   useUpdateShipmentMutation,
-  useGetOrderShipmentsQuery
+  useGetOrderShipmentsQuery,
+  usePlaceOrderMutation,
+  useCancelOrderMutation
 } = orderApi; 

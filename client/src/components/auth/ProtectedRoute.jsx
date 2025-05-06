@@ -1,22 +1,33 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { selectIsAuthenticated } from '../../store/slices/authSlice';
+import { selectIsAuthenticated, selectCurrentUser } from '../../store/slices/authSlice';
 
 /**
- * Componente de rota protegida que verifica se o usuário está autenticado
- * Redireciona para a página de login se não estiver autenticado
+ * Protected route component that verifies if the user is authenticated
+ * Redirects to login page if not authenticated
+ * 
+ * @param {Object} props
+ * @param {boolean} props.requireAdmin - Whether the route requires admin privileges
+ * @returns {JSX.Element}
  */
-const ProtectedRoute = () => {
+const ProtectedRoute = ({ requireAdmin = false }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectCurrentUser);
   const location = useLocation();
 
   if (!isAuthenticated) {
-    // Redireciona para login enquanto preserva a URL original para redirecionamento após login
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    // Redirect to login while preserving the original URL for redirect after login
+    return <Navigate to="/auth/login" state={{ from: location.pathname }} replace />;
   }
 
-  // Permite acesso à rota protegida
+  // Check for admin requirement
+  if (requireAdmin && user?.role !== 'admin') {
+    // Redirect to dashboard if user doesn't have admin privileges
+    return <Navigate to="/user/dashboard" replace />;
+  }
+
+  // Allow access to the protected route
   return <Outlet />;
 };
 

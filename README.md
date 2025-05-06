@@ -10,6 +10,8 @@ This platform enables businesses to register, browse products, place orders, and
 
 - **Business Customer Registration & Approval**: Secure account creation with admin approval workflow
 - **Product Catalog**: Comprehensive product browsing with search, filter, and detailed views
+- **Shopping Cart**: Persistent cart with synchronization between devices and guest-to-user migration
+- **Checkout Process**: Multi-step checkout with address, shipping method, and payment selection
 - **Order Management**: Complete order lifecycle from cart to delivery
 - **Admin Dashboard**: Tools for managing products, customers, and orders
 - **Customer Dashboard**: Account management, order history, and preferences

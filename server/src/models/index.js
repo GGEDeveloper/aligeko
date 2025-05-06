@@ -13,6 +13,9 @@ import Address from './address.model';
 import Order from './order.model';
 import OrderItem from './order-item.model';
 import Shipment from './shipment.model';
+import SyncHealth from './sync-health';
+import Cart from './cart.model';
+import CartItem from './cart-item.model';
 
 // Define model associations
 const setupAssociations = () => {
@@ -67,6 +70,18 @@ const setupAssociations = () => {
   User.hasMany(Order, { foreignKey: 'cancelled_by', as: 'CancelledOrders' });
   Order.belongsTo(User, { foreignKey: 'approved_by', as: 'ApprovedBy' });
   Order.belongsTo(User, { foreignKey: 'cancelled_by', as: 'CancelledBy' });
+
+  // User -> Cart (one user has one cart)
+  User.hasOne(Cart, { foreignKey: 'user_id' });
+  Cart.belongsTo(User, { foreignKey: 'user_id' });
+
+  // Cart -> CartItems
+  Cart.hasMany(CartItem, { foreignKey: 'cart_id' });
+  CartItem.belongsTo(Cart, { foreignKey: 'cart_id' });
+
+  // Variant -> CartItem
+  Variant.hasMany(CartItem, { foreignKey: 'variant_id' });
+  CartItem.belongsTo(Variant, { foreignKey: 'variant_id' });
 };
 
 // Initialize associations
@@ -87,7 +102,10 @@ export {
   Address,
   Order,
   OrderItem,
-  Shipment
+  Shipment,
+  SyncHealth,
+  Cart,
+  CartItem
 };
 
 export default {
@@ -105,5 +123,8 @@ export default {
   Address,
   Order,
   OrderItem,
-  Shipment
+  Shipment,
+  SyncHealth,
+  Cart,
+  CartItem
 }; 

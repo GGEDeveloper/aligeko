@@ -5,7 +5,12 @@ import { authApi } from './api/authApi';
 import { productApi } from './api/productApi';
 import { customerApi } from './api/customerApi';
 import { orderApi } from './api/orderApi';
+import { cartApi } from './api/cartApi';
+import { categoryApi } from './api/categoryApi';
+import { producerApi } from './api/producerApi';
+import { unitApi } from './api/unitApi';
 import authReducer from './slices/authSlice';
+import cartReducer from './slices/cartSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,7 +19,12 @@ export const store = configureStore({
     [productApi.reducerPath]: productApi.reducer,
     [customerApi.reducerPath]: customerApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
+    [cartApi.reducerPath]: cartApi.reducer,
+    [categoryApi.reducerPath]: categoryApi.reducer,
+    [producerApi.reducerPath]: producerApi.reducer,
+    [unitApi.reducerPath]: unitApi.reducer,
     auth: authReducer,
+    cart: cartReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -22,7 +32,11 @@ export const store = configureStore({
       .concat(authApi.middleware)
       .concat(productApi.middleware)
       .concat(customerApi.middleware)
-      .concat(orderApi.middleware),
+      .concat(orderApi.middleware)
+      .concat(cartApi.middleware)
+      .concat(categoryApi.middleware)
+      .concat(producerApi.middleware)
+      .concat(unitApi.middleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

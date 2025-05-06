@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useGetProductsQuery } from '../store/api/productApi';
+import ProductCard from '../components/products/ProductCard';
+import BatchAddToCart from '../components/cart/BatchAddToCart';
 
 const ProductsPage = () => {
   // State for pagination
@@ -98,11 +100,14 @@ const ProductsPage = () => {
           </p>
         </div>
         <div className="mt-4 md:mt-0 md:self-center">
-          <Link to="/products/add">
-            <button className="btn-primary flex items-center">
-              <i className="bi bi-plus mr-2"></i> Add New Product
-            </button>
-          </Link>
+          <div className="flex space-x-3">
+            <BatchAddToCart />
+            <Link to="/products/add">
+              <button className="btn-primary flex items-center">
+                <i className="bi bi-plus mr-2"></i> Add New Product
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
       
@@ -251,56 +256,22 @@ const ProductsPage = () => {
         </select>
       </div>
       
-      {/* Product Grid */}
-      {products.length === 0 ? (
-        <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative" role="alert">
-          No products found. Try adjusting your filters.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {products.map(product => (
-            <div key={product.id} className="card h-full transition-smooth hover:shadow-lg">
-              {product.Images && product.Images[0] ? (
-                <img 
-                  src={product.Images[0].url} 
-                  alt={product.name}
-                  className="w-full h-44 object-cover rounded-t-lg"
-                />
-              ) : (
-                <div className="w-full h-44 bg-neutral-200 flex items-center justify-center rounded-t-lg">
-                  <i className="bi bi-image text-neutral-400 text-3xl"></i>
-                </div>
-              )}
-              <div className="p-4">
-                <h4 className="font-semibold mb-1 text-primary-700 truncate">{product.name}</h4>
-                <p className="mb-2 text-sm text-neutral-600 line-clamp-2">
-                  {product.description}
-                </p>
-                <div className="mb-3 flex flex-wrap gap-1">
-                  {product.Category && (
-                    <span className="inline-block bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded">
-                      {product.Category.name}
-                    </span>
-                  )}
-                  {product.Producer && (
-                    <span className="inline-block bg-neutral-100 text-neutral-800 text-xs px-2 py-1 rounded">
-                      {product.Producer.name}
-                    </span>
-                  )}
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-secondary-500">
-                    ${parseFloat(product.price).toFixed(2)}
-                  </span>
-                  <Link to={`/products/${product.id}`}>
-                    <button className="btn-outline py-1 px-3 text-sm">View</button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Products Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {products.length > 0 ? (
+          products.map(product => (
+            <ProductCard key={product.id} product={product} />
+          ))
+        ) : (
+          <div className="col-span-full text-center py-8">
+            <i className="bi bi-search text-6xl text-neutral-300"></i>
+            <h3 className="mt-4">No products found</h3>
+            <p className="text-neutral-500">
+              Try adjusting your filters or search terms
+            </p>
+          </div>
+        )}
+      </div>
       
       {/* Pagination */}
       {totalPages > 1 && (
