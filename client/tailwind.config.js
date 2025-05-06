@@ -8,28 +8,30 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#e6ebf7',
-          100: '#ccd7ef',
-          200: '#99afdf',
-          300: '#6687cf',
-          400: '#335fbf',
-          500: '#1E3A8A',  // Updated primary brand color
-          600: '#182e6e',
-          700: '#122353',
-          800: '#0c1738',
-          900: '#060c1c',
+          DEFAULT: '#1A1A1A', // Preto principal
+          50: '#f2f2f2',
+          100: '#e6e6e6',
+          200: '#cccccc',
+          300: '#b3b3b3',
+          400: '#999999',
+          500: '#808080',
+          600: '#666666',
+          700: '#4d4d4d',
+          800: '#333333',
+          900: '#1A1A1A',
         },
-        secondary: {
-          50: '#fef4ee',
-          100: '#fde9dd',
-          200: '#fbd3ba',
-          300: '#f9bd98',
-          400: '#f7a775',
-          500: '#F97316',  // Updated secondary brand color
-          600: '#c75c12',
-          700: '#95450d',
-          800: '#642e09',
-          900: '#321704',
+        brand: {
+          DEFAULT: '#FFCC00', // Amarelo/Dourado
+          50: '#fff9e6',
+          100: '#fff4cc',
+          200: '#ffea99',
+          300: '#ffe066',
+          400: '#ffd633',
+          500: '#FFCC00',
+          600: '#cca300',
+          700: '#997a00',
+          800: '#665200',
+          900: '#332900',
         },
         neutral: {
           100: '#FFFFFF',
@@ -41,7 +43,11 @@ export default {
           700: '#6B7280',
           800: '#4B5563',
           900: '#1F2937',
-        }
+        },
+        success: '#22C55E',
+        warning: '#F59E0B',
+        error: '#EF4444',
+        info: '#3B82F6',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],

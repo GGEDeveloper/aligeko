@@ -1,0 +1,30 @@
+/**
+ * AliTools Light Theme
+ * Define specific variables for light theme
+ */
+
+[data-theme="light"] {
+  /* Background Colors */
+  --color-background-primary: var(--color-white);
+  --color-background-secondary: var(--color-neutral-200);
+  --color-background-tertiary: var(--color-neutral-300);
+  
+  /* Text Colors */
+  --color-text-primary: var(--color-primary);
+  --color-text-secondary: var(--color-neutral-700);
+  --color-text-tertiary: var(--color-neutral-600);
+  
+  /* Border Colors */
+  --color-border-light: var(--color-neutral-300);
+  --color-border-default: var(--color-neutral-400);
+  --color-border-dark: var(--color-neutral-500);
+  
+  /* Card Colors */
+  --color-card-background: var(--color-white);
+  --color-card-border: var(--color-neutral-300);
+  
+  /* Form Element Colors */
+  --color-input-background: var(--color-white);
+  --color-input-border: var(--color-neutral-300);
+  --color-input-text: var(--color-primary);
+} 

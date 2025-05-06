@@ -1,0 +1,68 @@
+/**
+ * AliTools Color System
+ * Define color variables according to brand guidelines
+ */
+
+:root {
+  /* Primary Colors - Black */
+  --color-primary: #1A1A1A;
+  --color-primary-50: #f2f2f2;
+  --color-primary-100: #e6e6e6;
+  --color-primary-200: #cccccc;
+  --color-primary-300: #b3b3b3;
+  --color-primary-400: #999999;
+  --color-primary-500: #808080;
+  --color-primary-600: #666666;
+  --color-primary-700: #4d4d4d;
+  --color-primary-800: #333333;
+  --color-primary-900: #1A1A1A;
+
+  /* Brand Colors - Yellow/Gold */
+  --color-brand: #FFCC00;
+  --color-brand-50: #fff9e6;
+  --color-brand-100: #fff4cc;
+  --color-brand-200: #ffea99;
+  --color-brand-300: #ffe066;
+  --color-brand-400: #ffd633;
+  --color-brand-500: #FFCC00;
+  --color-brand-600: #cca300;
+  --color-brand-700: #997a00;
+  --color-brand-800: #665200;
+  --color-brand-900: #332900;
+
+  /* Neutral Colors */
+  --color-white: #FFFFFF;
+  --color-neutral-100: #FFFFFF;
+  --color-neutral-200: #F9FAFB;
+  --color-neutral-300: #F3F4F6;
+  --color-neutral-400: #E5E7EB;
+  --color-neutral-500: #D1D5DB;
+  --color-neutral-600: #9CA3AF;
+  --color-neutral-700: #6B7280;
+  --color-neutral-800: #4B5563;
+  --color-neutral-900: #1F2937;
+  --color-black: #000000;
+
+  /* Semantic Colors */
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+
+  /* Background Colors */
+  --color-background-primary: var(--color-white);
+  --color-background-secondary: var(--color-neutral-200);
+  --color-background-tertiary: var(--color-neutral-300);
+  
+  /* Text Colors */
+  --color-text-primary: var(--color-primary);
+  --color-text-secondary: var(--color-neutral-700);
+  --color-text-tertiary: var(--color-neutral-600);
+  --color-text-brand: var(--color-brand);
+  --color-text-inverse: var(--color-white);
+
+  /* Border Colors */
+  --color-border-light: var(--color-neutral-300);
+  --color-border-default: var(--color-neutral-400);
+  --color-border-dark: var(--color-neutral-500);
+} 
