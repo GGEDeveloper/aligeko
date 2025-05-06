@@ -1,6 +1,6 @@
 import express from 'express';
 import * as cartController from '../controllers/cart.controller';
-import auth from '../middleware/auth';
+import { requireAuth } from '../middleware/auth';
 import asyncHandler from '../utils/asyncHandler';
 
 const router = express.Router();
@@ -22,7 +22,7 @@ router
    *       401:
    *         description: Unauthorized
    */
-  .get(auth(), asyncHandler(cartController.getUserCart))
+  .get(requireAuth, asyncHandler(cartController.getUserCart))
   /**
    * @swagger
    * /api/v1/cart:
@@ -55,7 +55,7 @@ router
    *       401:
    *         description: Unauthorized
    */
-  .post(auth(), asyncHandler(cartController.syncCart))
+  .post(requireAuth, asyncHandler(cartController.syncCart))
   /**
    * @swagger
    * /api/v1/cart:
@@ -71,7 +71,7 @@ router
    *       401:
    *         description: Unauthorized
    */
-  .delete(auth(), asyncHandler(cartController.clearCart));
+  .delete(requireAuth, asyncHandler(cartController.clearCart));
 
 router
   .route('/items')
@@ -108,7 +108,7 @@ router
    *       401:
    *         description: Unauthorized
    */
-  .post(auth(), asyncHandler(cartController.addCartItem));
+  .post(requireAuth, asyncHandler(cartController.addCartItem));
 
 router
   .route('/items/:item_id')
@@ -148,7 +148,7 @@ router
    *       404:
    *         description: Cart item not found
    */
-  .put(auth(), asyncHandler(cartController.updateCartItem))
+  .put(requireAuth, asyncHandler(cartController.updateCartItem))
   /**
    * @swagger
    * /api/v1/cart/items/{item_id}:
@@ -172,6 +172,6 @@ router
    *       404:
    *         description: Cart item not found
    */
-  .delete(auth(), asyncHandler(cartController.removeCartItem));
+  .delete(requireAuth, asyncHandler(cartController.removeCartItem));
 
 export default router; 
