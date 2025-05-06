@@ -5,18 +5,17 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 ## Histórico de Deployments
 
 ### Versão 11.0 - Maio 2025 (Atual)
-- **URL de Produção**: Pendente de deploy
-- **Status**: Em verificação - Modificações para resolver problemas de renderização no cliente
+- **URL de Produção**: https://aligekow-3t44a6ute-alitools-projects.vercel.app
+- **Status**: Sucesso - Resolução definitiva para problemas de renderização no cliente
 - **Data do Deploy**: 07/Maio/2025
 - **Melhorias**:
-  - Reconfiguração do vercel.json para usar '@vercel/static' para arquivos do cliente
-  - Adicionada configuração "type": "module" ao package.json do cliente
-  - Configuração avançada do vite.config.js para separar chunks e otimizar build
-  - Adição de cabeçalhos explícitos de tipo MIME no servidor Express
-  - Configuração de cache para arquivos estáticos
-  - Implementação de manual chunks para reduzir tamanho de arquivos JS
+  - Simplificação do vercel.json para focar apenas na configuração do servidor Express
+  - Mantida configuração "type": "module" no package.json principal e do cliente
+  - Simplificação da configuração do Vite para usar minificação esbuild (mais estável)
+  - Adição de cabeçalhos MIME explícitos no servidor Express para garantir carregamento correto dos assets
+  - Configuração de cache para melhorar performance de arquivos estáticos
   - Adicionado .vercelignore para otimizar o processo de deploy
-  - Documentação atualizada com novas soluções e práticas recomendadas
+  - Documentação detalhada com lições aprendidas sobre compatibilidade ESM/CommonJS
 
 ### Versão 10.0 - Maio 2025
 - **URL de Produção**: https://aligekow-39y6r1qnu-alitools-projects.vercel.app

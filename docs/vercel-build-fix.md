@@ -22,7 +22,7 @@ O erro ocorria devido a três fatores principais:
 
 3. **Configuração complexa**: Nossa configuração anterior tentava combinar um build Node.js para o servidor e um build estático para o cliente, o que criava conflitos de contexto durante a execução.
 
-## Solução Implementada
+## Solução Aplicada na Versão 10.0
 
 Implementamos uma solução em três partes:
 
@@ -76,20 +76,6 @@ Movemos o Vite e o plugin React de `devDependencies` para `dependencies` no `pac
 
 Isso garante que essas ferramentas essenciais para o build estejam sempre disponíveis, mesmo em ambientes de produção onde as dependências de desenvolvimento podem ser ignoradas.
 
-## Testes e Validação
-
-Após implementar essas mudanças, realizamos um teste local do processo de build com o comando:
-
-```bash
-npm run vercel-build
-```
-
-O resultado foi bem-sucedido, confirmando que nossa solução resolveu o problema:
-
-1. As dependências do cliente foram instaladas corretamente
-2. O build do Vite foi executado sem erros
-3. Os arquivos foram gerados na pasta `client/dist` conforme esperado
-
 ## Problema Adicional: Conflito entre ESM e CommonJS
 
 Após resolver o erro inicial "vite: command not found", enfrentamos um novo problema: o erro "exports is not defined" no navegador. Este erro ocorreu porque:
@@ -97,7 +83,7 @@ Após resolver o erro inicial "vite: command not found", enfrentamos um novo pro
 1. O Vercel detectou código ESM (ES Modules) e tentou convertê-lo para CommonJS
 2. O navegador não reconhece a sintaxe CommonJS (como `Object.defineProperty(exports, "__esModule", {value: true})`)
 
-### Solução para o Problema ESM/CommonJS
+### Solução Para Problema ESM/CommonJS na Versão 10.0
 
 Para resolver este problema, implementamos as seguintes alterações:
 
@@ -139,25 +125,134 @@ Para resolver este problema, implementamos as seguintes alterações:
    "steps:report": "node -e \"try { import('./tasks/step-tracker.js').then(tracker => { ... }) }\""
    ```
 
-Estas alterações garantem que todo o código do projeto seja consistente no uso de ES Modules, evitando problemas de incompatibilidade entre diferentes sistemas de módulos.
+## Solução Definitiva na Versão 11.0
 
-## Recomendações Adicionais
+Apesar das soluções aplicadas na versão 10.0, ainda enfrentamos problemas na renderização do cliente. Em nossa abordagem final (Versão 11.0), implementamos as seguintes melhorias que resolveram definitivamente o problema:
 
-1. **Uso do Express Server**: Manter a abordagem simplificada usando o Express para servir tanto a API quanto os arquivos estáticos.
+### 1. Manter Configuração Simplificada do Vercel
 
-2. **Monitoramento de Builds**: Monitorar os logs de build no Vercel para identificar rapidamente quaisquer problemas futuros.
+Mantivemos a abordagem simplificada do `vercel.json`, evitando múltiplas configurações de build que poderiam causar conflitos:
 
-3. **Versionamento de Dependências**: Considerar fixar as versões exatas das dependências críticas para evitar problemas de compatibilidade em futuros deploys.
+```json
+{
+  "version": 2,
+  "builds": [
+    { 
+      "src": "index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/index.js" },
+    { "src": "/(.*)", "dest": "/index.js" }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "public": true
+}
+```
 
-4. **Cache de Build**: Configurar apropriadamente o cache de build no Vercel para melhorar o tempo de deploy.
+### 2. Adicionar "type": "module" ao package.json do Cliente
 
-5. **Consistência em Sistemas de Módulos**: Manter consistência no uso de ES Modules (ESM) ou CommonJS em todo o projeto, evitando misturar os dois sistemas.
+Além do package.json principal, adicionamos a configuração de módulo ES também ao package.json do cliente:
+
+```json
+{
+  "name": "alitools-b2b-client",
+  "version": "1.0.0",
+  "description": "AliTools B2B E-commerce Platform - Client",
+  "private": true,
+  "type": "module",
+  ...
+}
+```
+
+### 3. Simplificar Configuração do Vite
+
+Substituímos as configurações avançadas de build do Vite por uma configuração mais simples e estável:
+
+```javascript
+export default defineConfig({
+  plugins: [react()],
+  base: '/',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true,
+    minify: 'esbuild'  // Mais estável que terser em alguns casos
+  },
+  // ...outras configurações...
+});
+```
+
+### 4. Melhorar Configuração do Servidor Express
+
+Adicionamos configurações de cabeçalhos MIME específicos para garantir que cada tipo de arquivo seja servido corretamente:
+
+```javascript
+// Serve static files from the React app with explicit MIME types
+app.use(express.static(join(__dirname, 'client/dist'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+    } else if (path.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    }
+  }
+}));
+```
+
+### 5. Adicionar Configuração de CORS e Cache
+
+Para melhorar a performance e evitar problemas de acesso:
+
+```javascript
+// Configurar cabeçalhos para prevenir problemas de CORS e cache
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Cache-Control', 'public, max-age=3600'); // Cache de 1 hora
+  next();
+});
+```
+
+### 6. Implementar .vercelignore
+
+Adicionamos um arquivo .vercelignore para excluir arquivos desnecessários do deploy:
+
+```
+# Dependencies
+**/node_modules
+
+# Build files
+client/.vite
+
+# Log files
+**/*.log*
+
+# Local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ...outras exclusões...
+```
 
 ## Conclusão
 
-A solução implementada resolve os problemas de build no Vercel, incluindo o erro "vite: command not found" e o conflito entre ESM e CommonJS, ao simplificar a configuração de build e garantir que todas as dependências e sistemas de módulos estejam corretamente configurados.
+A experiência deste deploy nos ensinou lições valiosas sobre a arquitetura de aplicações no Vercel:
 
-Esta abordagem não apenas resolve os problemas imediatos, mas também simplifica a arquitetura de deploy, tornando-a mais robusta para atualizações futuras.
+1. **Simplificar é a Chave**: Manter uma configuração simples é geralmente mais confiável que tentar otimizações complexas.
+2. **Consistência em Sistemas de Módulos**: Manter consistência entre ESM e CommonJS em todo o projeto é essencial.
+3. **Configuração Explícita**: Sempre tornar explícitas as configurações de tipos MIME e cabeçalhos para garantir compatibilidade.
+4. **Padrão de Servir Estáticos via Express**: Para aplicações de pilha completa, servir os arquivos estáticos pelo Express pode evitar problemas de compatibilidade.
+5. **Minimizar a Transformação de Código**: Evitar situações onde o Vercel precise transformar o código (por exemplo, de ESM para CommonJS).
+
+Esta abordagem não apenas resolve os problemas de build e renderização, mas também simplifica a arquitetura de deploy, tornando-a mais robusta e fácil de manter para atualizações futuras.
 
 ---
 
