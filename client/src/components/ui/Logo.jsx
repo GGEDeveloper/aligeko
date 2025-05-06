@@ -45,12 +45,12 @@ const Logo = ({
     wordmark: wordmarkLogo,
   };
   
-  // Mapear tamanhos para classes Tailwind
+  // Mapear tamanhos para classes Tailwind - TAMANHOS REDUZIDOS
   const sizeClasses = {
-    small: 'w-[80px] md:w-[70px] sm:w-[60px]',
-    medium: 'w-[120px] md:w-[100px] sm:w-[80px]',
-    large: 'w-[150px] md:w-[120px] sm:w-[100px]',
-    xlarge: 'w-[180px] md:w-[140px] sm:w-[120px]',
+    small: 'w-[60px] md:w-[50px] sm:w-[40px]',
+    medium: 'w-[80px] md:w-[70px] sm:w-[60px]',
+    large: 'w-[100px] md:w-[90px] sm:w-[80px]',
+    xlarge: 'w-[130px] md:w-[110px] sm:w-[90px]',
   };
   
   // Definir descrição alt com base na variante
@@ -93,4 +93,4 @@ Logo.propTypes = {
   linkProps: PropTypes.object,
 };
 
-export default Logo; 
+export default Logo;

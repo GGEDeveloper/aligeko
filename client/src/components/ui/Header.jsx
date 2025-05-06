@@ -1,147 +1,129 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import Logo from './Logo';
 
+// Icons
+import { BsSearch, BsCart3, BsPersonCircle, BsList, BsX } from 'react-icons/bs';
+
 /**
- * Header component that follows the AliTools design system
- * 
- * @param {Object} props - Component props
- * @param {boolean} props.isAdmin - Whether the header is for the admin interface
- * @param {React.ReactNode} props.children - Additional content to render in the header
- * @param {string} props.className - Additional CSS classes
+ * Header component for the AliTools B2B site
+ * Includes navigation, logo, and user controls
  */
-const Header = ({
-  isAdmin = false,
-  children,
-  className = '',
-  ...props
-}) => {
+const Header = ({ isAdmin = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-  
+
   return (
-    <header 
-      className={`bg-white border-b border-neutral-200 shadow-sm w-full z-20 ${className}`}
-      {...props}
-    >
-      <div className="container mx-auto px-6 sm:px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo - Agora usando o componente Logo com tamanho correto */}
-          <div className="flex-shrink-0 mr-8 md:mr-6 sm:mr-4 py-4">
-            <Logo 
-              variant="primary" 
-              size="medium" 
-              linkTo="/" 
-              className="m-1"
-            />
+    <header className="bg-white border-b border-neutral-200">
+      <div className="container mx-auto px-4">
+        <div className="h-16 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Logo variant="primary" size="small" />
           </div>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-6">
-            <a href="/products" className="text-primary hover:text-brand transition-colors font-medium">
+            <Link to="/products" className="text-neutral-700 hover:text-primary transition-colors font-medium">
               Produtos
-            </a>
-            <a href="/categories" className="text-primary hover:text-brand transition-colors font-medium">
+            </Link>
+            <Link to="/categories" className="text-neutral-700 hover:text-primary transition-colors font-medium">
               Categorias
-            </a>
-            <a href="/orders" className="text-primary hover:text-brand transition-colors font-medium">
+            </Link>
+            <Link to="/orders" className="text-neutral-700 hover:text-primary transition-colors font-medium">
               Pedidos
-            </a>
-            <a href="/about" className="text-primary hover:text-brand transition-colors font-medium">
+            </Link>
+            <Link to="/about" className="text-neutral-700 hover:text-primary transition-colors font-medium">
               Sobre
-            </a>
+            </Link>
             {isAdmin && (
-              <a href="/admin" className="text-primary hover:text-brand transition-colors font-medium">
+              <Link to="/admin" className="text-neutral-700 hover:text-primary transition-colors font-medium">
                 Admin
-              </a>
+              </Link>
             )}
           </nav>
           
-          {/* User and Cart */}
-          <div className="hidden md:flex items-center space-x-4">
-            <a href="/cart" className="flex items-center text-primary hover:text-brand">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
-              <span className="ml-1 text-sm">Cart</span>
-            </a>
-            <a href="/account" className="flex items-center text-primary hover:text-brand">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              <span className="ml-1 text-sm">Account</span>
-            </a>
-          </div>
-          
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          {/* Right actions (search, cart, account) */}
+          <div className="flex items-center space-x-4">
+            {/* Search Button - Reduced icon size */}
             <button 
-              type="button" 
-              className="text-primary hover:text-brand"
-              onClick={toggleMenu}
-              aria-expanded={isMenuOpen}
-              aria-label="Toggle menu"
+              aria-label="Pesquisar"
+              className="text-neutral-700 hover:text-primary transition-colors p-1.5"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <BsSearch className="w-5 h-5" />
+            </button>
+            
+            {/* Cart Button - Reduced icon size */}
+            <Link 
+              to="/cart" 
+              aria-label="Carrinho de compras"
+              className="text-neutral-700 hover:text-primary transition-colors p-1.5 relative"
+            >
+              <BsCart3 className="w-5 h-5" />
+              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                0
+              </span>
+            </Link>
+            
+            {/* Account Button - Reduced icon size */}
+            <Link 
+              to="/account" 
+              aria-label="Minha conta"
+              className="text-neutral-700 hover:text-primary transition-colors p-1.5"
+            >
+              <BsPersonCircle className="w-5 h-5" />
+            </Link>
+            
+            {/* Mobile menu button - Reduced icon size */}
+            <button 
+              onClick={toggleMenu}
+              aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+              className="md:hidden text-neutral-700 hover:text-primary transition-colors p-1.5"
+            >
+              {isMenuOpen ? (
+                <BsX className="w-5 h-5" />
+              ) : (
+                <BsList className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>
         
-        {/* Mobile Menu */}
+        {/* Mobile Navigation Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-neutral-200">
-            <nav className="flex flex-col space-y-3">
-              <a href="/products" className="text-primary hover:text-brand transition-colors font-medium">
+          <div className="md:hidden border-t border-neutral-200">
+            <nav className="py-4 flex flex-col">
+              <Link to="/products" className="py-2 px-4 text-neutral-700 hover:bg-neutral-100">
                 Produtos
-              </a>
-              <a href="/categories" className="text-primary hover:text-brand transition-colors font-medium">
+              </Link>
+              <Link to="/categories" className="py-2 px-4 text-neutral-700 hover:bg-neutral-100">
                 Categorias
-              </a>
-              <a href="/orders" className="text-primary hover:text-brand transition-colors font-medium">
+              </Link>
+              <Link to="/orders" className="py-2 px-4 text-neutral-700 hover:bg-neutral-100">
                 Pedidos
-              </a>
-              <a href="/about" className="text-primary hover:text-brand transition-colors font-medium">
+              </Link>
+              <Link to="/about" className="py-2 px-4 text-neutral-700 hover:bg-neutral-100">
                 Sobre
-              </a>
+              </Link>
               {isAdmin && (
-                <a href="/admin" className="text-primary hover:text-brand transition-colors font-medium">
+                <Link to="/admin" className="py-2 px-4 text-neutral-700 hover:bg-neutral-100">
                   Admin
-                </a>
+                </Link>
               )}
-              <div className="pt-2 border-t border-neutral-100">
-                <a href="/cart" className="flex items-center text-primary hover:text-brand py-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                  </svg>
-                  <span className="ml-2">Cart</span>
-                </a>
-                <a href="/account" className="flex items-center text-primary hover:text-brand py-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="ml-2">Account</span>
-                </a>
-              </div>
             </nav>
           </div>
         )}
-        
-        {/* Additional content */}
-        {children}
       </div>
     </header>
   );
 };
 
 Header.propTypes = {
-  isAdmin: PropTypes.bool,
-  children: PropTypes.node,
-  className: PropTypes.string,
+  isAdmin: PropTypes.bool
 };
 
 export default Header; 
