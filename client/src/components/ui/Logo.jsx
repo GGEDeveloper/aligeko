@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-// Importações dos logos (usando os nomes de arquivo corretos)
+// Importações de logos com fallbacks diretos
 import primaryLogo from '../../assets/logos/png/primary/alitools_primary_fullcolor_100px.png';
 import monoWhiteLogo from '../../assets/logos/png/mono/alitools_mono_white.png';
 import monoBlackLogo from '../../assets/logos/png/mono/alitools_mono_black.png';
@@ -30,13 +30,19 @@ const Logo = ({
   linkProps = {},
   ...props 
 }) => {
+  // Função para tratamento de erro de imagem não encontrada
+  const handleError = (e) => {
+    console.warn(`Logo não encontrado: ${e.target.src}`);
+    e.target.src = fallbackLogo;
+  };
+  
   // Mapear variantes para caminhos de arquivo
   const logoSrc = {
-    primary: primaryLogo || fallbackLogo,
-    mono: monoWhiteLogo || fallbackLogo,
-    monoDark: monoBlackLogo || fallbackLogo,
-    symbol: symbolLogo || fallbackLogo,
-    wordmark: wordmarkLogo || fallbackLogo,
+    primary: primaryLogo,
+    mono: monoWhiteLogo,
+    monoDark: monoBlackLogo,
+    symbol: symbolLogo,
+    wordmark: wordmarkLogo,
   };
   
   // Mapear tamanhos para classes Tailwind
@@ -58,9 +64,10 @@ const Logo = ({
   
   const imgElement = (
     <img
-      src={logoSrc[variant]}
+      src={logoSrc[variant] || fallbackLogo}
       alt={altText[variant]}
       className={`h-auto ${sizeClasses[size]} ${className}`}
+      onError={handleError}
       {...props}
     />
   );

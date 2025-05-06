@@ -5,12 +5,16 @@ import Footer from '../ui/Footer';
 
 const MainLayout = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
-      <main className="flex-grow w-full">
+    <div className="flex flex-col min-h-screen bg-neutral-200">
+      <div className="sticky top-0 z-50 w-full">
+        <Header />
+      </div>
+      <main className="flex-grow w-full relative z-10 pt-2">
         <Outlet />
       </main>
-      <Footer />
+      <div className="relative z-20 w-full">
+        <Footer />
+      </div>
     </div>
   );
 };

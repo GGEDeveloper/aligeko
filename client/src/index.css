@@ -174,11 +174,19 @@ body {
   
   /* Home page specific components */
   .hero-section {
-    @apply bg-gradient-to-r from-primary to-primary-800 text-white rounded-lg overflow-hidden shadow-xl;
+    @apply bg-gradient-to-r from-primary to-primary-800 text-white rounded-lg overflow-hidden shadow-xl mb-6;
   }
   
   .category-card {
-    @apply bg-brand hover:bg-brand-600 transition-colors text-primary rounded-lg p-6 text-center shadow-md transform hover:scale-105 hover:shadow-lg transition-all;
+    @apply bg-brand hover:bg-brand-600 transition-colors text-primary rounded-lg p-4 text-center shadow-md transform hover:scale-105 hover:shadow-lg transition-all;
+  }
+  
+  /* Corrigir tamanho dos emojis nas category cards */
+  .category-card .text-2xl {
+    @apply text-xl md:text-2xl inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
   }
   
   .product-card {
@@ -186,7 +194,25 @@ body {
   }
   
   .feature-card {
-    @apply bg-white p-8 rounded-lg shadow-md text-center transform hover:scale-105 transition-transform;
+    @apply bg-white p-6 rounded-lg shadow-md text-center transform hover:scale-105 transition-transform;
+  }
+  
+  /* Corrigir tamanho dos ícones SVG */
+  .feature-card svg {
+    @apply w-5 h-5;
+    max-width: 20px;
+    max-height: 20px;
+  }
+  
+  /* Corrigir tamanho do container do ícone */
+  .feature-card .bg-brand-100 {
+    @apply flex items-center justify-center;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    max-height: 40px;
   }
 }
 
@@ -224,4 +250,15 @@ body {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+}
+
+/* Corrigir problemas de visibilidade para Header e Footer */
+header, footer {
+  @apply block w-full opacity-100 visible;
+}
+
+/* Ajustes para garantir que os SVGs nas Feature Cards não estejam muito grandes */
+svg {
+  max-width: 100%;
+  max-height: 100%;
 } 

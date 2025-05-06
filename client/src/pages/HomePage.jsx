@@ -35,35 +35,35 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-6 md:space-y-8">
       {/* Hero Section */}
       <section className="hero-section">
-        <div className="container mx-auto py-16 px-4 md:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white">
+        <div className="container mx-auto py-8 px-4 md:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div className="space-y-4">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-white">
                 Professional Tools for Your Business
               </h1>
-              <p className="text-xl md:text-2xl text-neutral-100 max-w-lg">
+              <p className="text-base md:text-lg text-neutral-100 max-w-lg">
                 Ali Tools provides wholesale premium quality tools with competitive pricing and exceptional service.
               </p>
-              <div className="pt-4 flex flex-wrap gap-4">
+              <div className="pt-4 flex flex-wrap gap-3">
                 <Link
                   to="/products"
-                  className="bg-brand text-primary hover:bg-brand-600 transition-smooth px-8 py-4 rounded-md font-medium text-lg shadow-md"
+                  className="bg-brand text-primary hover:bg-brand-600 transition-smooth px-4 py-2 rounded-md font-medium text-sm shadow-md"
                 >
                   Browse Products
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-transparent hover:bg-primary-800 transition-smooth border-2 border-white px-8 py-4 rounded-md font-medium text-lg"
+                  className="bg-transparent hover:bg-primary-800 transition-smooth border-2 border-white px-4 py-2 rounded-md font-medium text-sm"
                 >
                   Register Now
                 </Link>
               </div>
             </div>
             <div className="hidden md:flex justify-end">
-              <div className="w-full max-w-lg bg-white/10 backdrop-blur-sm p-8 rounded-lg shadow-lg">
+              <div className="w-full max-w-lg bg-white/10 backdrop-blur-sm p-4 rounded-lg shadow-lg">
                 <img
                   src="https://placehold.co/800x600/EEE/31343C?text=AliTools+Professional+Tools"
                   alt="Professional Tools"
@@ -78,22 +78,22 @@ const HomePage = () => {
       {/* Category Quick Links */}
       <section>
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             <Link to="/categories/power-tools" className="category-card">
-              <div className="text-4xl mb-3">🔌</div>
-              <h3 className="font-bold text-lg text-primary">Power Tools</h3>
+              <div className="text-lg mb-1">🔌</div>
+              <h3 className="font-bold text-sm text-primary">Power Tools</h3>
             </Link>
             <Link to="/categories/hand-tools" className="category-card">
-              <div className="text-4xl mb-3">🔧</div>
-              <h3 className="font-bold text-lg text-primary">Hand Tools</h3>
+              <div className="text-lg mb-1">🔧</div>
+              <h3 className="font-bold text-sm text-primary">Hand Tools</h3>
             </Link>
             <Link to="/categories/safety" className="category-card">
-              <div className="text-4xl mb-3">🛡️</div>
-              <h3 className="font-bold text-lg text-primary">Safety Equipment</h3>
+              <div className="text-lg mb-1">🛡️</div>
+              <h3 className="font-bold text-sm text-primary">Safety Equipment</h3>
             </Link>
             <Link to="/categories/all" className="category-card">
-              <div className="text-4xl mb-3">🔍</div>
-              <h3 className="font-bold text-lg text-primary">All Categories</h3>
+              <div className="text-lg mb-1">🔍</div>
+              <h3 className="font-bold text-sm text-primary">All Categories</h3>
             </Link>
           </div>
         </div>
@@ -102,28 +102,28 @@ const HomePage = () => {
       {/* Featured Products */}
       <section>
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Featured Products</h2>
-            <p className="text-primary-600 max-w-2xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-bold mb-2">Featured Products</h2>
+            <p className="text-primary-600 max-w-2xl mx-auto text-sm">
               Discover our selection of high-quality professional tools designed for businesses like yours.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {featuredProducts.map((product) => (
               <div key={product.id} className="product-card">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-40 object-cover"
                 />
-                <div className="p-4">
-                  <span className="text-sm text-brand font-medium">{product.category}</span>
-                  <h3 className="font-bold text-lg mt-1">{product.name}</h3>
-                  <div className="flex justify-between items-center mt-3">
-                    <span className="font-bold text-lg">${product.price.toFixed(2)}</span>
+                <div className="p-3">
+                  <span className="text-xs text-brand font-medium">{product.category}</span>
+                  <h3 className="font-bold text-base mt-1">{product.name}</h3>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="font-bold text-base">${product.price.toFixed(2)}</span>
                     <Link
                       to={`/products/${product.id}`}
-                      className="bg-primary hover:bg-primary-800 text-white px-3 py-1 rounded-md text-sm transition-smooth"
+                      className="bg-primary hover:bg-primary-800 text-white px-2 py-1 rounded-md text-xs transition-smooth"
                     >
                       View Details
                     </Link>
@@ -132,10 +132,10 @@ const HomePage = () => {
               </div>
             ))}
           </div>
-          <div className="text-center mt-8">
+          <div className="text-center mt-4">
             <Link
               to="/products"
-              className="inline-block bg-primary hover:bg-primary-800 text-white px-6 py-2 rounded-md font-medium transition-smooth shadow-hover"
+              className="inline-block bg-primary hover:bg-primary-800 text-white px-4 py-2 rounded-md font-medium transition-smooth shadow-hover text-sm"
             >
               View All Products
             </Link>
@@ -144,15 +144,14 @@ const HomePage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="bg-neutral-200 py-16 rounded-lg">
+      <section className="bg-neutral-200 py-8 rounded-lg">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Choose AliTools?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <h2 className="text-xl font-bold text-center mb-6">Why Choose AliTools?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="feature-card">
-              <div className="bg-brand-100 text-primary w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-brand-100 text-primary rounded-full mx-auto mb-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -163,16 +162,15 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Premium Quality</h3>
-              <p className="text-primary-600">
+              <h3 className="text-lg font-bold mb-1">Premium Quality</h3>
+              <p className="text-primary-600 text-sm">
                 Our tools are sourced from trusted manufacturers, ensuring durability and performance for professional use.
               </p>
             </div>
             <div className="feature-card">
-              <div className="bg-brand-100 text-primary w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-brand-100 text-primary rounded-full mx-auto mb-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -183,24 +181,23 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Wholesale Pricing</h3>
-              <p className="text-primary-600">
+              <h3 className="text-lg font-bold mb-1">Wholesale Pricing</h3>
+              <p className="text-primary-600 text-sm">
                 Competitive pricing for businesses with transparent volume discounts. Save more when you buy more.
               </p>
             </div>
             <div className="feature-card">
-              <div className="bg-brand-100 text-primary w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-brand-100 text-primary rounded-full mx-auto mb-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
                   <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3">Dedicated Support</h3>
-              <p className="text-primary-600">
+              <h3 className="text-lg font-bold mb-1">Dedicated Support</h3>
+              <p className="text-primary-600 text-sm">
                 Our team of experts is available to assist with product selection, technical guidance, and order support.
               </p>
             </div>
@@ -211,41 +208,41 @@ const HomePage = () => {
       {/* Trusted By Section */}
       <section>
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-12">Trusted By Businesses</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 justify-items-center items-center opacity-70">
+          <h2 className="text-xl font-bold mb-6">Trusted By Businesses</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 justify-items-center items-center opacity-70">
             <div className="shadow-hover">
-              <img src="https://placehold.co/200x80/EEE/31343C?text=Company+1" alt="Company 1" className="h-12" />
+              <img src="https://placehold.co/200x80/EEE/31343C?text=Company+1" alt="Company 1" className="h-8" />
             </div>
             <div className="shadow-hover">
-              <img src="https://placehold.co/200x80/EEE/31343C?text=Company+2" alt="Company 2" className="h-12" />
+              <img src="https://placehold.co/200x80/EEE/31343C?text=Company+2" alt="Company 2" className="h-8" />
             </div>
             <div className="shadow-hover">
-              <img src="https://placehold.co/200x80/EEE/31343C?text=Company+3" alt="Company 3" className="h-12" />
+              <img src="https://placehold.co/200x80/EEE/31343C?text=Company+3" alt="Company 3" className="h-8" />
             </div>
             <div className="shadow-hover">
-              <img src="https://placehold.co/200x80/EEE/31343C?text=Company+4" alt="Company 4" className="h-12" />
+              <img src="https://placehold.co/200x80/EEE/31343C?text=Company+4" alt="Company 4" className="h-8" />
             </div>
           </div>
         </div>
       </section>
 
       {/* Call to Action */}
-      <section className="bg-gradient-to-r from-primary to-primary-800 rounded-lg p-12 text-center shadow-xl">
+      <section className="bg-gradient-to-r from-primary to-primary-800 rounded-lg p-6 text-center shadow-xl">
         <div className="container mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Ready to Get Started?</h2>
-          <p className="text-xl text-neutral-100 mb-10 max-w-3xl mx-auto">
+          <h2 className="text-xl md:text-2xl font-bold mb-3 text-white">Ready to Get Started?</h2>
+          <p className="text-base text-neutral-100 mb-4 max-w-3xl mx-auto">
             Join our growing network of business customers and enjoy the benefits of our B2B platform. Register today to access wholesale pricing.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               to="/register"
-              className="bg-brand hover:bg-brand-600 text-primary px-8 py-4 rounded-md font-medium text-lg shadow-md transition-smooth"
+              className="bg-brand hover:bg-brand-600 text-primary px-4 py-2 rounded-md font-medium text-sm shadow-md transition-smooth"
             >
               Register Your Business
             </Link>
             <Link
               to="/contact"
-              className="bg-transparent hover:bg-primary-800 text-white border-2 border-white px-8 py-4 rounded-md font-medium text-lg transition-smooth"
+              className="bg-transparent hover:bg-primary-800 text-white border-2 border-white px-4 py-2 rounded-md font-medium text-sm transition-smooth"
             >
               Contact Sales Team
             </Link>
