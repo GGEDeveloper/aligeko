@@ -25,6 +25,22 @@ This platform enables businesses to register, browse products, place orders, and
 - **Database**: PostgreSQL (Neon for production)
 - **Deployment**: Vercel (development) and Dominios.pt (production)
 
+## Live Demo
+
+The latest version of the application is deployed and available at:
+- **Vercel Production**: [https://aligekow-hy8vyu57t-alitools-projects.vercel.app](https://aligekow-hy8vyu57t-alitools-projects.vercel.app)
+
+## Implementation Status
+
+As of October 2024, the following key components have been implemented:
+- ✅ Admin Dashboard and Management (Task 10) - 100% Complete
+- ✅ Customer Dashboard Layout (Task 11.1) - Complete
+- ⏳ Customer Account Management (Tasks 11.2-11.5) - In Progress
+- ⏳ Security Implementation (Task 12) - Pending
+- ⏳ Performance Optimization (Task 13) - Pending
+
+For detailed implementation status, see `tasks/implementation-steps.md`.
+
 ## Getting Started
 
 ### Prerequisites
@@ -78,6 +94,25 @@ This platform enables businesses to register, browse products, place orders, and
 
 - Backend API will be available at: http://localhost:5000
 - Frontend will be available at: http://localhost:3000
+
+## Deployment
+
+For detailed deployment instructions and configuration:
+- See `docs/vercel-deployment-steps.md` for step-by-step deployment guide
+- See `docs/environment_config.markdown` for environment variable configuration
+- See `server/docs/deployment/vercel-neon-deployment.md` for Vercel + Neon PostgreSQL integration
+
+To deploy to Vercel:
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy to production
+vercel --prod
+```
 
 ## License
 
