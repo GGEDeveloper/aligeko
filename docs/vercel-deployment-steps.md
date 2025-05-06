@@ -5,8 +5,8 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 ## Histórico de Deployments
 
 ### Versão 10.0 - Maio 2025 (Atual)
-- **URL de Produção**: Pendente de deploy
-- **Status**: Correção - Resolvido erro "exports is not defined"
+- **URL de Produção**: https://aligekow-39y6r1qnu-alitools-projects.vercel.app
+- **Status**: Sucesso - Resolvido erro "exports is not defined"
 - **Data do Deploy**: 07/Maio/2025
 - **Melhorias**:
   - Adicionado `"type": "module"` ao package.json para corrigir erro de compatibilidade ESM/CommonJS
