@@ -15,12 +15,5 @@
   "env": {
     "NODE_ENV": "production"
   },
-  "public": true,
-  "authentication": {
-    "deployment": {
-      "standard": false,
-      "preview": false,
-      "production": false
-    }
-  }
+  "public": true
 } 
