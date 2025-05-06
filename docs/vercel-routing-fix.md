@@ -325,3 +325,40 @@ Estas alterações devem resolver definitivamente o problema de rotas 404, pois 
 1. Servidor Express para lidar com rotas no lado do servidor
 2. Arquivos de redirecionamento para o caso do servidor não ser ativado corretamente
 3. Configuração simplificada do Vercel para evitar conflitos 
+
+## Correção do Erro de Dependência Recharts
+
+Após corrigir o erro do Vite, enfrentamos outro problema durante o build:
+
+```
+[21:56:34.647] [31merror during build:
+[21:56:34.647] [31m[vite]: Rollup failed to resolve import "recharts" from "/vercel/path0/client/src/pages/admin/AdminDashboardPage.jsx".
+[21:56:34.647] This is most likely unintended because it can break your application at runtime.
+```
+
+O problema é que o componente `AdminDashboardPage.jsx` importa a biblioteca `recharts` para criar gráficos, mas essa dependência não estava listada no `package.json` do cliente. Para resolver:
+
+1. Adicionamos `recharts` à lista de dependências no `package.json` do cliente:
+
+```json
+"dependencies": {
+  // ... outras dependências ...
+  "react-toastify": "^11.0.5",
+  "recharts": "^2.15.3",
+  "uuid": "^11.1.0"
+}
+```
+
+Esta correção garante que todas as dependências necessárias estejam disponíveis durante o build e no ambiente de execução.
+
+## Validação Local
+
+Após implementar todas as alterações, realizamos uma validação local antes do deploy:
+
+1. Executamos `npm run vercel-build` - Build completada com sucesso
+2. Checamos a presença de todos os arquivos necessários em `client/dist/`
+3. Iniciamos o servidor Express com `npm start` 
+4. Testamos a rota da API com `curl http://localhost:5000/api/hello`
+5. Verificamos que o servidor responde corretamente com status 200
+
+Não foram encontrados erros durante o processo de validação, o que indica que a configuração está pronta para deploy. 
