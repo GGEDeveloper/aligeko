@@ -4,7 +4,18 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 
 ## Histórico de Deployments
 
-### Versão 4.0 - Maio 2025 (Atual)
+### Versão 5.0 - Maio 2025 (Atual)
+- **URL de Produção**: https://aligekow-5yv5tthre-alitools-projects.vercel.app
+- **Status**: Sucesso - Corrigido tamanho dos ícones e visualização do header/footer
+- **Data do Deploy**: 06/Maio/2025
+- **Melhorias**:
+  - Reduzido o tamanho dos ícones que estavam muito grandes
+  - Corrigido o problema de header e footer não visíveis
+  - Ajustado espaçamento e tamanho dos componentes para melhor responsividade
+  - Otimização de tamanho dos textos e botões para melhor legibilidade
+  - Correção em classes CSS específicas para SVGs
+
+### Versão 4.0 - Maio 2025
 - **URL de Produção**: https://aligekow-6n2qm3j5b-alitools-projects.vercel.app
 - **Status**: Sucesso - Implementado componente Logo reutilizável
 - **Data do Deploy**: 06/Maio/2025
