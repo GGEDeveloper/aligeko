@@ -113,3 +113,18 @@ After the initial rendering fixes, it was observed that the logo and icons in th
 - Added appropriate hover states for all interactive elements
 
 These changes ensure that the header maintains proper proportions on all device sizes while keeping the branding consistent with the design system. 
+
+## Build Issue Resolution
+
+After updating the Header component to use React-Icons, we encountered a build error in Vercel because the `react-icons` package was missing from the project dependencies. The error was:
+
+```
+[vite]: Rollup failed to resolve import "react-icons/bs" from "/vercel/path0/client/src/components/ui/Header.jsx".
+```
+
+### Fix Applied:
+- Added the `react-icons` package (version ^5.0.1) to the client's package.json dependencies
+- Committed the change to the repository
+- This ensures that the build process will now properly resolve the React-Icons components used in the Header
+
+This fix demonstrates the importance of ensuring all dependencies are properly declared in package.json when refactoring components to use external libraries. 
