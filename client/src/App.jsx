@@ -50,6 +50,12 @@ import OrderDetailPage from './pages/admin/OrderDetailPage';
 import OrderEditPage from './pages/admin/OrderEditPage';
 import InvoicePage from './pages/admin/InvoicePage';
 
+// Reporting & Analytics Pages
+import ReportsDashboardPage from './pages/admin/ReportsDashboardPage';
+import ProductAnalyticsPage from './pages/admin/ProductAnalyticsPage';
+import CustomerAnalyticsPage from './pages/admin/CustomerAnalyticsPage';
+import CustomReportBuilder from './pages/admin/CustomReportBuilder';
+
 function App() {
   return (
     <>
@@ -116,7 +122,11 @@ function App() {
             {/* Account routes */}
             <Route path="account/two-factor" element={<TwoFactorSettingsPage />} />
             
-            {/* More admin routes can be added here */}
+            {/* Reporting & Analytics routes */}
+            <Route path="reports" element={<ReportsDashboardPage />} />
+            <Route path="reports/products" element={<ProductAnalyticsPage />} />
+            <Route path="reports/customers" element={<CustomerAnalyticsPage />} />
+            <Route path="reports/custom" element={<CustomReportBuilder />} />
           </Route>
         </Route>
       </Routes>

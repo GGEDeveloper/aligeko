@@ -10,6 +10,7 @@ import { categoryApi } from './api/categoryApi';
 import { producerApi } from './api/producerApi';
 import { unitApi } from './api/unitApi';
 import { attributeApi } from './api/attributeApi';
+import { reportApi } from './api/reportApi';
 import authReducer from './slices/authSlice';
 import cartReducer from './slices/cartSlice';
 
@@ -25,21 +26,24 @@ export const store = configureStore({
     [producerApi.reducerPath]: producerApi.reducer,
     [unitApi.reducerPath]: unitApi.reducer,
     [attributeApi.reducerPath]: attributeApi.reducer,
+    [reportApi.reducerPath]: reportApi.reducer,
     auth: authReducer,
     cart: cartReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware()
-      .concat(apiSlice.middleware)
-      .concat(authApi.middleware)
-      .concat(productApi.middleware)
-      .concat(customerApi.middleware)
-      .concat(orderApi.middleware)
-      .concat(cartApi.middleware)
-      .concat(categoryApi.middleware)
-      .concat(producerApi.middleware)
-      .concat(unitApi.middleware)
-      .concat(attributeApi.middleware),
+    getDefaultMiddleware().concat(
+      apiSlice.middleware,
+      authApi.middleware,
+      productApi.middleware,
+      customerApi.middleware,
+      orderApi.middleware,
+      cartApi.middleware,
+      categoryApi.middleware,
+      producerApi.middleware,
+      unitApi.middleware,
+      attributeApi.middleware,
+      reportApi.middleware
+    ),
   devTools: process.env.NODE_ENV !== 'production',
 });
 
