@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import Logo from './Logo';
+import { BsFacebook, BsInstagram, BsTwitter, BsLinkedin, BsEnvelope, BsTelephone, BsGeoAlt, BsArrowRight } from 'react-icons/bs';
 
 /**
  * Footer component that follows the AliTools design system
@@ -25,7 +27,7 @@ const Footer = ({
             <div className="mb-4 md:mb-0 p-2">
               <Logo 
                 variant="primary" 
-                size="medium" 
+                size="small" 
                 withLink={true}
                 className="m-1"
               />
@@ -41,127 +43,220 @@ const Footer = ({
   
   // Full footer for main pages
   return (
-    <footer className={`bg-primary text-white ${className}`} {...props}>
-      <div className="container mx-auto px-6 sm:px-4 py-8">
-        {/* Main footer content */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo and about */}
-          <div className="col-span-1">
-            <div className="mb-6 p-3">
-              <Logo 
-                variant="mono" 
-                size="large" 
-                withLink={true}
-                className="m-1"
-              />
+    <footer className="bg-primary text-white pt-12 pb-6">
+      <div className="container mx-auto px-4">
+        {/* Footer Top - Main sections */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          {/* Company Info */}
+          <div>
+            <div className="mb-4">
+              <Logo variant="mono" size="small" />
             </div>
-            <p className="text-neutral-300 mb-4">
-              Sua plataforma completa para compras B2B de ferramentas profissionais de alta qualidade.
+            <p className="text-neutral-300 mb-6">
+              Ferramentas e produtos de proteção de alta qualidade para profissionais e empresas há mais de 25 anos.
             </p>
-            <div className="flex space-x-4">
-              <a href="https://facebook.com" className="text-neutral-300 hover:text-brand transition-colors">
-                <span className="sr-only">Facebook</span>
-                <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
-                </svg>
-              </a>
-              <a href="https://instagram.com" className="text-neutral-300 hover:text-brand transition-colors">
-                <span className="sr-only">Instagram</span>
-                <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465.668.25 1.235.585 1.8 1.15.565.565.9 1.132 1.15 1.8.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.15 1.8c-.565.565-1.132.9-1.8 1.15-.636.247-1.363.416-2.427.465-1.02.047-1.374.06-3.808.06-2.43 0-2.784-.013-3.808-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.8-1.15 4.902 4.902 0 01-1.15-1.8c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427.25-.668.585-1.235 1.15-1.8a4.902 4.902 0 011.8-1.15c.636-.247 1.363-.416 2.427-.465C9.53 2.013 9.9 2 12.315 2z" clipRule="evenodd" />
-                </svg>
-              </a>
-              <a href="https://twitter.com" className="text-neutral-300 hover:text-brand transition-colors">
-                <span className="sr-only">Twitter</span>
-                <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                </svg>
-              </a>
-              <a href="https://linkedin.com" className="text-neutral-300 hover:text-brand transition-colors">
-                <span className="sr-only">LinkedIn</span>
-                <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fillRule="evenodd" d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" clipRule="evenodd" />
-                </svg>
-              </a>
+            <div className="space-y-3">
+              <div className="flex items-center">
+                <BsGeoAlt className="mr-2 text-brand flex-shrink-0" />
+                <span>Rua das Ferramentas, 123, Lisboa, Portugal</span>
+              </div>
+              <div className="flex items-center">
+                <BsTelephone className="mr-2 text-brand flex-shrink-0" />
+                <span>800-123-4567</span>
+              </div>
+              <div className="flex items-center">
+                <BsEnvelope className="mr-2 text-brand flex-shrink-0" />
+                <span>info@alitools.com</span>
+              </div>
             </div>
           </div>
-          
-          {/* Products */}
-          <div className="col-span-1">
-            <h3 className="text-lg font-semibold mb-4">Produtos</h3>
+
+          {/* Products Categories */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 border-b border-primary-700 pb-2">Categorias</h3>
             <ul className="space-y-2">
               <li>
-                <a href="/products/handtools" className="text-neutral-300 hover:text-brand transition-colors">Ferramentas Manuais</a>
+                <Link to="/categorias/ferramentas-manuais" className="text-neutral-300 hover:text-brand hover:pl-1 transition-all flex items-center">
+                  <span>Ferramentas Manuais</span>
+                  <BsArrowRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
               </li>
               <li>
-                <a href="/products/electrical" className="text-neutral-300 hover:text-brand transition-colors">Ferramentas Elétricas</a>
+                <Link to="/categorias/ferramentas-eletricas" className="text-neutral-300 hover:text-brand hover:pl-1 transition-all flex items-center">
+                  <span>Ferramentas Elétricas</span>
+                  <BsArrowRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
               </li>
               <li>
-                <a href="/products/abrasives" className="text-neutral-300 hover:text-brand transition-colors">Abrasivos</a>
+                <Link to="/categorias/abrasivos" className="text-neutral-300 hover:text-brand hover:pl-1 transition-all flex items-center">
+                  <span>Abrasivos</span>
+                  <BsArrowRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
               </li>
               <li>
-                <a href="/products/protection" className="text-neutral-300 hover:text-brand transition-colors">Equipamentos de Proteção</a>
+                <Link to="/categorias/jardim" className="text-neutral-300 hover:text-brand hover:pl-1 transition-all flex items-center">
+                  <span>Jardim</span>
+                  <BsArrowRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
               </li>
               <li>
-                <a href="/products/construction" className="text-neutral-300 hover:text-brand transition-colors">Materiais de Construção</a>
+                <Link to="/categorias/protecao" className="text-neutral-300 hover:text-brand hover:pl-1 transition-all flex items-center">
+                  <span>Proteção</span>
+                  <BsArrowRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/todas-categorias" className="text-brand font-medium hover:pl-1 transition-all flex items-center">
+                  <span>Ver todas categorias</span>
+                  <BsArrowRight className="ml-1" />
+                </Link>
               </li>
             </ul>
           </div>
-          
-          {/* Company */}
-          <div className="col-span-1">
-            <h3 className="text-lg font-semibold mb-4">Empresa</h3>
+
+          {/* Company Links */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 border-b border-primary-700 pb-2">Empresa</h3>
             <ul className="space-y-2">
               <li>
-                <a href="/about" className="text-neutral-300 hover:text-brand transition-colors">Sobre Nós</a>
+                <Link to="/sobre-nos" className="text-neutral-300 hover:text-brand hover:pl-1 transition-all flex items-center">
+                  <span>Sobre Nós</span>
+                  <BsArrowRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
               </li>
               <li>
-                <a href="/careers" className="text-neutral-300 hover:text-brand transition-colors">Carreiras</a>
+                <Link to="/contactos" className="text-neutral-300 hover:text-brand hover:pl-1 transition-all flex items-center">
+                  <span>Contactos</span>
+                  <BsArrowRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
               </li>
               <li>
-                <a href="/blog" className="text-neutral-300 hover:text-brand transition-colors">Blog</a>
+                <Link to="/termos-condicoes" className="text-neutral-300 hover:text-brand hover:pl-1 transition-all flex items-center">
+                  <span>Termos e Condições</span>
+                  <BsArrowRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
               </li>
               <li>
-                <a href="/contact" className="text-neutral-300 hover:text-brand transition-colors">Contato</a>
+                <Link to="/politica-privacidade" className="text-neutral-300 hover:text-brand hover:pl-1 transition-all flex items-center">
+                  <span>Política de Privacidade</span>
+                  <BsArrowRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
+              </li>
+              <li>
+                <Link to="/perguntas-frequentes" className="text-neutral-300 hover:text-brand hover:pl-1 transition-all flex items-center">
+                  <span>FAQ</span>
+                  <BsArrowRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
               </li>
             </ul>
           </div>
-          
-          {/* Support */}
-          <div className="col-span-1">
-            <h3 className="text-lg font-semibold mb-4">Suporte</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="/help" className="text-neutral-300 hover:text-brand transition-colors">Central de Ajuda</a>
-              </li>
-              <li>
-                <a href="/terms" className="text-neutral-300 hover:text-brand transition-colors">Termos de Serviço</a>
-              </li>
-              <li>
-                <a href="/privacy" className="text-neutral-300 hover:text-brand transition-colors">Política de Privacidade</a>
-              </li>
-              <li>
-                <a href="/shipping" className="text-neutral-300 hover:text-brand transition-colors">Frete e Envio</a>
-              </li>
-              <li>
-                <a href="/returns" className="text-neutral-300 hover:text-brand transition-colors">Devoluções</a>
-              </li>
-            </ul>
+
+          {/* Newsletter */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 border-b border-primary-700 pb-2">Newsletter</h3>
+            <p className="text-neutral-300 mb-4">
+              Subscreva a nossa newsletter para receber as últimas novidades e ofertas especiais.
+            </p>
+            <form className="mb-6">
+              <div className="flex">
+                <input
+                  type="email"
+                  placeholder="Seu email"
+                  className="px-4 py-2 w-full rounded-l-md border-0 focus:outline-none focus:ring-0 text-neutral-800"
+                  aria-label="Email para newsletter"
+                />
+                <button
+                  type="submit"
+                  className="bg-brand hover:bg-brand-600 text-primary font-medium px-4 rounded-r-md transition-colors"
+                  aria-label="Subscrever newsletter"
+                >
+                  Enviar
+                </button>
+              </div>
+            </form>
+            <h4 className="text-sm font-semibold mb-3 text-neutral-200">Siga-nos</h4>
+            <div className="flex space-x-3">
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-primary-800 hover:bg-brand hover:text-primary transition-colors w-9 h-9 rounded-full flex items-center justify-center"
+                aria-label="Facebook"
+              >
+                <BsFacebook />
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-primary-800 hover:bg-brand hover:text-primary transition-colors w-9 h-9 rounded-full flex items-center justify-center"
+                aria-label="Instagram"
+              >
+                <BsInstagram />
+              </a>
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-primary-800 hover:bg-brand hover:text-primary transition-colors w-9 h-9 rounded-full flex items-center justify-center"
+                aria-label="Twitter"
+              >
+                <BsTwitter />
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-primary-800 hover:bg-brand hover:text-primary transition-colors w-9 h-9 rounded-full flex items-center justify-center"
+                aria-label="LinkedIn"
+              >
+                <BsLinkedin />
+              </a>
+            </div>
           </div>
         </div>
-        
-        {/* Bottom bar */}
-        <div className="border-t border-neutral-800 mt-8 pt-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-sm text-neutral-400 mb-4 md:mb-0">
-              &copy; {currentYear} AliTools B2B. Todos os direitos reservados.
-            </div>
-            <div className="flex items-center space-x-4">
-              <a href="/terms" className="text-xs text-neutral-400 hover:text-brand transition-colors">Termos</a>
-              <a href="/privacy" className="text-xs text-neutral-400 hover:text-brand transition-colors">Privacidade</a>
-              <a href="/cookies" className="text-xs text-neutral-400 hover:text-brand transition-colors">Cookies</a>
-            </div>
+
+        {/* Payment Methods */}
+        <div className="border-t border-primary-800 pt-6 pb-4">
+          <p className="text-center text-neutral-400 text-sm mb-4">Métodos de pagamento aceites</p>
+          <div className="flex flex-wrap justify-center space-x-4">
+            <img 
+              src="/assets/payment-visa.svg" 
+              alt="Visa" 
+              width="48"
+              height="30"
+              className="h-8 opacity-70 hover:opacity-100 transition-opacity"
+            />
+            <img 
+              src="/assets/payment-mastercard.svg" 
+              alt="Mastercard" 
+              width="48"
+              height="30"
+              className="h-8 opacity-70 hover:opacity-100 transition-opacity"
+            />
+            <img 
+              src="/assets/payment-paypal.svg" 
+              alt="PayPal" 
+              width="48"
+              height="30"
+              className="h-8 opacity-70 hover:opacity-100 transition-opacity"
+            />
+            <img 
+              src="/assets/payment-multibanco.svg" 
+              alt="Multibanco" 
+              width="48"
+              height="30"
+              className="h-8 opacity-70 hover:opacity-100 transition-opacity"
+            />
           </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="text-center pt-4 border-t border-primary-800 text-neutral-400 text-sm">
+          <p>© {currentYear} AliTools. Todos os direitos reservados.</p>
+          <p className="mt-1">
+            <span className="text-brand font-medium">AliTools</span> é uma marca registada de Alimamede Ferramentas e Equipamentos Lda.
+          </p>
         </div>
       </div>
     </footer>
