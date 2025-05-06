@@ -240,18 +240,6 @@ O processo de deploy continua o mesmo:
 vercel --prod
 ```
 
-## Validação Local
-
-Após implementar todas as alterações, realizamos uma validação local antes do deploy:
-
-1. Executamos `npm run vercel-build` - Build completada com sucesso
-2. Checamos a presença de todos os arquivos necessários em `client/dist/`
-3. Iniciamos o servidor Express com `npm start` 
-4. Testamos a rota da API com `curl http://localhost:5000/api/hello`
-5. Verificamos que o servidor responde corretamente com status 200
-
-Não foram encontrados erros durante o processo de validação, o que indica que a configuração está pronta para deploy.
-
 ## Correção do Erro de Build do Vercel
 
 Durante o deploy no Vercel, encontramos o seguinte erro:
@@ -305,27 +293,6 @@ Adicionamos um script específico para o build do Vercel no package.json do clie
 }
 ```
 
-Esta abordagem garante que o Vite esteja disponível durante o processo de build no ambiente do Vercel.
-
-## Validação Local
-
-Após implementar todas as alterações, realizamos uma validação local antes do deploy:
-
-1. Executamos `npm run vercel-build` - Build completada com sucesso
-2. Checamos a presença de todos os arquivos necessários em `client/dist/`
-3. Iniciamos o servidor Express com `npm start` 
-4. Testamos a rota da API com `curl http://localhost:5000/api/hello`
-5. Verificamos que o servidor responde corretamente com status 200
-
-Não foram encontrados erros durante o processo de validação, o que indica que a configuração está pronta para deploy.
-
-## Resultado Esperado
-
-Estas alterações devem resolver definitivamente o problema de rotas 404, pois agora estamos usando uma abordagem híbrida:
-1. Servidor Express para lidar com rotas no lado do servidor
-2. Arquivos de redirecionamento para o caso do servidor não ser ativado corretamente
-3. Configuração simplificada do Vercel para evitar conflitos 
-
 ## Correção do Erro de Dependência Recharts
 
 Após corrigir o erro do Vite, enfrentamos outro problema durante o build:
@@ -351,6 +318,52 @@ O problema é que o componente `AdminDashboardPage.jsx` importa a biblioteca `re
 
 Esta correção garante que todas as dependências necessárias estejam disponíveis durante o build e no ambiente de execução.
 
+## Correção do Erro "vite: command not found"
+
+Após adicionar a dependência `recharts`, encontramos um novo erro durante o processo de build:
+
+```
+[22:00:02.971] sh: line 1: vite: command not found
+[22:00:02.995] Error: Command "npm run vercel-build" exited with 127
+```
+
+O problema é que o comando `vite` não está sendo encontrado no PATH do sistema durante o processo de build do Vercel, mesmo com o pacote instalado como dependência de desenvolvimento. Para resolver este problema:
+
+### 1. Modificação dos scripts de build no cliente
+
+Atualizamos os scripts no `client/package.json` para usar `npx` ao chamar o vite:
+
+```json
+"scripts": {
+  "build": "npx vite build",
+  "vercel-build": "npx vite build"
+}
+```
+
+### 2. Modificação dos scripts de build na raiz
+
+Atualizamos o script `build:client` no `package.json` principal para também usar `npx`:
+
+```json
+"scripts": {
+  "build:client": "cd client && npm install && npx vite build"
+}
+```
+
+### 3. Adição do Vite como dependência de desenvolvimento na raiz
+
+Para garantir que o `npx` possa encontrar o `vite`, o adicionamos como dependência de desenvolvimento no package.json principal:
+
+```json
+"devDependencies": {
+  // ... outras dependências ...
+  "sinon": "^20.0.0",
+  "vite": "^5.0.0"
+}
+```
+
+Esta abordagem garante que o Vite esteja disponível durante o processo de build, independentemente do ambiente ou do PATH do sistema.
+
 ## Validação Local
 
 Após implementar todas as alterações, realizamos uma validação local antes do deploy:
@@ -361,4 +374,11 @@ Após implementar todas as alterações, realizamos uma validação local antes 
 4. Testamos a rota da API com `curl http://localhost:5000/api/hello`
 5. Verificamos que o servidor responde corretamente com status 200
 
-Não foram encontrados erros durante o processo de validação, o que indica que a configuração está pronta para deploy. 
+Não foram encontrados erros durante o processo de validação, o que indica que a configuração está pronta para deploy.
+
+## Resultado Esperado
+
+Estas alterações devem resolver definitivamente o problema de rotas 404, pois agora estamos usando uma abordagem híbrida:
+1. Servidor Express para lidar com rotas no lado do servidor
+2. Arquivos de redirecionamento para o caso do servidor não ser ativado corretamente
+3. Configuração simplificada do Vercel para evitar conflitos 
