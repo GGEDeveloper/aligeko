@@ -7,36 +7,60 @@
 
 /* Custom styles below this line */
 body {
-  font-family: var(--font-family-primary);
+  font-family: var(--font-family-primary, 'Inter', sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   @apply bg-neutral-200 text-primary;
+  color: #1A1A1A !important; /* Explicitly set text color */
+  background-color: #F9FAFB !important; /* Explicitly set background */
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Fix for root level containers - ensure visibility */
+#root {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+  width: 100% !important;
 }
 
 /* Typography system according to AliTools branding */
 @layer base {
   h1 {
     @apply text-3xl md:text-4xl font-bold mb-4 text-primary;
+    color: #1A1A1A !important;
   }
   
   h2 {
     @apply text-2xl md:text-3xl font-semibold mb-3 text-primary;
+    color: #1A1A1A !important;
   }
   
   h3 {
     @apply text-xl md:text-2xl font-medium mb-2 text-primary;
+    color: #1A1A1A !important;
   }
   
   h4 {
     @apply text-lg md:text-xl font-medium mb-2 text-primary;
+    color: #1A1A1A !important;
   }
   
   p {
     @apply mb-4 text-primary-800;
+    color: #333333 !important;
   }
   
   a {
     @apply text-brand hover:text-brand-600 transition-smooth;
+    color: #FFCC00 !important;
+  }
+  
+  a:hover {
+    color: #cca300 !important;
   }
 }
 
@@ -45,10 +69,14 @@ body {
   /* Buttons */
   .btn-primary {
     @apply bg-brand hover:bg-brand-600 text-primary font-medium px-4 py-2 rounded-md transition-smooth;
+    background-color: #FFCC00 !important;
+    color: #1A1A1A !important;
   }
   
   .btn-secondary {
     @apply bg-primary hover:bg-primary-800 text-white px-4 py-2 rounded-md transition-smooth;
+    background-color: #1A1A1A !important;
+    color: #FFFFFF !important;
   }
   
   .btn-outline {
@@ -175,10 +203,18 @@ body {
   /* Home page specific components */
   .hero-section {
     @apply bg-gradient-to-r from-primary to-primary-800 text-white rounded-lg overflow-hidden shadow-xl mb-6;
+    background: linear-gradient(to right, #1A1A1A, #333333) !important;
+    color: #FFFFFF !important;
+    display: block !important;
+    visibility: visible !important;
   }
   
   .category-card {
     @apply bg-brand hover:bg-brand-600 transition-colors text-primary rounded-lg p-4 text-center shadow-md transform hover:scale-105 hover:shadow-lg transition-all;
+    background-color: #FFCC00 !important;
+    color: #1A1A1A !important;
+    display: block !important;
+    visibility: visible !important;
   }
   
   /* Corrigir tamanho dos emojis nas category cards */
@@ -254,11 +290,30 @@ body {
 
 /* Corrigir problemas de visibilidade para Header e Footer */
 header, footer {
-  @apply block w-full opacity-100 visible;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
 }
 
 /* Ajustes para garantir que os SVGs nas Feature Cards não estejam muito grandes */
 svg {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Fix for all sections to ensure visibility */
+section {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Fix main content area visibility */
+main {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  flex: 1 !important;
+  z-index: 1 !important;
 } 

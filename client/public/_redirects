@@ -1,1 +1,6 @@
-/* /index.html 200 
+# Netlify/Vercel SPA redirect rule
+/* /index.html 200
+
+# Explicitly handle asset directories 
+/assets/* /assets/:splat 200
+/api/* /api/:splat 200 
