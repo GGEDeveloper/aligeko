@@ -18,7 +18,7 @@ export const productApi = createApi({
       return headers;
     }
   }),
-  tagTypes: ['Products', 'Product'],
+  tagTypes: ['Products', 'Product', 'ProductImage'],
   endpoints: (builder) => ({
     getProducts: builder.query({
       query: (params = {}) => {
@@ -100,7 +100,125 @@ export const productApi = createApi({
       invalidatesTags: (result, error, { id }) => [
         { type: 'Product', id }
       ]
-    })
+    }),
+    
+    getProductImages: builder.query({
+      query: (productId) => ({
+        url: `/products/${productId}/images`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, productId) => 
+        result 
+          ? [
+              ...result.map(({ id }) => ({ type: 'ProductImage', id })),
+              { type: 'ProductImage', id: 'LIST' },
+              { type: 'ProductImage', id: productId }
+            ]
+          : [{ type: 'ProductImage', id: 'LIST' }, { type: 'ProductImage', id: productId }],
+    }),
+    
+    uploadProductImages: builder.mutation({
+      query: ({ productId, formData, onUploadProgress }) => ({
+        url: `/products/${productId}/images`,
+        method: 'POST',
+        body: formData,
+        formData: true,
+        onUploadProgress,
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'ProductImage', id: 'LIST' },
+        { type: 'ProductImage', id: productId },
+        { type: 'Product', id: productId }
+      ],
+    }),
+    
+    deleteProductImage: builder.mutation({
+      query: ({ productId, imageId }) => ({
+        url: `/products/${productId}/images/${imageId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { productId, imageId }) => [
+        { type: 'ProductImage', id: imageId },
+        { type: 'ProductImage', id: 'LIST' },
+        { type: 'ProductImage', id: productId },
+        { type: 'Product', id: productId }
+      ],
+    }),
+    
+    setPrimaryImage: builder.mutation({
+      query: ({ productId, imageId }) => ({
+        url: `/products/${productId}/images/${imageId}/primary`,
+        method: 'PUT',
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'ProductImage', id: 'LIST' },
+        { type: 'ProductImage', id: productId },
+        { type: 'Product', id: productId }
+      ],
+    }),
+    
+    // Bulk operations
+    bulkUpdateProducts: builder.mutation({
+      query: (data) => ({
+        url: '/products/bulk',
+        method: 'PATCH',
+        body: data
+      }),
+      invalidatesTags: [{ type: 'Products', id: 'LIST' }]
+    }),
+    
+    bulkDeleteProducts: builder.mutation({
+      query: (ids) => ({
+        url: '/products/bulk',
+        method: 'DELETE',
+        body: { ids }
+      }),
+      invalidatesTags: [{ type: 'Products', id: 'LIST' }]
+    }),
+    
+    // Product variants endpoints
+    getProductVariants: builder.query({
+      query: (productId) => `/products/${productId}/variants`,
+      providesTags: (result, error, productId) => [
+        { type: 'Product', id: productId },
+        { type: 'Product', id: `${productId}-variants` }
+      ]
+    }),
+    
+    createProductVariant: builder.mutation({
+      query: ({ productId, variantData }) => ({
+        url: `/products/${productId}/variants`,
+        method: 'POST',
+        body: variantData
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
+        { type: 'Product', id: `${productId}-variants` }
+      ]
+    }),
+    
+    updateProductVariant: builder.mutation({
+      query: ({ productId, variantId, ...variantData }) => ({
+        url: `/products/${productId}/variants/${variantId}`,
+        method: 'PUT',
+        body: variantData
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
+        { type: 'Product', id: `${productId}-variants` }
+      ]
+    }),
+    
+    deleteProductVariant: builder.mutation({
+      query: ({ productId, variantId }) => ({
+        url: `/products/${productId}/variants/${variantId}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
+        { type: 'Product', id: `${productId}-variants` }
+      ]
+    }),
   })
 });
 
@@ -110,5 +228,15 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
-  useUploadProductImageMutation
+  useUploadProductImageMutation,
+  useGetProductImagesQuery,
+  useUploadProductImagesMutation,
+  useDeleteProductImageMutation,
+  useSetPrimaryImageMutation,
+  useBulkUpdateProductsMutation,
+  useBulkDeleteProductsMutation,
+  useGetProductVariantsQuery,
+  useCreateProductVariantMutation,
+  useUpdateProductVariantMutation,
+  useDeleteProductVariantMutation
 } = productApi; 

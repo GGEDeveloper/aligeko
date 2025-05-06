@@ -12,7 +12,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_here';
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
  */
-export const authenticate = async (req, res, next) => {
+export const checkAuth = async (req, res, next) => {
   try {
     // Get token from Authorization header
     const authHeader = req.headers.authorization;
@@ -100,7 +100,7 @@ export const authenticate = async (req, res, next) => {
  * Middleware to check if user has required role
  * @param {Array|String} roles - Required role(s) to access the endpoint
  */
-export const authorize = (roles) => {
+export const checkRole = (roles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ 
@@ -126,4 +126,44 @@ export const authorize = (roles) => {
     
     next();
   };
-}; 
+};
+
+/**
+ * Middleware to check if user has required role or is accessing their own resource
+ * @param {Array|String} roles - Required role(s) to access the endpoint
+ */
+export const checkRoleOrSelf = (roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ 
+        success: false, 
+        error: { 
+          code: 'UNAUTHORIZED', 
+          message: 'Authentication required' 
+        } 
+      });
+    }
+
+    const userRoles = Array.isArray(roles) ? roles : [roles];
+    
+    // Check if user is accessing their own resource
+    const requestedUserId = req.params.userId || req.params.id;
+    const isSelf = requestedUserId && req.user.id.toString() === requestedUserId.toString();
+    
+    if (!userRoles.includes(req.user.role) && !isSelf) {
+      return res.status(403).json({ 
+        success: false, 
+        error: { 
+          code: 'FORBIDDEN', 
+          message: 'You do not have permission to access this resource' 
+        } 
+      });
+    }
+    
+    next();
+  };
+};
+
+// Add aliases for backward compatibility
+export const authenticate = checkAuth;
+export const authorize = checkRole; 

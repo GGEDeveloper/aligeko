@@ -134,6 +134,135 @@ export const customerApi = createApi({
         { type: 'Customer', id: customerId },
         { type: 'Customer', id: `${customerId}-addresses` }
       ]
+    }),
+    
+    batchUpdateCustomerStatus: builder.mutation({
+      query: ({ customerIds, status }) => ({
+        url: `/customers/batch/status`,
+        method: 'PATCH',
+        body: { customerIds, status }
+      }),
+      invalidatesTags: (result) => [
+        { type: 'Customers', id: 'LIST' },
+        ...result?.affectedIds?.map(id => ({ type: 'Customer', id })) || []
+      ]
+    }),
+    
+    batchDeleteCustomers: builder.mutation({
+      query: ({ customerIds }) => ({
+        url: `/customers/batch`,
+        method: 'DELETE',
+        body: { customerIds }
+      }),
+      invalidatesTags: [{ type: 'Customers', id: 'LIST' }]
+    }),
+    
+    getCustomerNotes: builder.query({
+      query: (customerId) => `/customers/${customerId}/notes`,
+      providesTags: (result, error, customerId) => [
+        { type: 'Customer', id: `${customerId}-notes` }
+      ]
+    }),
+    
+    addCustomerNote: builder.mutation({
+      query: ({ customerId, content }) => ({
+        url: `/customers/${customerId}/notes`,
+        method: 'POST',
+        body: { content }
+      }),
+      invalidatesTags: (result, error, { customerId }) => [
+        { type: 'Customer', id: customerId },
+        { type: 'Customer', id: `${customerId}-notes` }
+      ]
+    }),
+    
+    updateCustomerNote: builder.mutation({
+      query: ({ customerId, noteId, content }) => ({
+        url: `/customers/${customerId}/notes/${noteId}`,
+        method: 'PUT',
+        body: { content }
+      }),
+      invalidatesTags: (result, error, { customerId }) => [
+        { type: 'Customer', id: customerId },
+        { type: 'Customer', id: `${customerId}-notes` }
+      ]
+    }),
+    
+    deleteCustomerNote: builder.mutation({
+      query: ({ customerId, noteId }) => ({
+        url: `/customers/${customerId}/notes/${noteId}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: (result, error, { customerId }) => [
+        { type: 'Customer', id: customerId },
+        { type: 'Customer', id: `${customerId}-notes` }
+      ]
+    }),
+    
+    getCustomerTags: builder.query({
+      query: (customerId) => `/customers/${customerId}/tags`,
+      providesTags: (result, error, customerId) => [
+        { type: 'Customer', id: `${customerId}-tags` }
+      ]
+    }),
+    
+    getAvailableTags: builder.query({
+      query: () => `/tags`,
+      providesTags: [{ type: 'Tags', id: 'LIST' }]
+    }),
+    
+    addCustomerTag: builder.mutation({
+      query: ({ customerId, name, value }) => ({
+        url: `/customers/${customerId}/tags`,
+        method: 'POST',
+        body: { name, value }
+      }),
+      invalidatesTags: (result, error, { customerId }) => [
+        { type: 'Customer', id: customerId },
+        { type: 'Customer', id: `${customerId}-tags` }
+      ]
+    }),
+    
+    removeCustomerTag: builder.mutation({
+      query: ({ customerId, tagId }) => ({
+        url: `/customers/${customerId}/tags/${tagId}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: (result, error, { customerId }) => [
+        { type: 'Customer', id: customerId },
+        { type: 'Customer', id: `${customerId}-tags` }
+      ]
+    }),
+    
+    exportCustomersData: builder.mutation({
+      query: ({ format, customerIds, filters, include }) => ({
+        url: `/customers/export`,
+        method: 'POST',
+        body: { format, customerIds, filters, include },
+        responseHandler: (response) => response.blob()
+      }),
+      transformResponse: async (blob, meta) => {
+        // Convert the blob to an object URL for downloading
+        const downloadUrl = URL.createObjectURL(blob);
+        
+        // Get filename from content-disposition header if available
+        const contentDisposition = meta?.response?.headers?.get('content-disposition');
+        let filename = null;
+        
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+          if (filenameMatch && filenameMatch.length > 1) {
+            filename = filenameMatch[1];
+          }
+        }
+        
+        return {
+          downloadUrl,
+          filename,
+          blob,
+          count: meta?.response?.headers?.get('X-Total-Count') || 'unknown'
+        };
+      }
     })
   })
 });
@@ -148,5 +277,16 @@ export const {
   useDeleteCustomerMutation,
   useCreateCustomerAddressMutation,
   useUpdateCustomerAddressMutation,
-  useDeleteCustomerAddressMutation
+  useDeleteCustomerAddressMutation,
+  useBatchUpdateCustomerStatusMutation,
+  useBatchDeleteCustomersMutation,
+  useGetCustomerNotesQuery,
+  useAddCustomerNoteMutation,
+  useUpdateCustomerNoteMutation,
+  useDeleteCustomerNoteMutation,
+  useGetCustomerTagsQuery,
+  useGetAvailableTagsQuery,
+  useAddCustomerTagMutation,
+  useRemoveCustomerTagMutation,
+  useExportCustomersDataMutation
 } = customerApi; 

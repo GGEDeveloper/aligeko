@@ -169,11 +169,45 @@ body {
   .alert-danger {
     @apply bg-red-100 border border-red-400 text-red-700;
   }
+  
+  /* Home page specific components */
+  .hero-section {
+    @apply bg-gradient-to-r from-blue-700 to-blue-900 text-white rounded-lg overflow-hidden shadow-xl;
+  }
+  
+  .category-card {
+    @apply bg-blue-700 hover:bg-blue-800 transition-colors text-white rounded-lg p-6 text-center shadow-md transform hover:scale-105 hover:shadow-lg transition-all;
+  }
+  
+  .product-card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1;
+  }
+  
+  .feature-card {
+    @apply bg-white p-8 rounded-lg shadow-md text-center transform hover:scale-105 transition-transform;
+  }
 }
 
 /* Utility classes */
 .transition-smooth {
   @apply transition-all duration-300 ease-in-out;
+}
+
+.transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+.shadow-soft {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-hover {
+  @apply transition-shadow duration-300;
+}
+.shadow-hover:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
 .line-clamp-2 {

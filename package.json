@@ -11,7 +11,9 @@
     "start": "cd server && npm start",
     "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
     "test": "cd server && npm test",
-    "vercel-build": "npm run build"
+    "vercel-build": "npm run build",
+    "steps": "node tasks/step-tracker.js",
+    "steps:report": "node -e \"try { const tracker = require('./tasks/step-tracker.js'); const tasks = tracker.parseStepsFile(); tracker.displayProgressReport(tasks); } catch(e) { console.error('Error loading steps tracker:', e.message); }\""
   },
   "keywords": [
     "b2b",
@@ -22,7 +24,8 @@
   "author": "AliTools",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "recharts": "^2.15.3"
   },
   "engines": {
     "node": ">=18"

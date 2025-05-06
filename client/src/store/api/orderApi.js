@@ -18,7 +18,7 @@ export const orderApi = createApi({
       return headers;
     }
   }),
-  tagTypes: ['Orders', 'Order'],
+  tagTypes: ['Orders', 'Order', 'Invoices', 'Returns'],
   endpoints: (builder) => ({
     getOrders: builder.query({
       query: (params = {}) => {
@@ -187,6 +187,121 @@ export const orderApi = createApi({
         method: 'POST'
       }),
       invalidatesTags: ['Order']
+    }),
+
+    // Invoice endpoints
+    getOrderInvoices: builder.query({
+      query: (orderId) => `/orders/${orderId}/invoices`,
+      providesTags: (result, error, orderId) => [
+        { type: 'Invoices', id: `${orderId}-invoices` }
+      ]
+    }),
+    
+    generateInvoice: builder.mutation({
+      query: (orderId) => ({
+        url: `/orders/${orderId}/invoices`,
+        method: 'POST'
+      }),
+      invalidatesTags: (result, error, orderId) => [
+        { type: 'Invoices', id: `${orderId}-invoices` },
+        { type: 'Order', id: orderId }
+      ]
+    }),
+    
+    getInvoiceById: builder.query({
+      query: ({ orderId, invoiceId }) => `/orders/${orderId}/invoices/${invoiceId}`,
+      providesTags: (result, error, { orderId, invoiceId }) => [
+        { type: 'Invoices', id: `${orderId}-invoice-${invoiceId}` }
+      ]
+    }),
+    
+    deleteInvoice: builder.mutation({
+      query: ({ orderId, invoiceId }) => ({
+        url: `/orders/${orderId}/invoices/${invoiceId}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: (result, error, { orderId }) => [
+        { type: 'Invoices', id: `${orderId}-invoices` },
+        { type: 'Order', id: orderId }
+      ]
+    }),
+    
+    getProducts: builder.query({
+      query: (params = {}) => {
+        const queryParams = new URLSearchParams();
+        
+        if (params.search) queryParams.append('search', params.search);
+        if (params.limit) queryParams.append('limit', params.limit);
+        if (params.page) queryParams.append('page', params.page);
+        
+        return {
+          url: `/products?${queryParams.toString()}`,
+          method: 'GET'
+        };
+      },
+      providesTags: ['Products']
+    }),
+
+    // Returns & Refunds endpoints
+    getOrderReturns: builder.query({
+      query: (orderId) => `/orders/${orderId}/returns`,
+      providesTags: (result, error, orderId) => [
+        { type: 'Returns', id: `${orderId}-returns` },
+        { type: 'Order', id: orderId }
+      ]
+    }),
+    
+    getReturnById: builder.query({
+      query: ({ orderId, returnId }) => `/orders/${orderId}/returns/${returnId}`,
+      providesTags: (result, error, { orderId, returnId }) => [
+        { type: 'Returns', id: `${orderId}-return-${returnId}` }
+      ]
+    }),
+    
+    createReturnRequest: builder.mutation({
+      query: ({ orderId, ...returnData }) => ({
+        url: `/orders/${orderId}/returns`,
+        method: 'POST',
+        body: returnData
+      }),
+      invalidatesTags: (result, error, { orderId }) => [
+        { type: 'Returns', id: `${orderId}-returns` },
+        { type: 'Order', id: orderId }
+      ]
+    }),
+    
+    updateReturnStatus: builder.mutation({
+      query: ({ orderId, returnId, status }) => ({
+        url: `/orders/${orderId}/returns/${returnId}/status`,
+        method: 'PATCH',
+        body: { status }
+      }),
+      invalidatesTags: (result, error, { orderId, returnId }) => [
+        { type: 'Returns', id: `${orderId}-returns` },
+        { type: 'Returns', id: `${orderId}-return-${returnId}` },
+        { type: 'Order', id: orderId }
+      ]
+    }),
+    
+    issueRefund: builder.mutation({
+      query: ({ orderId, ...refundData }) => ({
+        url: `/orders/${orderId}/refunds`,
+        method: 'POST',
+        body: refundData
+      }),
+      invalidatesTags: (result, error, { orderId, returnId }) => [
+        ...(returnId ? [{ type: 'Returns', id: `${orderId}-return-${returnId}` }] : []),
+        { type: 'Returns', id: `${orderId}-returns` },
+        { type: 'Order', id: orderId },
+        { type: 'Orders', id: 'LIST' }
+      ]
+    }),
+    
+    getOrderRefunds: builder.query({
+      query: (orderId) => `/orders/${orderId}/refunds`,
+      providesTags: (result, error, orderId) => [
+        { type: 'Order', id: `${orderId}-refunds` }
+      ]
     })
   })
 });
@@ -206,5 +321,16 @@ export const {
   useUpdateShipmentMutation,
   useGetOrderShipmentsQuery,
   usePlaceOrderMutation,
-  useCancelOrderMutation
+  useCancelOrderMutation,
+  useGetOrderInvoicesQuery,
+  useGenerateInvoiceMutation,
+  useGetInvoiceByIdQuery,
+  useDeleteInvoiceMutation,
+  useGetProductsQuery,
+  useGetOrderReturnsQuery,
+  useGetReturnByIdQuery,
+  useCreateReturnRequestMutation,
+  useUpdateReturnStatusMutation,
+  useIssueRefundMutation,
+  useGetOrderRefundsQuery
 } = orderApi; 

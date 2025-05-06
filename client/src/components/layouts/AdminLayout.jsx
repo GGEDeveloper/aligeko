@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import AdminSidebar from '../ui/AdminSidebar';
+import AdminBreadcrumbs from './AdminBreadcrumbs';
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const location = useLocation();
   
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -54,6 +56,11 @@ const AdminLayout = () => {
         </header>
         
         <main className="p-6">
+          {/* Add Breadcrumbs */}
+          {location.pathname !== '/admin' && (
+            <AdminBreadcrumbs />
+          )}
+          
           <Outlet />
         </main>
       </div>

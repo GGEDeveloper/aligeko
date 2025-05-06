@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectCurrentUser, logOut } from '../../store/slices/authSlice';
+import { selectCurrentUser, logout } from '../../store/slices/authSlice';
 
 const DashboardPage = () => {
   const user = useSelector(selectCurrentUser);
@@ -9,7 +9,7 @@ const DashboardPage = () => {
   
   // Handle logout
   const handleLogout = () => {
-    dispatch(logOut());
+    dispatch(logout());
   };
   
   // Ensure user is loaded

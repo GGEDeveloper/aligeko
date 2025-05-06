@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectIsAuthenticated, selectCurrentUser, logOut } from '../../store/slices/authSlice';
+import { selectIsAuthenticated, selectCurrentUser, logout } from '../../store/slices/authSlice';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,7 +11,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    dispatch(logOut());
+    dispatch(logout());
     navigate('/');
   };
 

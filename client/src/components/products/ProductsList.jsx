@@ -11,15 +11,24 @@ import {
   Col, 
   Card,
   Badge,
-  Modal
+  Modal,
+  Image
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { 
   useGetProductsQuery,
   useDeleteProductMutation
 } from '../../store/api/productApi';
+import PropTypes from 'prop-types';
 
-const ProductsList = () => {
+const ProductsList = ({ 
+  products = [], 
+  isLoading = false,
+  selectedItems = [],
+  onSelectItem,
+  onSelectAll,
+  pagination
+}) => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
@@ -32,7 +41,7 @@ const ProductsList = () => {
   // RTK Query hooks
   const { 
     data: productsData, 
-    isLoading, 
+    isLoading: apiLoading, 
     isError, 
     error,
     refetch
@@ -86,8 +95,125 @@ const ProductsList = () => {
     }
   };
   
+  // Check if all products are selected
+  const allSelected = products.length > 0 && selectedItems.length === products.length;
+  
+  // Check if product is selected
+  const isSelected = (id) => selectedItems.includes(id);
+  
+  // Handle select all checkbox
+  const handleSelectAllChange = (e) => {
+    if (onSelectAll) {
+      onSelectAll(e.target.checked);
+    }
+  };
+  
+  // Handle individual product selection
+  const handleSelectItemChange = (id, e) => {
+    if (onSelectItem) {
+      onSelectItem(id, e.target.checked);
+    }
+  };
+  
+  // Generate pagination items
+  const renderPaginationItems = () => {
+    if (!pagination) return null;
+    
+    const { currentPage, totalPages, onPageChange } = pagination;
+    const items = [];
+    
+    // Previous button
+    items.push(
+      <Pagination.Prev 
+        key="prev" 
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage <= 1}
+      />
+    );
+    
+    // First page
+    if (currentPage > 3) {
+      items.push(
+        <Pagination.Item key={1} onClick={() => onPageChange(1)}>
+          1
+        </Pagination.Item>
+      );
+      if (currentPage > 4) {
+        items.push(<Pagination.Ellipsis key="ellipsis1" />);
+      }
+    }
+    
+    // Pages around current
+    for (let page = Math.max(1, currentPage - 1); page <= Math.min(totalPages, currentPage + 1); page++) {
+      items.push(
+        <Pagination.Item 
+          key={page} 
+          active={page === currentPage}
+          onClick={() => page !== currentPage && onPageChange(page)}
+        >
+          {page}
+        </Pagination.Item>
+      );
+    }
+    
+    // Last page
+    if (currentPage < totalPages - 2) {
+      if (currentPage < totalPages - 3) {
+        items.push(<Pagination.Ellipsis key="ellipsis2" />);
+      }
+      items.push(
+        <Pagination.Item key={totalPages} onClick={() => onPageChange(totalPages)}>
+          {totalPages}
+        </Pagination.Item>
+      );
+    }
+    
+    // Next button
+    items.push(
+      <Pagination.Next 
+        key="next" 
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage >= totalPages}
+      />
+    );
+    
+    return items;
+  };
+  
+  // Get status badge color
+  const getStatusBadgeVariant = (status) => {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'inactive':
+        return 'secondary';
+      case 'draft':
+        return 'warning';
+      case 'out_of_stock':
+        return 'danger';
+      default:
+        return 'info';
+    }
+  };
+  
+  // Format status text
+  const formatStatus = (status) => {
+    switch (status) {
+      case 'active':
+        return 'Ativo';
+      case 'inactive':
+        return 'Inativo';
+      case 'draft':
+        return 'Rascunho';
+      case 'out_of_stock':
+        return 'Fora de Estoque';
+      default:
+        return status;
+    }
+  };
+  
   // Render loading state
-  if (isLoading && !productsData) {
+  if (apiLoading && !productsData) {
     return (
       <Container className="py-4">
         <div className="text-center">
@@ -111,49 +237,11 @@ const ProductsList = () => {
   }
   
   // Destructure data
-  const { products, totalProducts, totalPages } = productsData || { products: [], totalProducts: 0, totalPages: 0 };
+  const { products: apiProducts, totalProducts, totalPages } = productsData || { products: [], totalProducts: 0, totalPages: 0 };
   
   // Calculate pagination info
   const startItem = (page - 1) * limit + 1;
   const endItem = Math.min(page * limit, totalProducts);
-  
-  // Render pagination controls
-  const renderPagination = () => {
-    const items = [];
-    
-    // Previous button
-    items.push(
-      <Pagination.Prev 
-        key="prev"
-        onClick={() => handlePageChange(page - 1)}
-        disabled={page === 1}
-      />
-    );
-    
-    // Page items
-    for (let num = 1; num <= totalPages; num++) {
-      items.push(
-        <Pagination.Item
-          key={num}
-          active={num === page}
-          onClick={() => handlePageChange(num)}
-        >
-          {num}
-        </Pagination.Item>
-      );
-    }
-    
-    // Next button
-    items.push(
-      <Pagination.Next
-        key="next"
-        onClick={() => handlePageChange(page + 1)}
-        disabled={page === totalPages}
-      />
-    );
-    
-    return <Pagination>{items}</Pagination>;
-  };
   
   return (
     <Container className="py-4">
@@ -218,89 +306,128 @@ const ProductsList = () => {
           </div>
           
           {/* Products table */}
-          <div className="table-responsive">
-            <Table hover>
-              <thead>
+          <div className={`table-responsive${isLoading ? ' opacity-50' : ''}`}>
+            <Table hover className="align-middle">
+              <thead className="bg-light">
                 <tr>
-                  <th style={{ width: '60px' }}>ID</th>
-                  <th 
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleSortChange('code')}
-                  >
-                    Código
-                    {sortBy === 'code' && (
-                      <i className={`bi bi-arrow-${sortOrder === 'asc' ? 'up' : 'down'} ms-1`}></i>
-                    )}
+                  <th width="40">
+                    <Form.Check
+                      type="checkbox"
+                      id="selectAll"
+                      checked={allSelected}
+                      onChange={handleSelectAllChange}
+                      disabled={products.length === 0}
+                    />
                   </th>
-                  <th 
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleSortChange('name')}
-                  >
-                    Nome
-                    {sortBy === 'name' && (
-                      <i className={`bi bi-arrow-${sortOrder === 'asc' ? 'up' : 'down'} ms-1`}></i>
-                    )}
-                  </th>
+                  <th width="80">Imagem</th>
+                  <th>Produto</th>
+                  <th>Código</th>
                   <th>Categoria</th>
-                  <th>Produtor</th>
-                  <th>Ações</th>
+                  <th>Preço</th>
+                  <th>Estoque</th>
+                  <th>Status</th>
+                  <th width="150">Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {products.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="text-center py-4">
-                      Nenhum produto encontrado
+                {products.map(product => (
+                  <tr key={product.id} className={isSelected(product.id) ? 'table-primary' : ''}>
+                    <td>
+                      <Form.Check
+                        type="checkbox"
+                        id={`select-${product.id}`}
+                        checked={isSelected(product.id)}
+                        onChange={(e) => handleSelectItemChange(product.id, e)}
+                      />
+                    </td>
+                    <td>
+                      {product.thumbnail_url ? (
+                        <Image 
+                          src={product.thumbnail_url} 
+                          alt={product.name}
+                          width="50"
+                          height="50"
+                          className="object-fit-cover border rounded"
+                        />
+                      ) : (
+                        <div className="bg-light d-flex align-items-center justify-content-center rounded" style={{ width: 50, height: 50 }}>
+                          <i className="bi bi-image text-muted"></i>
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <Link to={`/admin/products/${product.id}`} className="fw-bold text-truncate d-inline-block" style={{ maxWidth: '200px' }}>
+                        {product.name}
+                      </Link>
+                      {product.ean && <div className="small text-muted">EAN: {product.ean}</div>}
+                    </td>
+                    <td>
+                      <span className="text-monospace">{product.code}</span>
+                      {product.producer_code && (
+                        <div className="small text-muted">Cód Fabricante: {product.producer_code}</div>
+                      )}
+                    </td>
+                    <td>{product.category?.name || 'N/A'}</td>
+                    <td>
+                      {product.price ? (
+                        <div className="fw-bold">
+                          R$ {parseFloat(product.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </div>
+                      ) : (
+                        <span className="text-muted">N/A</span>
+                      )}
+                      {product.price_discounted && (
+                        <div className="small text-success">
+                          R$ {parseFloat(product.price_discounted).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      {product.stock_total !== undefined ? (
+                        <Badge bg={product.stock_total > 0 ? 'success' : 'danger'} pill>
+                          {product.stock_total}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted">N/A</span>
+                      )}
+                    </td>
+                    <td>
+                      <Badge bg={getStatusBadgeVariant(product.status)} pill>
+                        {formatStatus(product.status)}
+                      </Badge>
+                    </td>
+                    <td>
+                      <div className="d-flex">
+                        <Link to={`/admin/products/${product.id}`}>
+                          <Button variant="outline-primary" size="sm" className="me-1">
+                            <i className="bi bi-eye"></i>
+                          </Button>
+                        </Link>
+                        <Link to={`/admin/products/${product.id}/edit`}>
+                          <Button variant="outline-secondary" size="sm" className="me-1">
+                            <i className="bi bi-pencil"></i>
+                          </Button>
+                        </Link>
+                        <Button variant="outline-danger" size="sm">
+                          <i className="bi bi-trash"></i>
+                        </Button>
+                      </div>
                     </td>
                   </tr>
-                ) : (
-                  products.map(product => (
-                    <tr key={product.id}>
-                      <td>{product.id}</td>
-                      <td>{product.code}</td>
-                      <td>{product.name}</td>
-                      <td>
-                        {product.category?.name || (
-                          <Badge bg="secondary">Sem categoria</Badge>
-                        )}
-                      </td>
-                      <td>
-                        {product.producer?.name || (
-                          <Badge bg="secondary">Sem produtor</Badge>
-                        )}
-                      </td>
-                      <td>
-                        <div className="d-flex gap-2">
-                          <Link to={`/admin/products/${product.id}`}>
-                            <Button variant="outline-primary" size="sm">
-                              <i className="bi bi-eye"></i>
-                            </Button>
-                          </Link>
-                          <Link to={`/admin/products/${product.id}/edit`}>
-                            <Button variant="outline-secondary" size="sm">
-                              <i className="bi bi-pencil"></i>
-                            </Button>
-                          </Link>
-                          <Button 
-                            variant="outline-danger" 
-                            size="sm"
-                            onClick={() => handleDeleteClick(product)}
-                          >
-                            <i className="bi bi-trash"></i>
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
+                ))}
               </tbody>
             </Table>
           </div>
           
-          {/* Pagination controls */}
-          {totalPages > 1 && (
-            <div className="d-flex justify-content-center mt-4">
-              {renderPagination()}
+          {/* Pagination */}
+          {pagination && (
+            <div className="d-flex justify-content-between align-items-center mt-3">
+              <div className="text-muted">
+                Exibindo {products.length} de {pagination.totalItems || 0} produtos
+              </div>
+              <Pagination>
+                {renderPaginationItems()}
+              </Pagination>
             </div>
           )}
         </Card.Body>
@@ -349,6 +476,20 @@ const ProductsList = () => {
       </Modal>
     </Container>
   );
+};
+
+ProductsList.propTypes = {
+  products: PropTypes.array,
+  isLoading: PropTypes.bool,
+  selectedItems: PropTypes.array,
+  onSelectItem: PropTypes.func,
+  onSelectAll: PropTypes.func,
+  pagination: PropTypes.shape({
+    currentPage: PropTypes.number.isRequired,
+    totalPages: PropTypes.number.isRequired,
+    totalItems: PropTypes.number,
+    onPageChange: PropTypes.func.isRequired
+  })
 };
 
 export default ProductsList; 

@@ -9,6 +9,7 @@ import { cartApi } from './api/cartApi';
 import { categoryApi } from './api/categoryApi';
 import { producerApi } from './api/producerApi';
 import { unitApi } from './api/unitApi';
+import { attributeApi } from './api/attributeApi';
 import authReducer from './slices/authSlice';
 import cartReducer from './slices/cartSlice';
 
@@ -23,6 +24,7 @@ export const store = configureStore({
     [categoryApi.reducerPath]: categoryApi.reducer,
     [producerApi.reducerPath]: producerApi.reducer,
     [unitApi.reducerPath]: unitApi.reducer,
+    [attributeApi.reducerPath]: attributeApi.reducer,
     auth: authReducer,
     cart: cartReducer,
   },
@@ -36,7 +38,8 @@ export const store = configureStore({
       .concat(cartApi.middleware)
       .concat(categoryApi.middleware)
       .concat(producerApi.middleware)
-      .concat(unitApi.middleware),
+      .concat(unitApi.middleware)
+      .concat(attributeApi.middleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 
