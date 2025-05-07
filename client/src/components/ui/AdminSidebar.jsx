@@ -142,7 +142,17 @@ const AdminSidebar = () => {
       name: 'Settings',
       icon: 'bi-gear',
       path: '/settings',
-      roles: ['admin']
+      roles: ['admin'],
+      submenu: [
+        {
+          name: 'Configurações Gerais',
+          path: '/settings'
+        },
+        {
+          name: 'Informações da Empresa',
+          path: '/company-info'
+        }
+      ]
     }
   ];
   

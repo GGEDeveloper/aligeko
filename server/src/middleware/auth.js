@@ -17,4 +17,12 @@ module.exports = {
   requireCustomer,
   checkRole,
   checkRoleOrSelf
+};
+
+exports.authorizeAdmin = (req, res, next) => {
+  // Exemplo: req.user.role === 'admin'
+  if (req.user && req.user.role === 'admin') {
+    return next();
+  }
+  return res.status(403).json({ message: 'Admin access required' });
 }; 

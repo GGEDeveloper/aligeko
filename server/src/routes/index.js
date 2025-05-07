@@ -6,6 +6,7 @@ import customerRoutes from './customer.routes';
 import orderRoutes from './order.routes';
 import gekoApiRoutes from './geko-api.routes';
 import cartRoutes from './cart.routes';
+import companyInfoRoutes from './companyInfo';
 // import adminRoutes from './admin.routes';
 
 const router = Router();
@@ -20,6 +21,7 @@ router.use(`${API_PREFIX}/customers`, customerRoutes);
 router.use(`${API_PREFIX}/orders`, orderRoutes);
 router.use(`${API_PREFIX}/geko-api`, gekoApiRoutes);
 router.use(`${API_PREFIX}/cart`, cartRoutes);
+router.use(`${API_PREFIX}/company-info`, companyInfoRoutes);
 // router.use(`${API_PREFIX}/admin`, adminRoutes);
 
 // API documentation route
@@ -35,6 +37,7 @@ router.get('/', (req, res) => {
       { path: '/api/v1/customers', description: 'Customer management endpoints' },
       { path: '/api/v1/geko-api', description: 'GEKO API integration endpoints' },
       { path: '/api/v1/cart', description: 'Shopping cart endpoints' },
+      { path: '/api/v1/company-info', description: 'Company information endpoints' },
       { path: '/api/v1/admin', description: 'Admin management endpoints' }
     ]
   });

@@ -57,6 +57,7 @@ import ReportsDashboardPage from './pages/admin/ReportsDashboardPage';
 import ProductAnalyticsPage from './pages/admin/ProductAnalyticsPage';
 import CustomerAnalyticsPage from './pages/admin/CustomerAnalyticsPage';
 import CustomReportBuilder from './pages/admin/CustomReportBuilder';
+import CompanyInfoConfig from './pages/admin/CompanyInfoConfig';
 
 function App() {
   return (
@@ -130,6 +131,7 @@ function App() {
             <Route path="reports/products" element={<ProductAnalyticsPage />} />
             <Route path="reports/customers" element={<CustomerAnalyticsPage />} />
             <Route path="reports/custom" element={<CustomReportBuilder />} />
+            <Route path="company-info" element={<CompanyInfoConfig />} />
           </Route>
         </Route>
       </Routes>
