@@ -265,7 +265,7 @@ const Header = ({ isAdmin = false }) => {
           justifyContent: 'center' // Centralizar as categorias
         }}>
           <Link 
-            to="/categorias/ferramentas-manuais"
+            to="/products"
             style={{ 
               padding: '0.9rem 1.25rem',
               color: 'white',
@@ -286,127 +286,7 @@ const Header = ({ isAdmin = false }) => {
               e.currentTarget.style.borderBottomColor = 'transparent';
             }}
           >
-            Ferramentas Manuais
-          </Link>
-          <Link 
-            to="/categorias/ferramentas-electricas" 
-            style={{
-              padding: '0.9rem 1.25rem',
-              color: 'white',
-              textDecoration: 'none',
-              fontWeight: '500',
-              textTransform: 'uppercase',
-              fontSize: '0.85rem',
-              letterSpacing: '0.5px',
-              transition: 'all 0.3s ease',
-              borderBottom: '2px solid transparent',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.color = '#FFCC00';
-              e.currentTarget.style.borderBottomColor = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.color = 'white';
-              e.currentTarget.style.borderBottomColor = 'transparent';
-            }}
-          >
-            Ferramentas Elétricas
-          </Link>
-          <Link 
-            to="/categorias/abrasivos" 
-            style={{
-              padding: '0.9rem 1.25rem',
-              color: 'white',
-              textDecoration: 'none',
-              fontWeight: '500',
-              textTransform: 'uppercase',
-              fontSize: '0.85rem',
-              letterSpacing: '0.5px',
-              transition: 'all 0.3s ease',
-              borderBottom: '2px solid transparent',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.color = '#FFCC00';
-              e.currentTarget.style.borderBottomColor = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.color = 'white';
-              e.currentTarget.style.borderBottomColor = 'transparent';
-            }}
-          >
-            Abrasivos
-          </Link>
-          <Link 
-            to="/categorias/jardim" 
-            style={{
-              padding: '0.9rem 1.25rem',
-              color: 'white',
-              textDecoration: 'none',
-              fontWeight: '500',
-              textTransform: 'uppercase',
-              fontSize: '0.85rem',
-              letterSpacing: '0.5px',
-              transition: 'all 0.3s ease',
-              borderBottom: '2px solid transparent',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.color = '#FFCC00';
-              e.currentTarget.style.borderBottomColor = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.color = 'white';
-              e.currentTarget.style.borderBottomColor = 'transparent';
-            }}
-          >
-            Jardim
-          </Link>
-          <Link 
-            to="/categorias/protecao" 
-            style={{
-              padding: '0.9rem 1.25rem',
-              color: 'white',
-              textDecoration: 'none',
-              fontWeight: '500',
-              textTransform: 'uppercase',
-              fontSize: '0.85rem',
-              letterSpacing: '0.5px',
-              transition: 'all 0.3s ease',
-              borderBottom: '2px solid transparent',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.color = '#FFCC00';
-              e.currentTarget.style.borderBottomColor = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.color = 'white';
-              e.currentTarget.style.borderBottomColor = 'transparent';
-            }}
-          >
-            Proteção
-          </Link>
-          <Link 
-            to="/todas-categorias" 
-            style={{
-              padding: '0.9rem 1.25rem',
-              color: 'white',
-              textDecoration: 'none',
-              fontWeight: '500',
-              textTransform: 'uppercase',
-              fontSize: '0.85rem',
-              letterSpacing: '0.5px',
-              transition: 'all 0.3s ease',
-              borderBottom: '2px solid transparent',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.color = '#FFCC00';
-              e.currentTarget.style.borderBottomColor = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.color = 'white';
-              e.currentTarget.style.borderBottomColor = 'transparent';
-            }}
-          >
-            Todas as Categorias
+            Produtos
           </Link>
           
           {/* Added navigation links here */}
@@ -547,7 +427,7 @@ const Header = ({ isAdmin = false }) => {
             }}>
               <li>
                 <Link 
-                  to="/categorias/ferramentas-manuais" 
+                  to="/products" 
                   style={{
                     display: 'block',
                     padding: '0.75rem',
@@ -567,135 +447,9 @@ const Header = ({ isAdmin = false }) => {
                     e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
-                  Ferramentas Manuais
+                  Produtos
                 </Link>
               </li>
-              <li>
-                <Link 
-                  to="/categorias/ferramentas-electricas" 
-                  style={{
-                    display: 'block',
-                    padding: '0.75rem',
-                    color: '#1A1A1A',
-                    textDecoration: 'none',
-                    fontWeight: '500',
-                    borderLeft: '2px solid transparent',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onClick={toggleMenu}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.borderColor = '#FFCC00';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.borderColor = 'transparent';
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  Ferramentas Elétricas
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/categorias/abrasivos" 
-                  style={{
-                    display: 'block',
-                    padding: '0.75rem',
-                    color: '#1A1A1A',
-                    textDecoration: 'none',
-                    fontWeight: '500',
-                    borderLeft: '2px solid transparent',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onClick={toggleMenu}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.borderColor = '#FFCC00';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.borderColor = 'transparent';
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  Abrasivos
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/categorias/jardim" 
-                  style={{
-                    display: 'block',
-                    padding: '0.75rem',
-                    color: '#1A1A1A',
-                    textDecoration: 'none',
-                    fontWeight: '500',
-                    borderLeft: '2px solid transparent',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onClick={toggleMenu}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.borderColor = '#FFCC00';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.borderColor = 'transparent';
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  Jardim
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/categorias/protecao" 
-                  style={{
-                    display: 'block',
-                    padding: '0.75rem',
-                    color: '#1A1A1A',
-                    textDecoration: 'none',
-                    fontWeight: '500',
-                    borderLeft: '2px solid transparent',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onClick={toggleMenu}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.borderColor = '#FFCC00';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.borderColor = 'transparent';
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  Proteção
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/todas-categorias" 
-                  style={{
-                    display: 'block',
-                    padding: '0.75rem',
-                    color: '#1A1A1A',
-                    textDecoration: 'none',
-                    fontWeight: '500',
-                    borderLeft: '2px solid transparent',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onClick={toggleMenu}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.borderColor = '#FFCC00';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.borderColor = 'transparent';
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  Todas as Categorias
-                </Link>
-              </li>
-              {/* Added navigation links to mobile menu */}
               <li>
                 <Link 
                   to="/sobre-nos" 
@@ -723,7 +477,7 @@ const Header = ({ isAdmin = false }) => {
               </li>
               <li>
                 <Link 
-                  to="/contactos" 
+                  to="/contactos"
                   style={{
                     display: 'block',
                     padding: '0.75rem',
@@ -748,7 +502,7 @@ const Header = ({ isAdmin = false }) => {
               </li>
               <li>
                 <Link 
-                  to="/ajuda" 
+                  to="/ajuda"
                   style={{
                     display: 'block',
                     padding: '0.75rem',
