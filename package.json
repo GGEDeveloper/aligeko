@@ -12,7 +12,7 @@
     "start": "node index.js",
     "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
     "test": "cd server && npm test",
-    "vercel-build": "npm run build",
+    "vercel-build": "cd client && npm install && npm run build",
     "steps": "node tasks/step-tracker.js",
     "steps:report": "node -e \"try { import('./tasks/step-tracker.js').then(tracker => { const tasks = tracker.parseStepsFile(); tracker.displayProgressReport(tasks); }).catch(e => console.error('Error loading steps tracker:', e.message)); } catch(e) { console.error('Error loading steps tracker:', e.message); }\""
   },
