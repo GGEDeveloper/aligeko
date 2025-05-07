@@ -1,0 +1,146 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Import design tokens */
+@import './design-tokens/index.css';
+
+/* Base styles */
+html, body {
+  font-family: var(--font-family-primary);
+  color: var(--color-primary-900);
+  background-color: var(--color-background-secondary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom utility classes */
+.container {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+/* Transition utilities */
+.transition-smooth {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+.shadow-hover {
+  @apply hover:shadow-md transition-all duration-200;
+}
+
+.shadow-card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Component styles */
+.hero-section {
+  @apply bg-primary-800 text-white py-10 md:py-16 rounded-b-lg;
+  position: relative;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/assets/hero-pattern.svg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.05;
+  z-index: 0;
+}
+
+.hero-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+.category-card {
+  @apply bg-white p-5 rounded-lg shadow-sm hover:shadow-md transition-all text-center;
+}
+
+.product-card {
+  @apply bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden;
+}
+
+.feature-card {
+  @apply bg-white p-6 rounded-lg shadow-sm text-center;
+}
+
+.feature-card > div:first-child {
+  @apply bg-brand-100 text-primary-800 p-3 rounded-full w-14 h-14 mx-auto mb-4 flex items-center justify-center;
+}
+
+/* Button variants */
+.btn-primary {
+  @apply bg-brand hover:bg-brand-600 text-primary-900 font-medium px-6 py-3 rounded-md shadow-md transition-all duration-200;
+}
+
+.btn-secondary {
+  @apply bg-primary-800 hover:bg-primary-900 text-white px-6 py-3 rounded-md font-medium transition-all duration-200 shadow-sm hover:shadow-md;
+}
+
+.btn-outline {
+  @apply bg-transparent border-2 border-white hover:bg-white/10 text-white font-medium px-6 py-3 rounded-md transition-all duration-200;
+}
+
+/* Fix any display issues */
+/* Fix for mobile nav menu */
+.nav-open {
+  overflow: hidden;
+}
+
+/* Fix for iOS Safari smooth scrolling */
+html {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix for Firefox button rendering */
+button {
+  text-align: center;
+}
+
+/* Ensure images are responsive by default */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure SVGs in buttons align properly */
+button svg, 
+a svg {
+  display: inline-block;
+  vertical-align: middle;
+} 

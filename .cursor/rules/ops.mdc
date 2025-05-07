@@ -1,0 +1,34 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Operations (Ops) Reference
+
+This document defines commonly used operations for the AliTools B2B project.
+
+## Standard Operations
+
+### op1: Deploy to Vercel
+
+When asked to "run op1" or "execute op1", this means:
+
+1. Run the Vercel build process
+2. Update the repository with the latest changes
+3. Complete the deployment to Vercel
+
+**Command Sequence:**
+```bash
+# Build the project
+npm run build
+
+# Commit and push changes (if there are uncommitted changes)
+git add .
+git commit -m "Update: Preparing for deployment"
+git push
+
+# Deploy to Vercel
+vercel --prod
+```
+
+This operation should be executed when changes need to be published to the live environment.

@@ -44,17 +44,17 @@ const Header = ({ isAdmin = false }) => {
       </div>
 
       {/* Main Header */}
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="block" aria-label="AliTools Home">
-              <Logo variant="primary" size="small" />
+            <Link to="/" className="block mr-4" aria-label="AliTools Home">
+              <Logo variant="primary" size="medium" />
             </Link>
           </div>
           
           {/* Search Bar - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-xl mx-6">
+          <div className="hidden md:flex flex-1 max-w-xl">
             <div className="relative w-full">
               <input
                 type="text"
@@ -72,53 +72,54 @@ const Header = ({ isAdmin = false }) => {
           </div>
           
           {/* Navigation Actions */}
-          <div className="flex items-center space-x-1 md:space-x-4">
-            {/* Search Toggle - Mobile */}
-            <button 
-              onClick={toggleSearch} 
-              className="p-2 md:hidden text-neutral-700 hover:text-brand transition-colors"
+          <div className="flex items-center gap-3">
+            {/* Cart Link */}
+            <Link 
+              to="/cart" 
+              className="hidden md:flex items-center text-primary hover:text-brand transition-colors"
+              aria-label="View Cart"
+            >
+              <BsCart3 className="w-5 h-5 mr-1" />
+              <span className="hidden lg:inline-block">Carrinho</span>
+            </Link>
+            
+            {/* Account Link */}
+            <Link 
+              to="/auth/login" 
+              className="hidden md:flex items-center text-primary hover:text-brand transition-colors ml-4"
+              aria-label="Account"
+            >
+              <BsPersonCircle className="w-5 h-5 mr-1" />
+              <span className="hidden lg:inline-block">Conta</span>
+            </Link>
+            
+            {/* Mobile Search Toggle */}
+            <button
+              onClick={toggleSearch}
+              className="md:hidden p-2 text-primary hover:text-brand transition-colors"
               aria-label="Search"
             >
               <BsSearch className="w-5 h-5" />
             </button>
             
-            {/* Cart */}
-            <Link 
-              to="/carrinho" 
-              className="relative p-2 text-neutral-700 hover:text-brand transition-colors flex items-center"
-              aria-label="Cart"
-            >
-              <BsCart3 className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 bg-brand text-primary-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                0
-              </span>
-              <span className="hidden md:inline ml-1">Carrinho</span>
-            </Link>
-            
-            {/* Account */}
-            <Link 
-              to="/login" 
-              className="p-2 text-neutral-700 hover:text-brand transition-colors flex items-center"
-              aria-label="Account"
-            >
-              <BsPersonCircle className="w-5 h-5" />
-              <span className="hidden md:inline ml-1">Conta</span>
-            </Link>
-            
             {/* Mobile Menu Toggle */}
             <button 
-              onClick={toggleMenu} 
-              className="p-2 ml-1 md:hidden text-neutral-700 hover:text-brand transition-colors"
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              onClick={toggleMenu}
+              className="md:hidden p-2 text-primary hover:text-brand transition-colors ml-1"
+              aria-label={isMenuOpen ? "Close Menu" : "Open Menu"}
             >
-              {isMenuOpen ? <BsX className="w-6 h-6" /> : <BsList className="w-6 h-6" />}
+              {isMenuOpen ? (
+                <BsX className="w-6 h-6" />
+              ) : (
+                <BsList className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
         
-        {/* Mobile Search - Conditional */}
+        {/* Mobile Search - Only visible when toggled */}
         {isSearchOpen && (
-          <div className="mt-3 px-4 pb-3 md:hidden">
+          <div className="md:hidden mt-3 pb-3">
             <div className="relative w-full">
               <input
                 type="text"
@@ -136,69 +137,48 @@ const Header = ({ isAdmin = false }) => {
           </div>
         )}
       </div>
-      
-      {/* Category Navigation Bar */}
-      <nav className="bg-neutral-100 border-t border-neutral-200 hidden md:block">
-        <div className="container mx-auto">
-          <ul className="flex space-x-1 overflow-x-auto">
-            <li>
-              <Link to="/categorias/ferramentas-manuais" className="block px-4 py-3 text-sm font-medium text-neutral-800 hover:text-brand hover:bg-white transition-colors whitespace-nowrap">
-                Ferramentas Manuais
-              </Link>
-            </li>
-            <li>
-              <Link to="/categorias/ferramentas-eletricas" className="block px-4 py-3 text-sm font-medium text-neutral-800 hover:text-brand hover:bg-white transition-colors whitespace-nowrap">
-                Ferramentas Elétricas
-              </Link>
-            </li>
-            <li>
-              <Link to="/categorias/abrasivos" className="block px-4 py-3 text-sm font-medium text-neutral-800 hover:text-brand hover:bg-white transition-colors whitespace-nowrap">
-                Abrasivos
-              </Link>
-            </li>
-            <li>
-              <Link to="/categorias/jardim" className="block px-4 py-3 text-sm font-medium text-neutral-800 hover:text-brand hover:bg-white transition-colors whitespace-nowrap">
-                Jardim
-              </Link>
-            </li>
-            <li>
-              <Link to="/categorias/protecao" className="block px-4 py-3 text-sm font-medium text-neutral-800 hover:text-brand hover:bg-white transition-colors whitespace-nowrap">
-                Proteção
-              </Link>
-            </li>
-            <li>
-              <Link to="/todas-categorias" className="block px-4 py-3 text-sm font-medium text-neutral-800 hover:text-brand hover:bg-white transition-colors whitespace-nowrap">
-                Todas as Categorias
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
 
-      {/* Mobile Menu - Conditional */}
+      {/* Mobile Menu - Only visible when toggled */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-neutral-200 absolute w-full shadow-lg z-50">
-          <div className="container mx-auto px-4 py-4">
-            <nav className="space-y-1">
-              <p className="px-3 py-1 text-sm font-semibold text-neutral-500">Categorias</p>
-              <Link to="/categorias/ferramentas-manuais" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
-                Ferramentas Manuais
-              </Link>
-              <Link to="/categorias/ferramentas-eletricas" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
-                Ferramentas Elétricas
-              </Link>
-              <Link to="/categorias/abrasivos" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
-                Abrasivos
-              </Link>
-              <Link to="/categorias/jardim" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
-                Jardim
-              </Link>
-              <Link to="/categorias/protecao" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
-                Proteção
-              </Link>
-              <Link to="/todas-categorias" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md font-medium">
-                Todas as Categorias
-              </Link>
+        <div className="md:hidden bg-white border-t border-neutral-300">
+          <div className="container mx-auto">
+            <nav className="py-4 px-4 space-y-4">
+              {/* Category Navigation */}
+              <div>
+                <p className="px-3 py-1 text-sm font-semibold text-neutral-500">Categorias</p>
+                <Link to="/categorias/ferramentas-manuais" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
+                  Ferramentas Manuais
+                </Link>
+                <Link to="/categorias/ferramentas-eletricas" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
+                  Ferramentas Elétricas
+                </Link>
+                <Link to="/categorias/abrasivos" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
+                  Abrasivos
+                </Link>
+                <Link to="/categorias/jardim" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
+                  Jardim
+                </Link>
+                <Link to="/categorias/protecao" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
+                  Proteção
+                </Link>
+                <Link to="/todas-categorias" className="block px-3 py-2 font-medium text-brand hover:bg-neutral-100 rounded-md">
+                  Todas as Categorias
+                </Link>
+              </div>
+              
+              {/* Account Navigation */}
+              <div className="pt-4 mt-3 border-t border-neutral-200">
+                <p className="px-3 py-1 text-sm font-semibold text-neutral-500">Conta</p>
+                <Link to="/auth/login" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
+                  Entrar
+                </Link>
+                <Link to="/auth/register" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
+                  Registar
+                </Link>
+                <Link to="/cart" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
+                  Carrinho
+                </Link>
+              </div>
               
               <div className="pt-4 mt-3 border-t border-neutral-200">
                 <p className="px-3 py-1 text-sm font-semibold text-neutral-500">Empresa</p>

@@ -37,7 +37,7 @@ const Logo = ({
   // Style based on variant
   const variantStyles = {
     primary: {
-      logoClass: 'text-primary',
+      logoClass: 'text-primary-900',
       accentClass: 'text-brand'
     },
     mono: {
@@ -58,7 +58,7 @@ const Logo = ({
       className={`flex items-center font-bold ${logoClass} ${container} ${className}`}
       {...props}
     >
-      <span className={`${fontSize} mr-1 font-extrabold`}>Ali</span>
+      <span className={`${fontSize} font-extrabold`}>Ali</span>
       <span className={`${fontSize} font-extrabold ${accentClass}`}>Tools</span>
     </div>
   );
