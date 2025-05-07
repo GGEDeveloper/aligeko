@@ -2,6 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
+// Importar logos
+import logoPrimary from '../../assets/logos/png/primary/alitools_primary_fullcolor_250px.png';
+import logoMonoBlack from '../../assets/logos/png/mono/alitools_mono_black.png';
+import logoMonoWhite from '../../assets/logos/png/mono/alitools_mono_white.png';
+import logoMonoYellow from '../../assets/logos/png/mono/alitools_mono_yellow.png';
+
 /**
  * Logo component for AliTools B2B platform
  * 
@@ -18,48 +24,40 @@ const Logo = ({
   className = '',
   ...props
 }) => {
-  // Define size dimensions and font sizes
+  // Define size dimensions
   const dimensions = {
-    small: { 
-      container: 'h-8',
-      fontSize: 'text-lg'
-    },
-    medium: { 
-      container: 'h-10',
-      fontSize: 'text-xl'
-    },
-    large: { 
-      container: 'h-12',
-      fontSize: 'text-2xl'
+    small: { height: '32px' },
+    medium: { height: '40px' },
+    large: { height: '48px' }
+  };
+
+  // Select logo based on variant
+  const getLogo = () => {
+    switch(variant) {
+      case 'primary':
+        return logoPrimary;
+      case 'mono':
+        return logoMonoBlack;
+      case 'light':
+        return logoMonoWhite;
+      case 'brand':
+        return logoMonoYellow;
+      default:
+        return logoPrimary;
     }
   };
 
-  // Style based on variant
-  const variantStyles = {
-    primary: {
-      logoClass: 'text-primary-900',
-      accentClass: 'text-brand'
-    },
-    mono: {
-      logoClass: 'text-white',
-      accentClass: 'text-brand'
-    },
-    light: {
-      logoClass: 'text-white',
-      accentClass: 'text-brand-300'
-    }
-  };
-
-  const { container, fontSize } = dimensions[size];
-  const { logoClass, accentClass } = variantStyles[variant];
+  const logo = getLogo();
+  const { height } = dimensions[size];
 
   const logoContent = (
-    <div 
-      className={`flex items-center font-bold ${logoClass} ${container} ${className}`}
-      {...props}
-    >
-      <span className={`${fontSize} font-extrabold`}>Ali</span>
-      <span className={`${fontSize} font-extrabold ${accentClass}`}>Tools</span>
+    <div className={`flex items-center ${className}`} {...props}>
+      <img 
+        src={logo} 
+        alt="AliTools Logo" 
+        style={{ height: height }}
+        className="max-w-full"
+      />
     </div>
   );
 
@@ -76,7 +74,7 @@ const Logo = ({
 };
 
 Logo.propTypes = {
-  variant: PropTypes.oneOf(['primary', 'mono', 'light']),
+  variant: PropTypes.oneOf(['primary', 'mono', 'light', 'brand']),
   size: PropTypes.oneOf(['small', 'medium', 'large']),
   withLink: PropTypes.bool,
   className: PropTypes.string

@@ -23,8 +23,8 @@ const Header = ({ isAdmin = false }) => {
       top: 0, 
       zIndex: 50,
       width: '100%',
-      backgroundColor: 'white',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+      backgroundColor: '#000000',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
     }}>
       {/* Top Bar - Contact Info and Account Links */}
       <div style={{ 
@@ -124,12 +124,14 @@ const Header = ({ isAdmin = false }) => {
         padding: '1rem',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: '#000000',
+        color: 'white'
       }}>
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <Logo variant="primary" size="medium" />
+            <Logo variant="light" size="medium" />
           </Link>
         </div>
         
@@ -186,12 +188,12 @@ const Header = ({ isAdmin = false }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              color: '#1A1A1A',
+              color: 'white',
               textDecoration: 'none',
               transition: 'color 0.2s ease'
             }}
             onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#1A1A1A'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'white'}
           >
             <BsCart3 size={20} />
             <span>Carrinho</span>
@@ -203,12 +205,12 @@ const Header = ({ isAdmin = false }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              color: '#1A1A1A',
+              color: 'white',
               textDecoration: 'none',
               transition: 'color 0.2s ease'
             }}
             onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#1A1A1A'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'white'}
           >
             <BsPersonCircle size={20} />
             <span>{isAdmin ? "Painel Admin" : "Conta"}</span>
@@ -236,9 +238,9 @@ const Header = ({ isAdmin = false }) => {
       
       {/* Categories Navigation */}
       <nav style={{ 
-        borderTop: '1px solid #e5e5e5',
-        borderBottom: '1px solid #e5e5e5',
-        backgroundColor: 'white'
+        borderTop: '1px solid #333',
+        borderBottom: '1px solid #333',
+        backgroundColor: '#000000'
       }}>
         <div style={{ 
           maxWidth: '1280px', 
@@ -248,24 +250,16 @@ const Header = ({ isAdmin = false }) => {
           flexWrap: 'wrap'
         }}>
           <Link 
-            to="/categorias/ferramentas-manuais" 
-            style={{
+            to="/categorias/ferramentas-manuais"
+            style={{ 
               padding: '0.75rem 1rem',
-              color: '#1A1A1A',
+              color: 'white',
               textDecoration: 'none',
               fontWeight: '500',
-              whiteSpace: 'nowrap',
-              borderBottom: '2px solid transparent',
-              transition: 'all 0.2s ease'
+              transition: 'color 0.2s ease'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = '#FFCC00';
-              e.currentTarget.style.color = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = 'transparent';
-              e.currentTarget.style.color = '#1A1A1A';
-            }}
+            onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'white'}
           >
             Ferramentas Manuais
           </Link>
@@ -273,21 +267,13 @@ const Header = ({ isAdmin = false }) => {
             to="/categorias/ferramentas-electricas" 
             style={{
               padding: '0.75rem 1rem',
-              color: '#1A1A1A',
+              color: 'white',
               textDecoration: 'none',
               fontWeight: '500',
-              whiteSpace: 'nowrap',
-              borderBottom: '2px solid transparent',
-              transition: 'all 0.2s ease'
+              transition: 'color 0.2s ease'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = '#FFCC00';
-              e.currentTarget.style.color = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = 'transparent';
-              e.currentTarget.style.color = '#1A1A1A';
-            }}
+            onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'white'}
           >
             Ferramentas Elétricas
           </Link>
@@ -295,21 +281,13 @@ const Header = ({ isAdmin = false }) => {
             to="/categorias/abrasivos" 
             style={{
               padding: '0.75rem 1rem',
-              color: '#1A1A1A',
+              color: 'white',
               textDecoration: 'none',
               fontWeight: '500',
-              whiteSpace: 'nowrap',
-              borderBottom: '2px solid transparent',
-              transition: 'all 0.2s ease'
+              transition: 'color 0.2s ease'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = '#FFCC00';
-              e.currentTarget.style.color = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = 'transparent';
-              e.currentTarget.style.color = '#1A1A1A';
-            }}
+            onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'white'}
           >
             Abrasivos
           </Link>
@@ -317,21 +295,13 @@ const Header = ({ isAdmin = false }) => {
             to="/categorias/jardim" 
             style={{
               padding: '0.75rem 1rem',
-              color: '#1A1A1A',
+              color: 'white',
               textDecoration: 'none',
               fontWeight: '500',
-              whiteSpace: 'nowrap',
-              borderBottom: '2px solid transparent',
-              transition: 'all 0.2s ease'
+              transition: 'color 0.2s ease'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = '#FFCC00';
-              e.currentTarget.style.color = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = 'transparent';
-              e.currentTarget.style.color = '#1A1A1A';
-            }}
+            onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'white'}
           >
             Jardim
           </Link>
@@ -339,21 +309,13 @@ const Header = ({ isAdmin = false }) => {
             to="/categorias/protecao" 
             style={{
               padding: '0.75rem 1rem',
-              color: '#1A1A1A',
+              color: 'white',
               textDecoration: 'none',
               fontWeight: '500',
-              whiteSpace: 'nowrap',
-              borderBottom: '2px solid transparent',
-              transition: 'all 0.2s ease'
+              transition: 'color 0.2s ease'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = '#FFCC00';
-              e.currentTarget.style.color = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = 'transparent';
-              e.currentTarget.style.color = '#1A1A1A';
-            }}
+            onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'white'}
           >
             Proteção
           </Link>
@@ -361,21 +323,13 @@ const Header = ({ isAdmin = false }) => {
             to="/todas-categorias" 
             style={{
               padding: '0.75rem 1rem',
-              color: '#1A1A1A',
+              color: 'white',
               textDecoration: 'none',
               fontWeight: '500',
-              whiteSpace: 'nowrap',
-              borderBottom: '2px solid transparent',
-              transition: 'all 0.2s ease'
+              transition: 'color 0.2s ease'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = '#FFCC00';
-              e.currentTarget.style.color = '#FFCC00';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = 'transparent';
-              e.currentTarget.style.color = '#1A1A1A';
-            }}
+            onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'white'}
           >
             Todas as Categorias
           </Link>
