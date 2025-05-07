@@ -13,16 +13,24 @@ client/.vite
 .env.test.local
 .env.production.local
 
+# Development files
+README.md
+CHANGELOG.md
+.prettierrc
+.eslintrc
+.editorconfig
+.git
+.github
+
+# Testing
+coverage
+**/__tests__
+**/test
+
 # Documentation
 docs/
 
-# Tests
-**/tests
-**/coverage
-
 # Misc
-.git
-.github
 .cursor
 .roo
 **/README.md

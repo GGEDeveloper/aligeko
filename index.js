@@ -4,18 +4,21 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import cors from 'cors';
 
-// Get directory paths
+// ES Module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// CORS and basic middleware
-app.use(cors());
-app.use(express.json());
+// Configure CORS
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://alitools-b2b.vercel.app', 'https://aligekow-iwznrnlz0-alitools-projects.vercel.app'] 
+    : 'http://localhost:3000',
+  credentials: true
+}));
 
-// Serve static files with explicit MIME types
+// Serve static files from the React app with explicit MIME types
 app.use(express.static(join(__dirname, 'client/dist'), {
   setHeaders: (res, path) => {
     if (path.endsWith('.js')) {
@@ -26,34 +29,39 @@ app.use(express.static(join(__dirname, 'client/dist'), {
       res.setHeader('Content-Type', 'text/html; charset=UTF-8');
     }
     
-    // Add cache headers for assets
+    // Add cache headers for static assets
     if (path.includes('/assets/')) {
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour for other files
     }
   }
 }));
 
-// API routes can be added here
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello from AliTools API!' });
+// API routes - redirect to server
+app.use('/api', (req, res) => {
+  // Redirect API calls to the server directory
+  import('./server/index.js').then(serverModule => {
+    // Forward the request to the server module
+    serverModule.default(req, res);
+  }).catch(err => {
+    console.error('Error loading server module:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  });
 });
 
-// Configure headers to prevent CORS and optimize cache
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Cache-Control', 'public, max-age=3600'); // Cache of 1 hour
-  next();
-});
-
-// SPA fallback - send all requests to index.html
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
 app.get('*', (req, res) => {
   res.sendFile(join(__dirname, 'client/dist/index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const port = process.env.PORT || 5000;
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
 
-export default app; 
+// Export for Vercel
+export default app;
