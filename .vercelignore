@@ -13,6 +13,20 @@ client/.vite
 .env.test.local
 .env.production.local
 
+# Documentation
+docs/
+
+# Tests
+**/tests
+**/coverage
+
+# Misc
+.git
+.github
+.cursor
+.roo
+**/README.md
+
 # Editor directories and files
 .idea
 .vscode
@@ -20,17 +34,4 @@ client/.vite
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
-
-# Tests
-**/*.test.js
-**/*.spec.js
-**/tests/
-**/coverage/
-
-# Development files
-**/.git
-**/.github
-**/.gitignore
-.DS_Store
-.Thumbs.db 
+*.sw? 
