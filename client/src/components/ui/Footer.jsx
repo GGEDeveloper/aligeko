@@ -64,13 +64,13 @@ const Footer = ({
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: '2rem',
           marginBottom: '3rem'
         }}>
           {/* Brand & About */}
           <div>
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '2rem' }}>
               <Logo variant="primary" size="medium" />
             </div>
             <p style={{

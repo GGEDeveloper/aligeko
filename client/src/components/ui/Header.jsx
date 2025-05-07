@@ -121,7 +121,7 @@ const Header = ({ isAdmin = false }) => {
       <div style={{ 
         maxWidth: '1280px', 
         margin: '0 auto', 
-        padding: '1rem',
+        padding: '2rem 1rem',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -129,7 +129,11 @@ const Header = ({ isAdmin = false }) => {
         color: 'white'
       }}>
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center',
+          marginRight: '2rem'
+        }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
             <Logo variant="light" size="medium" />
           </Link>

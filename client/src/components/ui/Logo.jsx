@@ -12,7 +12,7 @@ import logoMonoYellow from '../../assets/logos/png/mono/alitools_mono_yellow.png
  * Logo component for AliTools B2B platform
  * 
  * @param {Object} props - Component props
- * @param {string} props.variant - Color variant ('primary', 'mono', 'light')
+ * @param {string} props.variant - Color variant ('primary', 'mono', 'light', 'brand')
  * @param {string} props.size - Size variant ('small', 'medium', 'large')
  * @param {boolean} props.withLink - Whether to wrap in a Link to home
  * @param {string} props.className - Additional CSS classes
@@ -24,11 +24,11 @@ const Logo = ({
   className = '',
   ...props
 }) => {
-  // Define size dimensions
+  // Define size dimensions - Aumentados em 300%
   const dimensions = {
-    small: { height: '32px' },
-    medium: { height: '40px' },
-    large: { height: '48px' }
+    small: { height: '96px' }, // 32px * 3
+    medium: { height: '120px' }, // 40px * 3
+    large: { height: '144px' } // 48px * 3
   };
 
   // Select logo based on variant
