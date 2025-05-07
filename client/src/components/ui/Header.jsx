@@ -25,16 +25,16 @@ const Header = ({ isAdmin = false }) => {
           <div className="flex items-center space-x-4">
             <span className="flex items-center">
               <BsTelephone className="mr-1 text-brand" />
-              <span>Ligação gratuita: 800-123-4567</span>
+              <span>Tel: (+351) 96 396 59 03</span>
             </span>
             <span>|</span>
             <span className="flex items-center">
               <BsEnvelope className="mr-1 text-brand" />
-              <span>info@alitools.com</span>
+              <span>alimamedetools@gmail.com</span>
             </span>
           </div>
           <div className="flex items-center space-x-4">
-            <Link to="/sobre-nos" className="hover:text-brand transition-colors">Sobre Nós</Link>
+            <Link to="/about" className="hover:text-brand transition-colors">Sobre Nós</Link>
             <span>|</span>
             <Link to="/contactos" className="hover:text-brand transition-colors">Contactos</Link>
             <span>|</span>
@@ -202,7 +202,7 @@ const Header = ({ isAdmin = false }) => {
               
               <div className="pt-4 mt-3 border-t border-neutral-200">
                 <p className="px-3 py-1 text-sm font-semibold text-neutral-500">Empresa</p>
-                <Link to="/sobre-nos" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
+                <Link to="/about" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
                   Sobre Nós
                 </Link>
                 <Link to="/contactos" className="block px-3 py-2 text-neutral-800 hover:bg-neutral-100 hover:text-brand rounded-md">
@@ -213,11 +213,11 @@ const Header = ({ isAdmin = false }) => {
                 </Link>
                 <div className="flex items-center px-3 py-2 text-neutral-800">
                   <BsTelephone className="mr-2 text-brand" />
-                  <span>800-123-4567</span>
+                  <span>(+351) 96 396 59 03</span>
                 </div>
                 <div className="flex items-center px-3 py-2 text-neutral-800">
                   <BsEnvelope className="mr-2 text-brand" />
-                  <span>info@alitools.com</span>
+                  <span>alimamedetools@gmail.com</span>
                 </div>
               </div>
             </nav>

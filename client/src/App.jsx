@@ -14,6 +14,7 @@ import SessionManager from './components/auth/SessionManager';
 // Pages
 import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
+import AboutPage from './pages/AboutPage';
 
 // Authentication
 import LoginPage from './pages/auth/LoginPage';
@@ -66,6 +67,7 @@ function App() {
         {/* Public routes */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="about" element={<AboutPage />} />
           <Route path="auth/login" element={<LoginPage />} />
           <Route path="auth/register" element={<RegisterPage />} />
           <Route path="auth/register-success" element={<RegisterSuccessPage />} />

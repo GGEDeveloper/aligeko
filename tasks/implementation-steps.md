@@ -880,6 +880,15 @@ This document contains checklists for all implementation steps across all tasks,
 - [ ] Set up documentation hosting and distribution
 - [ ] Implement documentation search and navigation
 
+### 16.5 Company Information Content Implementation
+- [x] Create "Sobre Nós" page component structure
+- [x] Implement page title and hero section with company slogan
+- [x] Write company history content based on AlimamedeTools information
+- [x] Implement brand evolution section (AlimamedeTools → AliTools)
+- [x] Add company values visualization
+- [x] Create mobile-responsive layout for the page
+- [x] Implement page SEO optimization
+
 ## Task 17: Design System Technical Implementation
 Status: Completed ✅
 
@@ -1023,6 +1032,60 @@ Status: Completed ✅
 - [x] 19.5.3 Add explicit button and card styles
 - [x] 19.5.4 Fix typography with direct color values
 - [x] 19.5.5 Enforce component visibility with inline styles
+
+## Task 20: Company Information Implementation
+
+### 20.1 About Us Page Development
+- [x] Create "Sobre Nós" page component structure
+- [x] Implement page title and hero section with company slogan
+- [x] Write company history content based on AlimamedeTools information
+- [x] Implement brand evolution section (AlimamedeTools → AliTools)
+- [x] Add company values visualization
+- [x] Create mobile-responsive layout for the page
+- [x] Implement page SEO optimization
+
+### 20.2 Mission and Values Section
+- [x] Design mission statement component based on "A MARCA DAS MARCAS" slogan
+- [x] Implement visual representation of company mission
+- [x] Create values cards highlighting service quality and customer focus
+- [x] Add "Oferecer soluções globais de fornecimento" commitment section
+- [x] Implement B2B focus explanation
+- [x] Create visual elements demonstrating product quality commitment
+
+### 20.3 Contact Information Implementation
+- [x] Create contact page structure with company information
+- [x] Implement contact form component
+- [x] Add company phone number ((+351) 96 396 59 03)
+- [x] Implement email contact information (alimamedetools@gmail.com)
+- [x] Add business hours (Segunda a Sexta: 9:00 às 12:30 - 14:00 às 18:30)
+- [x] Create location map integration
+- [x] Implement social media links
+- [x] Add responsive design for all device sizes
+
+### 20.4 Product Categories and Specialization
+- [x] Design "Nossa Especialização" section with main categories
+- [x] Implement visual cards for each product category
+- [x] Create category descriptions based on AlimamedeTools information
+- [x] Implement special emphasis on:
+  - [x] Ferramentas para construção
+  - [x] Ferramentas manuais
+  - [x] Ferramentas para mecânica e eletricidade
+  - [x] Ferramentas para jardim
+  - [x] Produtos de proteção e segurança
+- [x] Add icons from AliTools Icon Library for each category
+- [x] Implement linking to product category pages
+- [x] Create mobile responsive grid layout
+
+### 20.5 B2B Model Explanation
+- [x] Design "Modelo de Negócio" section explaining B2B focus
+- [x] Implement content about wholesale distribution
+- [x] Create visualization of customer types:
+  - [x] Distribuidores nacionais
+  - [x] Distribuidores locais
+  - [x] Retalhistas
+  - [x] Comércio local de ferragens, ferramentas e drogarias
+- [x] Add benefits of partnership with AliTools
+- [x] Implement call-to-action for business registration
 
 ## How to Use This Tracker
 
