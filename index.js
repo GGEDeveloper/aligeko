@@ -10,11 +10,31 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-// Configure CORS
+// Configure CORS with a function to support dynamic origins
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://alitools-b2b.vercel.app', 'https://aligekow-iwznrnlz0-alitools-projects.vercel.app'] 
-    : 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      'http://localhost:3000', 
+      'https://alitools-b2b.vercel.app', 
+      'https://aligekow-iwznrnlz0-alitools-projects.vercel.app'
+    ];
+    
+    // Allow all Vercel preview deployment URLs
+    if (
+      allowedOrigins.includes(origin) || 
+      origin.match(/https:\/\/aligekow-[a-z0-9]+-alitools-projects\.vercel\.app/)
+    ) {
+      return callback(null, true);
+    }
+    
+    // Log blocked origins for debugging
+    console.log(`CORS blocked origin: ${origin}`);
+    return callback(new Error(`CORS policy does not allow access from origin ${origin}`), false);
+  },
   credentials: true
 }));
 
@@ -41,12 +61,12 @@ app.use(express.static(join(__dirname, 'client/dist'), {
 // API routes - redirect to server
 app.use('/api', (req, res) => {
   // Redirect API calls to the server directory
-  import('./server/index.js').then(serverModule => {
+  import('./server/src/index.js').then(serverModule => {
     // Forward the request to the server module
     serverModule.default(req, res);
   }).catch(err => {
     console.error('Error loading server module:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Error', details: err.message });
   });
 });
 

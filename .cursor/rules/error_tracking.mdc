@@ -1,0 +1,427 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Error Tracking and Resolution
+
+This rule documents errors encountered during development of the AliTools B2B E-commerce platform, along with their resolutions and timestamps. The purpose is to maintain a comprehensive history of issues and their fixes for future reference.
+
+## Error Log Structure
+
+Each error entry should follow this format:
+
+- **Date:** [YYYY-MM-DD HH:MM]
+- **Error Type:** Brief categorization (e.g., CORS, Routing, Database)
+- **Environment:** Where the error occurred (Production, Development, Testing)
+- **Error Message:** The exact error message or a summary
+- **Root Cause:** Analysis of what caused the error
+- **Resolution:** Steps taken to fix the issue
+- **Verification:** How the fix was tested/verified
+- **Affected Files:** List of files modified to implement the fix
+- **Related Issues:** Links to related errors or documentation
+- **Version:** Version number where the error was fixed
+
+## Active Errors
+
+List of currently active errors that need to be addressed:
+
+None
+
+## Recent Fixes
+
+### Server Module Import Error
+
+- **Date:** [2023-06-09 10:15]
+- **Error Type:** Server Configuration
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  GET https://aligekow-h7ygbhoh4-alitools-projects.vercel.app/api/v1/products?page=1&limit=12&sortBy=created_at&sortOrder=desc 500 (Internal Server Error)
+  ```
+- **Root Cause:** The main Express server in `index.js` was trying to import the API server from `./server/index.js`, but the correct path is `./server/src/index.js`. This caused a module import failure in production, resulting in 500 errors for all API requests.
+- **Resolution:** 
+  1. Updated the import path in `index.js` from `'./server/index.js'` to `'./server/src/index.js'`
+  2. Added error details to the response for better debugging
+  
+  Code change:
+  ```javascript
+  // Old code
+  import('./server/index.js').then(serverModule => {
+    // Forward the request to the server module
+    serverModule.default(req, res);
+  }).catch(err => {
+    console.error('Error loading server module:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  });
+  
+  // New code
+  import('./server/src/index.js').then(serverModule => {
+    // Forward the request to the server module
+    serverModule.default(req, res);
+  }).catch(err => {
+    console.error('Error loading server module:', err);
+    res.status(500).json({ error: 'Internal Server Error', details: err.message });
+  });
+  ```
+- **Verification:** 
+  1. Updated the code locally
+  2. Deployed to Vercel production
+  3. Tested the Products page to confirm API calls are working correctly
+  4. Verified that other API endpoints also work properly
+- **Affected Files:** 
+  - `index.js` - Updated server module import path
+- **Related Issues:** 
+  - [API URL Configuration Error](#api-url-configuration-error) - Previous related fix
+- **Version:** v1.0.3
+
+### API URL Configuration Error
+
+- **Date:** [2023-06-08 14:30]
+- **Error Type:** API Connection
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  GET http://localhost:5000/v1/products?page=1&limit=12&sortBy=created_at&sortOrder=desc net::ERR_CONNECTION_REFUSED
+  ```
+- **Root Cause:** API service files (productApi.js, orderApi.js, etc.) were using hardcoded localhost URLs for API endpoints, resulting in the browser attempting to connect to the client's localhost in production, which failed with connection refused errors.
+- **Resolution:** 
+  1. Updated all API service files to use relative paths instead of absolute URLs
+  2. Replaced all instances of `const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/v1'` with `const API_URL = '/api/v1'`
+  3. Fixed component files making direct API calls with hardcoded URLs
+  4. Created a new `.cursor/rules/api_configuration.mdc` file to document proper API configuration practices
+  5. Deployed the updated code to Vercel production
+- **Verification:** 
+  1. Built the client application with `npm run build`
+  2. Deployed to Vercel production with `vercel --prod`
+  3. Tested the products page and confirmed API requests work correctly
+  4. Verified that other areas using direct API calls also work properly
+- **Affected Files:** 
+  - `client/src/store/api/productApi.js`
+  - `client/src/store/api/orderApi.js`
+  - `client/src/store/api/customerApi.js`
+  - `client/src/store/api/categoryApi.js`
+  - `client/src/store/api/reportApi.js`
+  - `client/src/pages/admin/InvoicePage.jsx`
+  - `client/src/components/orders/OrdersExport.jsx`
+  - `client/src/components/orders/InvoiceManager.jsx`
+- **Related Issues:** 
+  - [API Configuration Guide](mdc:.cursor/rules/api_configuration.mdc) - Documentation of proper API configuration
+- **Version:** v1.0.2
+
+### CORS Configuration Error
+
+- **Date:** [2023-06-07 15:45]
+- **Error Type:** CORS
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  Access to fetch at 'http://localhost:5000/v1/products?page=1&limit=12&sortBy=created_at&sortOrder=desc' 
+  from origin 'https://aligekow-34kcgkb6g-alitools-projects.vercel.app' has been blocked by CORS policy: 
+  The 'Access-Control-Allow-Origin' header has a value 'http://localhost:3000' that is not equal to the 
+  supplied origin.
+  ```
+- **Root Cause:** The CORS configuration in `index.js` was using a static array of allowed origins in production mode, but did not account for dynamically generated Vercel preview deployment URLs with different subdomains.
+- **Resolution:** 
+  1. Replaced the static CORS configuration with a dynamic function-based approach
+  2. Added support for all Vercel preview deployment URLs with regex pattern matching
+  3. Implemented proper error logging for CORS blocked origins
+  4. Maintained support for existing allowed origins
+  
+  Code change:
+  ```javascript
+  // Old configuration
+  app.use(cors({
+    origin: process.env.NODE_ENV === 'production' 
+      ? ['https://alitools-b2b.vercel.app', 'https://aligekow-iwznrnlz0-alitools-projects.vercel.app'] 
+      : 'http://localhost:3000',
+    credentials: true
+  }));
+  
+  // New configuration
+  app.use(cors({
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps, curl requests)
+      if (!origin) return callback(null, true);
+      
+      // List of allowed origins
+      const allowedOrigins = [
+        'http://localhost:3000', 
+        'https://alitools-b2b.vercel.app', 
+        'https://aligekow-iwznrnlz0-alitools-projects.vercel.app'
+      ];
+      
+      // Allow all Vercel preview deployment URLs
+      if (
+        allowedOrigins.includes(origin) || 
+        origin.match(/https:\/\/aligekow-[a-z0-9]+-alitools-projects\.vercel\.app/)
+      ) {
+        return callback(null, true);
+      }
+      
+      // Log blocked origins for debugging
+      console.log(`CORS blocked origin: ${origin}`);
+      return callback(new Error(`CORS policy does not allow access from origin ${origin}`), false);
+    },
+    credentials: true
+  }));
+  ```
+- **Verification:** 
+  1. Deployed the updated code to Vercel
+  2. Accessed the products page directly on the problematic Vercel preview URL
+  3. Confirmed that API calls worked properly with no CORS errors
+  4. Tested other allowed origins to ensure they still worked
+- **Affected Files:** 
+  - `index.js` - Updated CORS configuration
+  - `.cursor/rules/error_tracking.mdc` - Created new error tracking documentation
+- **Related Issues:** 
+  - [express-spa-routing-solution.md](mdc:docs/express-spa-routing-solution.md) - Documentation of the Express SPA routing solution
+- **Version:** v1.0.1
+
+## Historical Issues
+
+None yet. Historical issues will be moved here as they become less relevant to current development.
+
+## Best Practices for Error Prevention
+
+- **CORS Configuration:** 
+  - Use function-based CORS configuration for dynamic origin validation
+  - Always include wildcard patterns for preview deployment URLs 
+  - Implement proper logging for rejected origins to aid debugging
+  - Consider adding environment variables for additional allowed origins
+- **API Endpoint Testing:** Test API endpoints in both development and production environments
+- **Deployment Verification:** After each deployment, verify all main routes and functionality
+- **Error Logging:** Implement proper error logging in production environments
+- **Fallback Strategies:** Implement fallbacks for critical functionality when services fail
+
+## Deployment Guide & Troubleshooting
+
+### Proper Vercel Deployment Process
+
+Based on our deployment experience, follow these steps for a successful deployment to Vercel:
+
+1. **Prepare Your Code**:
+   - Ensure `package.json` has proper type configuration:
+     ```json
+     {
+       "name": "alitools-b2b",
+       "version": "1.0.0",
+       "type": "module",
+       "engines": {
+         "node": ">=16.x"
+       }
+     }
+     ```
+   - Verify client build scripts are correct:
+     ```json
+     "scripts": {
+       "build": "vite build",
+       "vercel-build": "vite build"
+     }
+     ```
+
+2. **Configure Express Server**:
+   - Use the Express server approach for handling all routes:
+     ```javascript
+     // index.js (root directory)
+     import express from 'express';
+     import { fileURLToPath } from 'url';
+     import { dirname, join } from 'path';
+     import cors from 'cors';
+
+     // ES Module equivalent of __dirname
+     const __filename = fileURLToPath(import.meta.url);
+     const __dirname = dirname(__filename);
+
+     const app = express();
+
+     // Configure CORS with a function for dynamic origins
+     app.use(cors({
+       origin: function(origin, callback) {
+         // CORS configuration logic
+       },
+       credentials: true
+     }));
+
+     // Serve static files with proper MIME types
+     app.use(express.static(join(__dirname, 'client/dist'), {
+       setHeaders: (res, path) => {
+         // Set appropriate content types and cache headers
+       }
+     }));
+
+     // API routes handler
+     app.use('/api', (req, res) => {
+       // API handling logic
+     });
+
+     // SPA route handler - catches all other routes
+     app.get('*', (req, res) => {
+       res.sendFile(join(__dirname, 'client/dist/index.html'));
+     });
+
+     const port = process.env.PORT || 5000;
+     export default app;
+     ```
+
+3. **Simplify vercel.json**:
+   - Use a single build configuration focused on the Express server:
+     ```json
+     {
+       "version": 2,
+       "builds": [
+         { 
+           "src": "index.js",
+           "use": "@vercel/node"
+         }
+       ],
+       "routes": [
+         { "src": "/(.*)", "dest": "/index.js" }
+       ],
+       "env": {
+         "NODE_ENV": "production"
+       },
+       "public": true
+     }
+     ```
+
+4. **Create .vercelignore**:
+   - Optimize deployment by excluding unnecessary files:
+     ```
+     # Dependencies
+     **/node_modules
+
+     # Build files
+     client/.vite
+
+     # Log files
+     **/*.log*
+
+     # Local env files
+     .env.local
+     .env.development.local
+     .env.test.local
+     .env.production.local
+
+     # Development files
+     README.md
+     CHANGELOG.md
+     .git
+     .github
+
+     # Documentation
+     docs/
+     ```
+
+5. **Build Client**:
+   - Build the client before deployment:
+     ```bash
+     cd client
+     npm run build
+     cd ..
+     ```
+
+6. **Deploy to Vercel**:
+   - Use one of these methods:
+     ```bash
+     # Option 1: Using Vercel CLI
+     vercel --prod
+     
+     # Option 2: Using deploy script
+     npm run deploy  # If configured in package.json
+     
+     # Option 3: Git push to repository connected to Vercel
+     git add .
+     git commit -m "Deploy: [description of changes]"
+     git push
+     ```
+
+### Common Errors and Solutions
+
+#### 1. Vite Command Not Found
+
+- **Error**: `sh: line 1: vite: command not found`
+- **Solution**: 
+  - Move Vite from devDependencies to dependencies in client's package.json
+  - Use npx in build scripts: `"build": "npx vite build"`
+  - Ensure proper install command in build script: `"vercel-build": "npm install --prefix client && npm run build:client"`
+
+#### 2. CORS Errors
+
+- **Error**: `Access to fetch at '...' has been blocked by CORS policy`
+- **Solution**:
+  - Implement dynamic CORS configuration as shown above
+  - Include all possible deployment URLs, using regex patterns for preview deployments
+
+#### 3. 404 Errors on Direct URL Access
+
+- **Error**: Users get 404 when accessing direct URLs like `/products`
+- **Solution**:
+  - Use Express SPA approach with catch-all handler
+  - Ensure vercel.json routes all requests to Express server
+  - Verify proper serving of index.html for all non-asset, non-API routes
+
+#### 4. ESM/CommonJS Conflicts
+
+- **Error**: `exports is not defined` or similar module system conflicts
+- **Solution**:
+  - Add `"type": "module"` to package.json
+  - Use ESM syntax consistently (import/export) in all server files
+  - Convert require() calls to dynamic imports or proper ESM imports
+
+#### 5. Static Assets Not Loading
+
+- **Error**: CSS/JS files returning 404 or incorrect MIME types
+- **Solution**:
+  - Configure Express to serve static files with proper MIME types:
+    ```javascript
+    app.use(express.static(join(__dirname, 'client/dist'), {
+      setHeaders: (res, path) => {
+        if (path.endsWith('.js')) {
+          res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+        } else if (path.endsWith('.css')) {
+          res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+        }
+        // Set cache headers for assets
+        if (path.includes('/assets/')) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+      }
+    }));
+    ```
+
+### Deployment Verification Checklist
+
+After deployment, always verify:
+
+1. ✅ Homepage loads correctly with all assets
+2. ✅ Navigation works between routes using React Router
+3. ✅ Direct URL access works (e.g., https://your-app.vercel.app/about)
+4. ✅ API endpoints return expected data
+5. ✅ Authentication flows function properly
+6. ✅ No CORS errors in browser console
+7. ✅ Static assets (images, CSS, fonts) load correctly
+8. ✅ Error pages render properly when needed
+
+### Additional Resources
+
+- [Vercel Deployment Documentation](mdc:https:/vercel.com/docs/deployments/overview)
+- [Express.js Error Handling](mdc:https:/expressjs.com/en/guide/error-handling.html)
+- [MDN CORS Guide](mdc:https:/developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+- [Vite Deployment Guide](mdc:https:/vitejs.dev/guide/static-deploy.html)
+- [Express Static File Serving](mdc:https:/expressjs.com/en/starter/static-files.html)
+
+## Monitoring and Alerting
+
+- **Current Strategy:** Manual testing and error reporting
+- **Future Improvements:** 
+  - Implement automated error monitoring with Sentry
+  - Set up alerting for critical errors
+  - Create dashboards for visualizing error metrics
+
+## Additional Resources
+
+- [MDN CORS Guide](mdc:https:/developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+- [Express.js Error Handling](mdc:https:/expressjs.com/en/guide/error-handling.html)
+- [Vercel Deployment Documentation](mdc:https:/vercel.com/docs/deployments/overview)
+
