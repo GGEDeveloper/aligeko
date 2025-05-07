@@ -315,7 +315,7 @@ const Header = ({ isAdmin = false }) => {
             Sobre Nós
           </Link>
           <Link 
-            to="/contactos"
+            to="/contato"
             style={{
               padding: '0.9rem 1.25rem',
               color: 'white',
@@ -477,7 +477,7 @@ const Header = ({ isAdmin = false }) => {
               </li>
               <li>
                 <Link 
-                  to="/contactos"
+                  to="/contato"
                   style={{
                     display: 'block',
                     padding: '0.75rem',

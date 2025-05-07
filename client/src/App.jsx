@@ -16,6 +16,9 @@ import SessionManager from './components/auth/SessionManager';
 import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
 import AboutPage from './pages/AboutPage';
+import SobreNos from './pages/SobreNos';
+import Contato from './pages/Contato';
+import Ajuda from './pages/Ajuda';
 
 // Authentication
 import LoginPage from './pages/auth/LoginPage';
@@ -70,6 +73,9 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="sobre-nos" element={<SobreNos />} />
+          <Route path="contato" element={<Contato />} />
+          <Route path="ajuda" element={<Ajuda />} />
           <Route path="auth/login" element={<LoginPage />} />
           <Route path="auth/register" element={<RegisterPage />} />
           <Route path="auth/register-success" element={<RegisterSuccessPage />} />
