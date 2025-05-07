@@ -2,23 +2,24 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Ali Tools B2B</title>
-    <script type="text/javascript">
-      // Código para SPA redirect baseado na solução GitHub Pages SPA
-      // https://github.com/rafgraph/spa-github-pages
-      var pathSegmentsToKeep = 0;
-
+    <title>AliTools B2B - Redirecionando...</title>
+    <script>
+      // Redirect to the root with the path as a query parameter to allow the SPA to handle routing
+      var segmentCount = 0;
       var l = window.location;
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
-        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-        l.hash
+        '/' + (l.pathname.indexOf('sobre-nos') > -1 ? 'sobre-nos' : 
+               l.pathname.indexOf('contato') > -1 ? 'contato' : 
+               l.pathname.indexOf('ajuda') > -1 ? 'ajuda' : 
+               l.pathname.indexOf('products') > -1 ? 'products' : '') +
+        (l.search ? l.search : '') +
+        (l.hash ? l.hash : '')
       );
     </script>
   </head>
   <body>
-    Redirecionando para a Ali Tools B2B...
+    <h1>Redirecionando...</h1>
+    <p>Se você não for redirecionado automaticamente, <a href="/">clique aqui</a>.</p>
   </body>
 </html> 
