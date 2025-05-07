@@ -91,68 +91,8 @@ const Header = ({ isAdmin = false }) => {
             </a>
           </div>
           
-          {/* Quick Links */}
+          {/* This div is now empty but we'll keep it for layout consistency */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <Link 
-              to="/sobre-nos"
-              style={{ 
-                color: '#EEEEEE',
-                textDecoration: 'none',
-                transition: 'all 0.3s ease',
-                padding: '0.3rem 0.6rem',
-                borderRadius: '4px'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.color = '#FFCC00';
-                e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.color = '#EEEEEE';
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              Sobre Nós
-            </Link>
-            <Link 
-              to="/contactos"
-              style={{ 
-                color: '#EEEEEE',
-                textDecoration: 'none',
-                transition: 'all 0.3s ease',
-                padding: '0.3rem 0.6rem',
-                borderRadius: '4px'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.color = '#FFCC00';
-                e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.color = '#EEEEEE';
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              Contactos
-            </Link>
-            <Link 
-              to="/ajuda"
-              style={{ 
-                color: '#EEEEEE',
-                textDecoration: 'none',
-                transition: 'all 0.3s ease',
-                padding: '0.3rem 0.6rem',
-                borderRadius: '4px'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.color = '#FFCC00';
-                e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.color = '#EEEEEE';
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              Ajuda
-            </Link>
           </div>
         </div>
       </div>
@@ -468,6 +408,80 @@ const Header = ({ isAdmin = false }) => {
           >
             Todas as Categorias
           </Link>
+          
+          {/* Added navigation links here */}
+          <Link 
+            to="/sobre-nos"
+            style={{
+              padding: '0.9rem 1.25rem',
+              color: 'white',
+              textDecoration: 'none',
+              fontWeight: '500',
+              textTransform: 'uppercase',
+              fontSize: '0.85rem',
+              letterSpacing: '0.5px',
+              transition: 'all 0.3s ease',
+              borderBottom: '2px solid transparent',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.color = '#FFCC00';
+              e.currentTarget.style.borderBottomColor = '#FFCC00';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.color = 'white';
+              e.currentTarget.style.borderBottomColor = 'transparent';
+            }}
+          >
+            Sobre Nós
+          </Link>
+          <Link 
+            to="/contactos"
+            style={{
+              padding: '0.9rem 1.25rem',
+              color: 'white',
+              textDecoration: 'none',
+              fontWeight: '500',
+              textTransform: 'uppercase',
+              fontSize: '0.85rem',
+              letterSpacing: '0.5px',
+              transition: 'all 0.3s ease',
+              borderBottom: '2px solid transparent',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.color = '#FFCC00';
+              e.currentTarget.style.borderBottomColor = '#FFCC00';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.color = 'white';
+              e.currentTarget.style.borderBottomColor = 'transparent';
+            }}
+          >
+            Contactos
+          </Link>
+          <Link 
+            to="/ajuda"
+            style={{
+              padding: '0.9rem 1.25rem',
+              color: 'white',
+              textDecoration: 'none',
+              fontWeight: '500',
+              textTransform: 'uppercase',
+              fontSize: '0.85rem',
+              letterSpacing: '0.5px',
+              transition: 'all 0.3s ease',
+              borderBottom: '2px solid transparent',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.color = '#FFCC00';
+              e.currentTarget.style.borderBottomColor = '#FFCC00';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.color = 'white';
+              e.currentTarget.style.borderBottomColor = 'transparent';
+            }}
+          >
+            Ajuda
+          </Link>
         </div>
       </nav>
       
@@ -679,6 +693,82 @@ const Header = ({ isAdmin = false }) => {
                   }}
                 >
                   Todas as Categorias
+                </Link>
+              </li>
+              {/* Added navigation links to mobile menu */}
+              <li>
+                <Link 
+                  to="/sobre-nos" 
+                  style={{
+                    display: 'block',
+                    padding: '0.75rem',
+                    color: '#1A1A1A',
+                    textDecoration: 'none',
+                    fontWeight: '500',
+                    borderLeft: '2px solid transparent',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={toggleMenu}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.borderColor = '#FFCC00';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.borderColor = 'transparent';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  Sobre Nós
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/contactos" 
+                  style={{
+                    display: 'block',
+                    padding: '0.75rem',
+                    color: '#1A1A1A',
+                    textDecoration: 'none',
+                    fontWeight: '500',
+                    borderLeft: '2px solid transparent',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={toggleMenu}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.borderColor = '#FFCC00';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.borderColor = 'transparent';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  Contactos
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/ajuda" 
+                  style={{
+                    display: 'block',
+                    padding: '0.75rem',
+                    color: '#1A1A1A',
+                    textDecoration: 'none',
+                    fontWeight: '500',
+                    borderLeft: '2px solid transparent',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={toggleMenu}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.borderColor = '#FFCC00';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.borderColor = 'transparent';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  Ajuda
                 </Link>
               </li>
             </ul>
