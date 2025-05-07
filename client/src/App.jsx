@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import './components/checkout/checkout.css';
+import './assets/styles/index.css';
 
 // Layouts
 import MainLayout from './components/layouts/MainLayout';
