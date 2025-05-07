@@ -29,7 +29,6 @@
     "@mui/x-date-pickers-pro": "^8.2.0",
     "@reduxjs/toolkit": "^2.7.0",
     "@vitejs/plugin-react": "^4.2.0",
-    "alitools-b2b": "file:..",
     "axios": "^1.6.2",
     "bootstrap": "^5.3.6",
     "date-fns": "^4.1.0",
