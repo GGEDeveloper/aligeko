@@ -1,12 +1,13 @@
 // Simple Express server for SPA
 import express from 'express';
+import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 // Configurar cabeçalhos para prevenir problemas de CORS e cache
 app.use((req, res, next) => {
@@ -16,34 +17,21 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files from the React app with explicit MIME types
-app.use(express.static(join(__dirname, 'client/dist'), {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
-    } else if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css; charset=UTF-8');
-    } else if (path.endsWith('.html')) {
-      res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-    }
-  }
-}));
+// Serve static files from the client build directory
+app.use(express.static(path.join(__dirname, 'client/dist')));
 
 // API routes can be added here
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello from AliTools API!' });
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', environment: process.env.NODE_ENV });
 });
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
+// Handle all other requests by serving the index.html
 app.get('*', (req, res) => {
-  console.log(`Serving index.html for path: ${req.originalUrl}`);
-  res.sendFile(join(__dirname, 'client/dist/index.html'));
+  res.sendFile(path.join(__dirname, 'client/dist/index.html'));
 });
 
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 export default app; 
