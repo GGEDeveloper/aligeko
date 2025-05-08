@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 # Error Tracking and Resolution
 
@@ -26,9 +26,76 @@ Each error entry should follow this format:
 
 List of currently active errors that need to be addressed:
 
-None
+### Vercel Environment Variables Configuration Issue
+
+- **Date:** [2023-06-10 15:30]
+- **Error Type:** Server Configuration / Database Connection
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  GET https://aligekow-h7ygbhoh4-alitools-projects.vercel.app/api/v1/products?page=1&limit=12&sortBy=created_at&sortOrder=desc 500 (Internal Server Error)
+  ```
+- **Root Cause:** Even though the API endpoint URL was fixed to use relative paths, the server is still returning 500 errors because the environment variables needed for database connection are not properly set up in Vercel. While the local `.env` file contains the correct database configuration, these variables are not automatically uploaded to Vercel during deployment.
+- **Resolution:** 
+  1. Manually add all required environment variables to the Vercel project settings
+  2. Ensure `NODE_ENV`, `POSTGRES_URL`/`NEON_DB_URL`, and other database connection parameters are set
+  3. Add the `JWT_SECRET` and other required server configuration variables
+  4. Redeploy the application after setting up the environment variables
+  
+- **Verification:** After adding the environment variables to the Vercel project settings, verify that API endpoints return proper responses with status 200.
+  
+- **Affected Files:** No file changes required, just Vercel project configuration.
+
+- **Prevention:** Create a checklist for Vercel deployments that includes verifying environment variables. Consider using CI/CD with environment variables stored securely in the pipeline.
 
 ## Recent Fixes
+
+### Missing Helmet Dependency Error
+
+- **Date:** [2023-06-11 09:30]
+- **Error Type:** Server Dependency / Deployment
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  {"error":"Internal Server Error","details":"Cannot find module 'helmet'\nRequire stack:\n- /var/task/server/src/index.js"}
+  ```
+- **Root Cause:** The server requires the `helmet` package (imported in `server/src/index.js`), but while it was correctly listed in the server's `package.json`, the root deployment configuration in Vercel dynamically imports the server module, which causes the module to be executed in the context of the root package, not the server package. Therefore, Vercel couldn't find the 'helmet' module in the root package.
+- **Resolution:** 
+  1. Added the helmet package to the root package.json dependencies
+  2. Used the same version (7.1.0) as in the server package.json
+  3. Redeployed the application 
+  
+  Code change in root `package.json`:
+  ```javascript
+  // Dependencies section before
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "concurrently": "^8.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.21.2"
+  }
+  
+  // Dependencies section after
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "concurrently": "^8.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.21.2",
+    "helmet": "^7.1.0"
+  }
+  ```
+- **Verification:** 
+  1. Updated the code locally
+  2. Deployed to Vercel production
+  3. Tested the Products page to confirm API calls are working correctly
+  4. Verified that other API endpoints also work properly
+- **Affected Files:** 
+  - `package.json` - Added helmet dependency to root package
+- **Related Issues:** 
+  - [Server Module Import Error](mdc:#server-module-import-error) - Previous related fix
+- **Version:** v1.0.4
 
 ### Server Module Import Error
 
@@ -72,7 +139,7 @@ None
 - **Affected Files:** 
   - `index.js` - Updated server module import path
 - **Related Issues:** 
-  - [API URL Configuration Error](#api-url-configuration-error) - Previous related fix
+  - [API URL Configuration Error](mdc:#api-url-configuration-error) - Previous related fix
 - **Version:** v1.0.3
 
 ### API URL Configuration Error
