@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "name": "alitools-b2b",
   "builds": [
     { 
       "src": "index.js",
