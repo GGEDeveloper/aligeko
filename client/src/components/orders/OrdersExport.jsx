@@ -46,7 +46,7 @@ const OrdersExport = ({ selectedOrders }) => {
         : allOrdersData?.orders.map(order => order.id) || [];
       
       // Generate export URL
-      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/v1';
+      const baseUrl = '/api/v1';
       const orderIds = ordersToExport.join(',');
       const exportUrl = `${baseUrl}/orders/export?format=${format}&ids=${orderIds}`;
       

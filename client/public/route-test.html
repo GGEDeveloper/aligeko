@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste de Rotas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    a {
+      display: inline-block;
+      padding: 10px 15px;
+      background-color: #FFCC00;
+      color: black;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    a:hover {
+      background-color: #E5B800;
+    }
+  </style>
+</head>
+<body>
+  <h1>Teste de Rotas - AliTools</h1>
+  <p>Clique nos links abaixo para testar as rotas:</p>
+  
+  <ul>
+    <li><a href="/">Página Inicial</a></li>
+    <li><a href="/sobre-nos">Sobre Nós</a></li>
+    <li><a href="/contato">Contato</a></li>
+    <li><a href="/ajuda">Ajuda</a></li>
+    <li><a href="/products">Produtos</a></li>
+  </ul>
+  
+  <script>
+    // Log route information to console
+    console.log('Current path:', window.location.pathname);
+    document.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        console.log('Navigating to:', this.getAttribute('href'));
+      });
+    });
+  </script>
+</body>
+</html> 

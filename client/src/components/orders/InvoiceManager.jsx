@@ -57,6 +57,9 @@ const InvoiceManager = ({ orderId, orderNumber }) => {
   const [generateInvoice, { isLoading: isGenerating }] = useGenerateInvoiceMutation();
   const [deleteInvoice, { isLoading: isDeleting }] = useDeleteInvoiceMutation();
   
+  // Usar caminho relativo para API
+  const baseUrl = '/api/v1';
+  
   // Handle generating a new invoice
   const handleGenerateInvoice = async () => {
     try {
@@ -100,7 +103,6 @@ const InvoiceManager = ({ orderId, orderNumber }) => {
     if (!selectedInvoice) return;
     
     try {
-      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/v1';
       const downloadUrl = `${baseUrl}/orders/${orderId}/invoices/${selectedInvoice.id}/download?format=${format}`;
       
       const token = localStorage.getItem('token');
@@ -180,7 +182,6 @@ const InvoiceManager = ({ orderId, orderNumber }) => {
     if (!selectedInvoice) return;
     
     try {
-      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/v1';
       const emailUrl = `${baseUrl}/orders/${orderId}/invoices/${selectedInvoice.id}/email`;
       
       const token = localStorage.getItem('token');

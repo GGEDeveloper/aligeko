@@ -85,8 +85,8 @@ const InvoicePage = () => {
     setIsDownloading(true);
     
     try {
-      // Generate download URL
-      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/v1';
+      // Usar caminho relativo para API
+      const baseUrl = '/api/v1';
       const downloadUrl = `${baseUrl}/orders/${orderId}/invoice?format=${format}`;
       
       // Fetch the file
@@ -141,7 +141,8 @@ const InvoicePage = () => {
   // Handle email invoice
   const handleEmailInvoice = async () => {
     try {
-      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/v1';
+      // Usar caminho relativo para API
+      const baseUrl = '/api/v1';
       const emailUrl = `${baseUrl}/orders/${orderId}/invoice/email`;
       
       const token = localStorage.getItem('token');

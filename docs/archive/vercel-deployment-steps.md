@@ -4,7 +4,23 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 
 ## Histórico de Deployments
 
-### Versão 14.0 - Junho 2025 (Atual)
+### Versão 15.0 - Junho 2025 (Atual)
+- **URL de Produção**: https://aligekow-ll1waontm-alitools-projects.vercel.app
+- **Status**: Sucesso - Solução final corrigida e simplificada
+- **Data do Deploy**: 13/Junho/2025
+- **Melhorias**:
+  - Completamente reconstruída a estrutura de implantação
+  - Implementada abordagem simplificada:
+    - Estrutura de servidor Express única na raiz do projeto
+    - Configuração de CORS dinâmica para todos os ambientes
+    - Mocks de API integrados no servidor Express principal
+    - Configurações de cache e MIME types para recursos estáticos
+  - Configuração vercel.json limpa e direta
+  - Mantidos serviços essenciais como o helmet para segurança
+  - Eliminada dependência de complexas estruturas de build
+  - Documentada solução atualizada para referência futura
+
+### Versão 14.0 - Junho 2025
 - **URL de Produção**: https://alitools-b2b.vercel.app
 - **Status**: Sucesso - Solução definitiva para problema de helmet 
 - **Data do Deploy**: 12/Junho/2025
