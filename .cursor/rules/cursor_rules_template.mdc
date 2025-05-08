@@ -1,0 +1,115 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# [Component/Feature Name] Patterns
+
+This rule documents the standard patterns for implementing [Component/Feature] in the AliTools B2B E-commerce platform.
+
+## Overview
+
+Brief introduction explaining what this rule covers and why it's important. Include:
+- Core purpose of the component/feature
+- When to use it
+- Key constraints or considerations
+
+## Key Components/Architecture
+
+- **Main Elements:**
+  - **Component/Class 1**: Brief description of responsibility
+  - **Component/Class 2**: Brief description of responsibility
+  - **Component/Class 3**: Brief description of responsibility
+
+- **File References:**
+  - [filename.js](mdc:path/to/filename.js) - Description of file purpose
+  - [otherfile.js](mdc:path/to/otherfile.js) - Description of file purpose
+  - [component.jsx](mdc:path/to/component.jsx) - Description of file purpose
+
+## Implementation Patterns
+
+### Pattern 1: [Specific Implementation Pattern]
+
+```javascript
+// ✅ DO: Show proper implementation
+function goodExample() {
+  // Implementation with comments explaining key points
+  return result;
+}
+
+// ❌ DON'T: Show anti-pattern
+function badExample() {
+  // Implementation showing what to avoid
+  return problematicResult;
+}
+```
+
+**Why this matters:**
+Explanation of why the good approach is better and what problems the anti-pattern can cause.
+
+### Pattern 2: [Another Implementation Pattern]
+
+```javascript
+// ✅ DO: Show proper implementation
+function anotherGoodExample() {
+  // Implementation with comments
+}
+
+// ❌ DON'T: Show anti-pattern
+function anotherBadExample() {
+  // Implementation showing what to avoid
+}
+```
+
+## Configuration
+
+Any relevant configuration snippets or environment variables:
+
+```javascript
+// Configuration example
+const config = {
+  setting1: process.env.SETTING1 || 'default',
+  setting2: process.env.SETTING2 || 'default',
+  // Other settings
+};
+```
+
+## Common Issues and Solutions
+
+| Issue | Solution |
+|-------|----------|
+| Describe a common problem | Explain the recommended solution |
+| Another common issue | Solution for this issue |
+| Edge case scenario | How to handle it |
+
+## Best Practices
+
+1. **Practice 1**: Description of best practice with explanation
+2. **Practice 2**: Description of best practice with explanation
+3. **Practice 3**: Description of best practice with explanation
+
+## Testing Approach
+
+```javascript
+// Example test pattern
+describe('Component/Feature Tests', () => {
+  it('should perform expected behavior', () => {
+    // Test implementation
+    expect(result).toBe(expectedValue);
+  });
+});
+```
+
+## Related Rules
+
+- [Related Rule 1](mdc:.cursor/rules/related_rule1.mdc) - Brief description of relationship
+- [Related Rule 2](mdc:.cursor/rules/related_rule2.mdc) - Brief description of relationship
+
+## External References
+
+- [External Documentation](https://example.com/docs) - Description of external documentation
+- [Library/Tool Documentation](https://library-docs.com) - Reference to relevant library docs
+
+---
+
+*Last updated: [DATE]*

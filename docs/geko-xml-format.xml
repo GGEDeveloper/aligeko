@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  GEKO Product Catalog XML Format
+  
+  This is an example of the XML format expected by the GEKO API integration.
+  Use this as a reference when creating or validating XML files for manual upload.
+  
+  Last updated: 2023-06-15
+-->
+<geko>
+  <products>
+    <!-- Example of a basic product with minimal information -->
+    <product>
+      <code>AB12345</code>
+      <ean>5901234123457</ean>
+      <category>
+        <id>hand-tools</id>
+        <name>Hand Tools</name>
+        <path>Tools/Hand Tools</path>
+        <parent_id>tools</parent_id>
+      </category>
+      <producer>
+        <name>AliTools</name>
+        <description>Premium tool manufacturer</description>
+        <website>https://alitools.com</website>
+      </producer>
+      <unit>pc</unit>
+      <description>
+        <name>Professional Hammer</name>
+        <short>Durable steel hammer with rubber grip</short>
+        <long>Professional-grade steel hammer with ergonomic rubber grip. Perfect for both DIY and professional use. Shock-absorbing handle reduces strain.</long>
+      </description>
+      <vat>23</vat>
+      <variants>
+        <variant>
+          <code>AB12345-1</code>
+          <weight>0.5</weight>
+          <gross_weight>0.6</gross_weight>
+          <stock>
+            <quantity>150</quantity>
+            <available>true</available>
+            <min_order_quantity>1</min_order_quantity>
+          </stock>
+          <prices>
+            <price>
+              <amount>29.99</amount>
+              <currency>EUR</currency>
+              <type>retail</type>
+            </price>
+            <price>
+              <amount>24.99</amount>
+              <currency>EUR</currency>
+              <type>wholesale</type>
+              <min_quantity>10</min_quantity>
+            </price>
+          </prices>
+        </variant>
+      </variants>
+      <images>
+        <image>
+          <url>https://alitools.com/images/products/hammer-main.jpg</url>
+          <is_main>true</is_main>
+          <order>1</order>
+        </image>
+        <image>
+          <url>https://alitools.com/images/products/hammer-angle.jpg</url>
+          <is_main>false</is_main>
+          <order>2</order>
+        </image>
+      </images>
+    </product>
+    
+    <!-- Example of a product with multiple variants -->
+    <product>
+      <code>CD67890</code>
+      <ean>5901234123458</ean>
+      <category>
+        <id>electrical</id>
+        <name>Electrical</name>
+        <path>Electrical</path>
+      </category>
+      <producer>
+        <name>ElectroSupply</name>
+        <description>Electrical components manufacturer</description>
+        <website>https://electrosupply.com</website>
+      </producer>
+      <unit>pc</unit>
+      <description>
+        <name>Circuit Breaker</name>
+        <short>Safety circuit breaker for residential use</short>
+        <long>High-quality circuit breaker with overload protection. Designed for residential electrical systems. Easy installation and reliable performance.</long>
+      </description>
+      <vat>23</vat>
+      <variants>
+        <variant>
+          <code>CD67890-10A</code>
+          <name>10 Amp</name>
+          <weight>0.2</weight>
+          <gross_weight>0.25</gross_weight>
+          <stock>
+            <quantity>75</quantity>
+            <available>true</available>
+            <min_order_quantity>1</min_order_quantity>
+          </stock>
+          <prices>
+            <price>
+              <amount>12.99</amount>
+              <currency>EUR</currency>
+              <type>retail</type>
+            </price>
+          </prices>
+        </variant>
+        <variant>
+          <code>CD67890-20A</code>
+          <name>20 Amp</name>
+          <weight>0.22</weight>
+          <gross_weight>0.27</gross_weight>
+          <stock>
+            <quantity>60</quantity>
+            <available>true</available>
+            <min_order_quantity>1</min_order_quantity>
+          </stock>
+          <prices>
+            <price>
+              <amount>14.99</amount>
+              <currency>EUR</currency>
+              <type>retail</type>
+            </price>
+          </prices>
+        </variant>
+        <variant>
+          <code>CD67890-30A</code>
+          <name>30 Amp</name>
+          <weight>0.25</weight>
+          <gross_weight>0.3</gross_weight>
+          <stock>
+            <quantity>45</quantity>
+            <available>true</available>
+            <min_order_quantity>1</min_order_quantity>
+          </stock>
+          <prices>
+            <price>
+              <amount>16.99</amount>
+              <currency>EUR</currency>
+              <type>retail</type>
+            </price>
+          </prices>
+        </variant>
+      </variants>
+      <images>
+        <image>
+          <url>https://electrosupply.com/images/breaker-main.jpg</url>
+          <is_main>true</is_main>
+          <order>1</order>
+        </image>
+      </images>
+    </product>
+    
+    <!-- Example of a product with complex pricing structure -->
+    <product>
+      <code>EF34567</code>
+      <ean>5901234123459</ean>
+      <category>
+        <id>construction</id>
+        <name>Construction</name>
+        <path>Construction/Materials</path>
+        <parent_id>materials</parent_id>
+      </category>
+      <producer>
+        <name>BuildWell</name>
+        <description>Premium construction materials</description>
+        <website>https://buildwell.com</website>
+      </producer>
+      <unit>box</unit>
+      <description>
+        <name>Premium Wall Screws</name>
+        <short>Durable wall screws for various materials</short>
+        <long>Professional-grade wall screws designed for maximum durability and holding power. Suitable for drywall, wood, and light metal applications.</long>
+      </description>
+      <vat>23</vat>
+      <variants>
+        <variant>
+          <code>EF34567-SM</code>
+          <name>Small Box (100 pcs)</name>
+          <weight>0.8</weight>
+          <gross_weight>1.0</gross_weight>
+          <stock>
+            <quantity>200</quantity>
+            <available>true</available>
+            <min_order_quantity>1</min_order_quantity>
+          </stock>
+          <prices>
+            <price>
+              <amount>9.99</amount>
+              <currency>EUR</currency>
+              <type>retail</type>
+            </price>
+            <price>
+              <amount>8.49</amount>
+              <currency>EUR</currency>
+              <type>wholesale</type>
+              <min_quantity>10</min_quantity>
+            </price>
+            <price>
+              <amount>7.99</amount>
+              <currency>EUR</currency>
+              <type>wholesale</type>
+              <min_quantity>20</min_quantity>
+            </price>
+            <price>
+              <amount>7.49</amount>
+              <currency>EUR</currency>
+              <type>wholesale</type>
+              <min_quantity>50</min_quantity>
+            </price>
+          </prices>
+        </variant>
+        <variant>
+          <code>EF34567-LG</code>
+          <name>Large Box (250 pcs)</name>
+          <weight>1.9</weight>
+          <gross_weight>2.1</gross_weight>
+          <stock>
+            <quantity>120</quantity>
+            <available>true</available>
+            <min_order_quantity>1</min_order_quantity>
+          </stock>
+          <prices>
+            <price>
+              <amount>22.99</amount>
+              <currency>EUR</currency>
+              <type>retail</type>
+            </price>
+            <price>
+              <amount>19.99</amount>
+              <currency>EUR</currency>
+              <type>wholesale</type>
+              <min_quantity>10</min_quantity>
+            </price>
+          </prices>
+        </variant>
+      </variants>
+      <images>
+        <image>
+          <url>https://buildwell.com/images/screws-box.jpg</url>
+          <is_main>true</is_main>
+          <order>1</order>
+        </image>
+        <image>
+          <url>https://buildwell.com/images/screws-detail.jpg</url>
+          <is_main>false</is_main>
+          <order>2</order>
+        </image>
+        <image>
+          <url>https://buildwell.com/images/screws-application.jpg</url>
+          <is_main>false</is_main>
+          <order>3</order>
+        </image>
+      </images>
+    </product>
+  </products>
+</geko> 
