@@ -63,38 +63,61 @@ List of currently active errors that need to be addressed:
 - **Resolution:** 
   1. Added the helmet package to the root package.json dependencies
   2. Used the same version (7.1.0) as in the server package.json
-  3. Redeployed the application 
+  3. Simplified vercel.json configuration to use a single Express server approach
+  4. Updated the vercel-build script to build both client and server 
   
-  Code change in root `package.json`:
+  Code changes:
   ```javascript
-  // Dependencies section before
-  "dependencies": {
-    "chalk": "^5.3.0",
-    "concurrently": "^8.0.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
-    "express": "^4.21.2"
-  }
-  
-  // Dependencies section after
+  // Added to root package.json dependencies
   "dependencies": {
     "chalk": "^5.3.0",
     "concurrently": "^8.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.21.2",
-    "helmet": "^7.1.0"
+    "helmet": "^7.1.0"  // Added helmet
   }
+  
+  // Simplified vercel.json
+  {
+    "version": 2,
+    "builds": [
+      { 
+        "src": "index.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      { "src": "/(.*)", "dest": "/index.js" }
+    ],
+    "env": {
+      "NODE_ENV": "production"
+    },
+    "public": true
+  }
+  
+  // Updated vercel-build script in package.json
+  "vercel-build": "cd client && npm install && npm run build && cd ../server && npm install && npm run build"
   ```
+  
 - **Verification:** 
-  1. Updated the code locally
-  2. Deployed to Vercel production
-  3. Tested the Products page to confirm API calls are working correctly
-  4. Verified that other API endpoints also work properly
+  1. Tested the updated build script locally to ensure it works correctly
+  2. Verified that the client and server both build successfully
+  3. Created documentation about dynamic imports in Vercel
+  4. Deployed to Vercel production
+  5. Tested the Products page to confirm API calls are working correctly
+  
 - **Affected Files:** 
-  - `package.json` - Added helmet dependency to root package
+  - `package.json` - Added helmet dependency and updated vercel-build script
+  - `vercel.json` - Simplified configuration to follow best practices
+  - `docs/vercel-dynamic-imports.md` - Added documentation about the issue
+  - `.cursor/rules/error_tracking.mdc` - Updated with solution details
+  
 - **Related Issues:** 
   - [Server Module Import Error](mdc:#server-module-import-error) - Previous related fix
+  - [docs/vercel-dynamic-imports.md](mdc:docs/vercel-dynamic-imports.md) - Documentation of dynamic import issues
+  - [docs/express-spa-routing-solution.md](mdc:docs/express-spa-routing-solution.md) - Documentation of the Express SPA routing solution
+  
 - **Version:** v1.0.4
 
 ### Server Module Import Error

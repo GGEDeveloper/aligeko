@@ -4,7 +4,19 @@ Este documento registra os passos executados para o deploy da aplicação AliToo
 
 ## Histórico de Deployments
 
-### Versão 12.0 - Junho 2025 (Atual)
+### Versão 13.0 - Junho 2025 (Atual)
+- **URL de Produção**: https://alitools-b2b.vercel.app
+- **Status**: Sucesso - Solução definitiva para problema de helmet e simplificação do deployment
+- **Data do Deploy**: 12/Junho/2025
+- **Melhorias**:
+  - Corrigido erro "Cannot find module 'helmet'" em chamadas à API
+  - Simplificado vercel.json para usar abordagem única de servidor Express
+  - Atualizado script vercel-build para construir corretamente cliente e servidor
+  - Adotado padrão recomendado na documentação de Express SPA Routing
+  - Garantido que todas as dependências do servidor estejam disponíveis no contexto de execução
+  - Criada documentação detalhada sobre problemas de imports dinâmicos na Vercel
+
+### Versão 12.0 - Junho 2025
 - **URL de Produção**: https://alitools-b2b.vercel.app
 - **Status**: Sucesso - Resolvido erro de dependência do Helmet
 - **Data do Deploy**: 11/Junho/2025
