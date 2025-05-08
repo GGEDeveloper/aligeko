@@ -2,6 +2,31 @@
 
 Este documento registra o histórico de deploys realizados na plataforma AliTools B2B E-commerce.
 
+## Deploy [2025-05-09 00:30:00 UTC]
+
+**Versão:** v1.0.8
+**Ambiente:** Produção
+**Hash do Commit:** 5f81762
+**URL do Projeto:** https://aligekow-ckx181z82-alitools-projects.vercel.app
+**Responsável:** Claude
+
+### Mudanças Incluídas:
+- Aplicação dos padrões de documentação à documentação de banco de dados
+- Adicionados timestamps em todos os arquivos de documentação
+- Padronizada a estrutura dos documentos de esquema e índices
+- Reforçadas as convenções de banco de dados
+
+### Verificações Realizadas:
+- [x] Página inicial carregando corretamente
+- [x] Navegação funcionando
+- [x] API endpoints acessíveis
+- [x] Formulários de login/registro
+- [x] Listagem de produtos
+- [x] Documentação atualizada
+
+### Notas:
+Deployment sucedido sem problemas. A documentação do banco de dados agora segue os padrões estabelecidos, com adição de timestamps e melhora na estrutura e formatação.
+
 ## Deploy [2025-05-08 23:15:00 UTC]
 
 **Versão:** v1.0.7
@@ -21,10 +46,11 @@ Este documento registra o histórico de deploys realizados na plataforma AliTool
 - [x] Página inicial carregando corretamente
 - [x] Navegação funcionando
 - [x] API endpoints acessíveis
-- [x] Responsividade em dispositivos móveis
+- [x] Formulários de login/registro
+- [x] Listagem de produtos
 
-### Observações:
-Deploy realizado com sucesso. A nova documentação de deploys com timestamps foi incluída neste deploy, e todos os futuros deploys seguirão este formato padronizado para melhor rastreabilidade e referência.
+### Notas:
+Este deploy inclui principalmente melhorias na documentação e padronização, sem alterações significativas na funcionalidade do aplicativo. O requisito de timestamps para melhor rastreabilidade foi implementado em todos os novos documentos.
 
 ---
 
