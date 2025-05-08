@@ -19,7 +19,9 @@
     "deploy": "bash ./deploy.sh",
     "deploy:vercel": "vercel --prod",
     "vercel:logs": "vercel logs",
-    "vercel:list": "vercel list"
+    "vercel:list": "vercel list",
+    "deploy:fix": "node deploy-fix.js",
+    "test:deployment": "node test-deployment.js"
   },
   "keywords": [
     "ecommerce",
@@ -35,6 +37,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.21.2",
-    "helmet": "^7.1.0"
+    "helmet": "^7.1.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "node-fetch": "^2.7.0"
   }
 }

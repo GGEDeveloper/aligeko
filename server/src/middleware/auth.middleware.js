@@ -7,12 +7,34 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_here';
 
 /**
+ * List of public routes that don't require authentication
+ */
+const PUBLIC_ROUTES = [
+  '/api/v1/products',
+  '/api/v1/auth/login',
+  '/api/v1/auth/register',
+  '/api/v1/company-info',
+  '/health'
+];
+
+/**
  * Middleware to verify JWT token
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
  */
 export const checkAuth = async (req, res, next) => {
+  // Check if the route is public
+  const isPublicRoute = PUBLIC_ROUTES.some(route => {
+    // Exact match or route path with ID parameter (e.g., /api/v1/products/123)
+    return req.path === route || 
+           (req.path.startsWith(route + '/') && req.method === 'GET');
+  });
+
+  if (isPublicRoute) {
+    return next();
+  }
+
   try {
     // Get token from Authorization header
     const authHeader = req.headers.authorization;

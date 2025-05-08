@@ -50,6 +50,69 @@ List of currently active errors that need to be addressed:
 
 ## Recent Fixes
 
+### Authentication Middleware Public Routes Fix
+
+- **Date:** [2023-08-15 14:30]
+- **Error Type:** Authentication / API Access
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  GET https://aligekow-qmkz33o78-alitools-projects.vercel.app/api/v1/products 401 (Unauthorized)
+  ```
+- **Root Cause:** The authentication middleware was applying to all routes without exceptions for public endpoints. The middleware was checking for an authentication token on all routes, including public ones like product listing, causing 401 Unauthorized errors for unauthenticated users.
+
+- **Resolution:** 
+  1. Added a `PUBLIC_ROUTES` constant in `auth.middleware.js` defining routes that should be accessible without authentication:
+     ```javascript
+     const PUBLIC_ROUTES = [
+       '/api/v1/products',
+       '/api/v1/auth/login',
+       '/api/v1/auth/register',
+       '/api/v1/company-info',
+       '/health'
+     ];
+     ```
+  2. Modified the `checkAuth` middleware to bypass authentication checks for these public routes:
+     ```javascript
+     export const checkAuth = async (req, res, next) => {
+       // Check if the route is public
+       const isPublicRoute = PUBLIC_ROUTES.some(route => {
+         return req.path === route || 
+                (req.path.startsWith(route + '/') && req.method === 'GET');
+       });
+
+       if (isPublicRoute) {
+         return next();
+       }
+
+       // Rest of the authentication logic...
+     };
+     ```
+  3. Created deployment scripts (`deploy-fix.js` and `test-deployment.js`) to streamline fix deployment and testing.
+  
+- **Verification:** 
+  1. Deployed the fix to Vercel
+  2. Used `test-deployment.js` to test public endpoints (products, company info, health)
+  3. Confirmed they return 200 OK without authentication
+  4. Verified that protected endpoints still require authentication
+  
+- **Affected Files:** 
+  - `server/src/middleware/auth.middleware.js` - Added public routes check
+  - `deploy-fix.js` - New script for deploying the fix
+  - `test-deployment.js` - New script for testing the API
+  - `package.json` - Added new scripts and dependencies
+  
+- **Related Issues:** 
+  - [Helmet Dependency and Server Structure Fix](mdc:#helmet-dependency-and-server-structure-fix) - Previous deployment issue
+  
+- **Version:** v1.0.6
+
+- **Prevention:** 
+  1. Always define public vs. protected routes explicitly in middleware
+  2. Add automated tests for both authenticated and unauthenticated API access
+  3. Ensure middleware imports and route protection are consistent across files
+  4. Document authentication requirements for each endpoint in route files
+
 ### Helmet Dependency and Server Structure Fix
 
 - **Date:** [2023-06-12 10:45]
