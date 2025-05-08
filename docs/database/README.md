@@ -1,45 +1,92 @@
-# Database Documentation
+# Documentação do Banco de Dados
+> Documento criado: [2024-05-05 13:00:00]  
+> Última atualização: [2025-05-08 23:50:00 UTC]
 
-This directory contains documentation related to the database structure and configuration for the AliTools B2B platform.
+## Visão Geral
 
-## Key Documents
+Este diretório contém documentação relacionada à estrutura e configuração do banco de dados para a plataforma AliTools B2B.
 
-- [Database Schema](./database-schema.md) - Complete database schema with tables, fields, constraints and relationships
-- [Database Indexes](./database-indexes.md) - Index configurations for optimizing database performance
-- [Seed Data](./seed-data.md) - Information about sample data generation for development and testing
-- [Data Scraper](./data-scraper.md) - Documentation for the tools used to import and scrape product data
+## Documentos Principais
 
-## Database Entity Relationship Quick Reference
+- [Esquema de Banco de Dados](./database-schema.md) - Esquema completo do banco de dados com tabelas, campos, restrições e relacionamentos
+- [Índices de Banco de Dados](./database-indexes.md) - Configurações de índices para otimizar o desempenho do banco de dados
+- [Dados de Teste](./seed-data.md) - Informações sobre geração de dados de amostra para desenvolvimento e testes
+- [Importador de Dados](./data-scraper.md) - Documentação para as ferramentas usadas para importar e extrair dados de produtos
 
+## Referência Rápida de Relacionamentos de Entidades
+
+```mermaid
+erDiagram
+    PRODUCTS ||--o{ VARIANTS : contains
+    PRODUCTS ||--o{ IMAGES : has
+    CATEGORIES ||--o{ PRODUCTS : categorizes
+    PRODUCERS ||--o{ PRODUCTS : manufactures
+    VARIANTS ||--o{ PRICES : has
+    VARIANTS ||--o{ STOCK : has
+    UNITS ||--o{ VARIANTS : measures
 ```
-products <-- variants <-- prices
-    ^          ^
-    |          |
-    v          v
-categories    stock
-    
-producers --> products
-    
-products --> images
-```
 
-## Primary Tables Overview
+## Visão Geral das Tabelas Principais
 
-| Table Name | Description | Main Fields |
+| Nome da Tabela | Descrição | Campos Principais |
 |------------|-------------|------------|
-| products | Core product information | id, code, name, description |
-| categories | Product categories | id, name, path |
-| variants | Product variations | id, product_id, code, weight |
-| prices | Pricing information | id, variant_id, gross_price, net_price |
-| stock | Inventory quantities | id, variant_id, warehouse_id, quantity |
-| producers | Manufacturers | id, name |
-| images | Product images | id, product_id, url |
+| products | Informações essenciais do produto | id, code, name, description |
+| categories | Categorias de produtos | id, name, path |
+| variants | Variações de produtos | id, product_id, code, weight |
+| prices | Informações de preços | id, variant_id, gross_price, net_price |
+| stock | Quantidades de inventário | id, variant_id, warehouse_id, quantity |
+| producers | Fabricantes | id, name |
+| images | Imagens de produtos | id, product_id, url |
 
-## Database Conventions
+## Convenções de Banco de Dados
 
-- All tables include `created_at` and `updated_at` timestamps
-- Primary keys are named `id` throughout the database
-- Foreign keys follow the pattern `table_id` (e.g., `product_id`)
-- Text fields use `TEXT` data type rather than `VARCHAR` for flexibility
-- Price fields use `NUMERIC(10,2)` for precision
-- Most relationships are maintained through foreign keys with appropriate constraints 
+- Todas as tabelas incluem timestamps `created_at` e `updated_at`
+- Chaves primárias são nomeadas como `id` em todo o banco de dados
+- Chaves estrangeiras seguem o padrão `tabela_id` (ex: `product_id`)
+- Campos de texto utilizam o tipo de dados `TEXT` em vez de `VARCHAR` para flexibilidade
+- Campos de preço utilizam `NUMERIC(10,2)` para precisão
+- A maioria dos relacionamentos é mantida por meio de chaves estrangeiras com restrições apropriadas 
+
+## Práticas Recomendadas
+
+### Consultas
+
+- Use consultas parametrizadas para evitar injeção de SQL
+- Prefira JOIN em vez de múltiplas consultas para dados relacionados
+- Utilizar transações para operações que afetam múltiplas tabelas
+- Evite consultas SELECT * em tabelas grandes
+
+### Migrations
+
+- Toda alteração de esquema deve ser feita via migrations
+- Migrations devem incluir rollback apropriado
+- Cada migration deve ter um propósito único e claro
+- Documente alterações significativas no esquema
+
+### Operações de Dados
+
+- Utilize bulk inserts para grandes conjuntos de dados
+- Implementar validação de dados antes da inserção
+- Definir estratégias claras para lidar com conflitos de dados
+- Manter histórico de alterações para dados críticos
+
+## Scripts e Ferramentas
+
+Os scripts relacionados ao banco de dados podem ser encontrados em:
+
+- Migrations: `server/src/migrations/`
+- Seeds: `server/src/seeders/`
+- Modelos: `server/src/models/`
+- Utilidades: `server/src/utils/database/`
+
+## Monitoramento e Manutenção
+
+- Logs de consultas lentas são ativados no ambiente de desenvolvimento
+- Backups são automatizados e ocorrem diariamente
+- A manutenção de índices é programada semanalmente
+- O monitoramento de desempenho é configurado no painel de administração
+
+---
+
+> Última atualização: [2025-05-08 23:50:00 UTC]  
+> Autor: Claude 

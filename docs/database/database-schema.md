@@ -1,134 +1,181 @@
 # PostgreSQL Database Schema Specification
+> Documento criado: [2024-05-05 13:30]  
+> Última atualização: [2025-05-08 23:45:00 UTC]
 
-This document provides a detailed description of all tables, fields, data types, primary keys, foreign keys, and relationships required for the **Ali Tools B2B E-commerce** project.
+## Visão Geral
 
----
+Este documento fornece uma descrição detalhada de todas as tabelas, campos, tipos de dados, chaves primárias, chaves estrangeiras e relacionamentos necessários para o projeto **AliTools B2B E-commerce**.
 
-## 1. Table `products`
+## Diagrama de Entidade Relacionamento
 
-Stores the core data for each product.
+```mermaid
+erDiagram
+    PRODUCTS ||--o{ VARIANTS : contains
+    PRODUCTS ||--o{ IMAGES : has
+    CATEGORIES ||--o{ PRODUCTS : categorizes
+    PRODUCERS ||--o{ PRODUCTS : manufactures
+    VARIANTS ||--o{ PRICES : has
+    VARIANTS ||--o{ STOCK : has
+    UNITS ||--o{ VARIANTS : measures
+```
 
-| Column              | Type         | Constraints                                             | Description                           |
+## Estrutura de Tabelas
+
+### 1. Tabela `products`
+
+Armazena os dados principais de cada produto.
+
+| Coluna             | Tipo         | Restrições                                             | Descrição                            |
 |---------------------|--------------|---------------------------------------------------------|---------------------------------------|
-| `id`                | SERIAL       | PRIMARY KEY                                             | Unique product identifier            |
-| `code`              | TEXT         | NOT NULL                                                | Internal code                        |
-| `code_on_card`      | TEXT         |                                                         | Code displayed in the catalog        |
-| `ean`               | TEXT         | UNIQUE                                                  | Barcode (EAN)                        |
-| `producer_code`     | TEXT         |                                                         | Producer's code                      |
-| `name`              | TEXT         | NOT NULL                                                | Product name                         |
-| `description_long`  | TEXT         |                                                         | Detailed description (HTML)          |
-| `description_short` | TEXT         |                                                         | Brief description (HTML)             |
-| `description_html`  | TEXT         |                                                         | Additional full description field     |
-| `vat`               | NUMERIC(5,2) |                                                         | VAT percentage                       |
-| `delivery_date`     | DATE         |                                                         | Delivery date (if applicable)        |
-| `url`               | TEXT         |                                                         | Link to the product's external page  |
-| `created_at`        | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP                              | Record creation timestamp            |
-| `updated_at`        | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Record last update timestamp         |
+| `id`                | SERIAL       | PRIMARY KEY                                             | Identificador único do produto       |
+| `code`              | TEXT         | NOT NULL                                                | Código interno                       |
+| `code_on_card`      | TEXT         |                                                         | Código exibido no catálogo           |
+| `ean`               | TEXT         | UNIQUE                                                  | Código de barras (EAN)               |
+| `producer_code`     | TEXT         |                                                         | Código do fabricante                 |
+| `name`              | TEXT         | NOT NULL                                                | Nome do produto                      |
+| `description_long`  | TEXT         |                                                         | Descrição detalhada (HTML)           |
+| `description_short` | TEXT         |                                                         | Descrição breve (HTML)               |
+| `description_html`  | TEXT         |                                                         | Campo adicional de descrição completa|
+| `vat`               | NUMERIC(5,2) |                                                         | Percentual de IVA                    |
+| `delivery_date`     | DATE         |                                                         | Data de entrega (se aplicável)       |
+| `url`               | TEXT         |                                                         | Link para a página externa do produto|
+| `created_at`        | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP                              | Timestamp de criação do registro     |
+| `updated_at`        | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Timestamp da última atualização      |
 
-## 2. Table `categories`
+### 2. Tabela `categories`
 
-Stores hierarchical product categories.
+Armazena categorias hierárquicas de produtos.
 
-| Column       | Type   | Constraints  | Description                        |
-|--------------|--------|--------------|------------------------------------|
-| `id`         | TEXT   | PRIMARY KEY  | Unique category identifier         |
-| `name`       | TEXT   | NOT NULL     | Category name                      |
-| `path`       | TEXT   |              | Hierarchical category path         |
-| `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation timestamp      |
-| `updated_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Record last update timestamp |
+| Coluna       | Tipo       | Restrições        | Descrição                            |
+|--------------|------------|-------------------|------------------------------------|
+| `id`         | TEXT       | PRIMARY KEY       | Identificador único da categoria    |
+| `name`       | TEXT       | NOT NULL          | Nome da categoria                   |
+| `path`       | TEXT       |                   | Caminho hierárquico da categoria   |
+| `created_at` | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP | Timestamp de criação do registro |
+| `updated_at` | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Timestamp da última atualização |
 
-## 3. Table `producers`
+### 3. Tabela `producers`
 
-Stores product manufacturers.
+Armazena fabricantes dos produtos.
 
-| Column       | Type   | Constraints       | Description                        |
-|--------------|--------|-------------------|------------------------------------|
-| `id`         | SERIAL | PRIMARY KEY       | Unique producer identifier         |
-| `name`       | TEXT   | NOT NULL, UNIQUE  | Manufacturer name                  |
-| `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation timestamp      |
-| `updated_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Record last update timestamp |
+| Coluna       | Tipo       | Restrições        | Descrição                            |
+|--------------|------------|-------------------|------------------------------------|
+| `id`         | SERIAL     | PRIMARY KEY       | Identificador único do fabricante   |
+| `name`       | TEXT       | NOT NULL, UNIQUE  | Nome do fabricante                  |
+| `created_at` | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP | Timestamp de criação do registro |
+| `updated_at` | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Timestamp da última atualização |
 
-## 4. Table `units`
+### 4. Tabela `units`
 
-Defines units of measure and MOQ (minimum order quantity).
+Define unidades de medida e QMP (quantidade mínima de pedido).
 
-| Column       | Type    | Constraints  | Description                             |
-|--------------|---------|--------------|-----------------------------------------|
-| `id`         | TEXT    | PRIMARY KEY  | Unit identifier                         |
-| `name`       | TEXT    | NOT NULL     | Unit name (e.g., pcs, kpl)              |
-| `moq`        | INTEGER | NOT NULL     | Minimum order quantity                  |
-| `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation timestamp      |
-| `updated_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Record last update timestamp |
+| Coluna       | Tipo       | Restrições        | Descrição                            |
+|--------------|------------|-------------------|------------------------------------|
+| `id`         | TEXT       | PRIMARY KEY       | Identificador da unidade            |
+| `name`       | TEXT       | NOT NULL          | Nome da unidade (ex: pçs, kpl)      |
+| `moq`        | INTEGER    | NOT NULL          | Quantidade mínima de pedido         |
+| `created_at` | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP | Timestamp de criação do registro |
+| `updated_at` | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Timestamp da última atualização |
 
-## 5. Table `variants`
+### 5. Tabela `variants`
 
-Product variations (by size, color, etc.).
+Variações de produtos (por tamanho, cor, etc.).
 
-| Column         | Type    | Constraints                           | Description                           |
-|----------------|---------|---------------------------------------|---------------------------------------|
-| `id`           | SERIAL  | PRIMARY KEY                           | Unique variant identifier             |
-| `product_id`   | INTEGER | NOT NULL, FOREIGN KEY → products(id)  | Reference to parent product           |
-| `code`         | TEXT    | NOT NULL                              | Variant code                          |
-| `weight`       | NUMERIC |                                       | Net weight (in grams)                 |
-| `gross_weight` | NUMERIC |                                       | Gross weight (in grams)               |
-| `created_at`   | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP         | Record creation timestamp            |
-| `updated_at`   | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Record last update timestamp |
+| Coluna         | Tipo       | Restrições                           | Descrição                            |
+|----------------|------------|--------------------------------------|------------------------------------|
+| `id`           | SERIAL     | PRIMARY KEY                          | Identificador único da variante     |
+| `product_id`   | INTEGER    | NOT NULL, FOREIGN KEY → products(id) | Referência ao produto principal     |
+| `code`         | TEXT       | NOT NULL                             | Código da variante                  |
+| `weight`       | NUMERIC    |                                      | Peso líquido (em gramas)            |
+| `gross_weight` | NUMERIC    |                                      | Peso bruto (em gramas)              |
+| `created_at`   | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP            | Timestamp de criação do registro    |
+| `updated_at`   | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Timestamp da última atualização |
 
-## 6. Table `stock`
+### 6. Tabela `stock`
 
-Quantity of each variant available in each warehouse.
+Quantidade de cada variante disponível em cada armazém.
 
-| Column         | Type    | Constraints                           | Description                                  |
-|----------------|---------|---------------------------------------|----------------------------------------------|
-| `id`           | SERIAL  | PRIMARY KEY                           | Unique stock record identifier               |
-| `variant_id`   | INTEGER | NOT NULL, FOREIGN KEY → variants(id)  | Reference to variant                         |
-| `warehouse_id` | TEXT    | NOT NULL                              | Warehouse identifier                         |
-| `quantity`     | INTEGER | NOT NULL                              | Available quantity                           |
-| `created_at`   | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP         | Record creation timestamp                   |
-| `updated_at`   | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Record last update timestamp |
+| Coluna         | Tipo       | Restrições                           | Descrição                                  |
+|----------------|------------|--------------------------------------|----------------------------------------------|
+| `id`           | SERIAL     | PRIMARY KEY                          | Identificador único do registro de estoque  |
+| `variant_id`   | INTEGER    | NOT NULL, FOREIGN KEY → variants(id) | Referência à variante                       |
+| `warehouse_id` | TEXT       | NOT NULL                             | Identificador do armazém                    |
+| `quantity`     | INTEGER    | NOT NULL                             | Quantidade disponível                        |
+| `created_at`   | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP            | Timestamp de criação do registro            |
+| `updated_at`   | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Timestamp da última atualização |
 
-## 7. Table `prices`
+### 7. Tabela `prices`
 
-Prices for each variant, including SRP.
+Preços para cada variante, incluindo PVR.
 
-| Column        | Type          | Constraints                           | Description                                |
-|---------------|---------------|---------------------------------------|--------------------------------------------|
-| `id`          | SERIAL        | PRIMARY KEY                           | Unique price record identifier             |
-| `variant_id`  | INTEGER       | NOT NULL, FOREIGN KEY → variants(id)  | Reference to variant                       |
-| `gross_price` | NUMERIC(10,2) | NOT NULL                              | Gross price                                |
-| `net_price`   | NUMERIC(10,2) | NOT NULL                              | Net price                                  |
-| `srp_gross`   | NUMERIC(10,2) |                                       | Gross SRP (optional)                       |
-| `srp_net`     | NUMERIC(10,2) |                                       | Net SRP (optional)                         |
-| `created_at`  | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP           | Record creation timestamp                  |
-| `updated_at`  | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Record last update timestamp |
+| Coluna        | Tipo          | Restrições                           | Descrição                                |
+|---------------|---------------|--------------------------------------|------------------------------------------|
+| `id`          | SERIAL        | PRIMARY KEY                          | Identificador único do registro de preço |
+| `variant_id`  | INTEGER       | NOT NULL, FOREIGN KEY → variants(id) | Referência à variante                    |
+| `gross_price` | NUMERIC(10,2) | NOT NULL                             | Preço bruto                              |
+| `net_price`   | NUMERIC(10,2) | NOT NULL                             | Preço líquido                            |
+| `srp_gross`   | NUMERIC(10,2) |                                      | PVR bruto (opcional)                     |
+| `srp_net`     | NUMERIC(10,2) |                                      | PVR líquido (opcional)                   |
+| `created_at`  | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP            | Timestamp de criação do registro         |
+| `updated_at`  | TIMESTAMP     | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Timestamp da última atualização |
 
-## 8. Table `images`
+### 8. Tabela `images`
 
-URLs of images associated with each product.
+URLs de imagens associadas a cada produto.
 
-| Column       | Type    | Constraints                           | Description                           |
-|--------------|---------|---------------------------------------|---------------------------------------|
-| `id`         | SERIAL  | PRIMARY KEY                           | Unique image identifier               |
-| `product_id` | INTEGER | NOT NULL, FOREIGN KEY → products(id)  | Reference to product                  |
-| `url`        | TEXT    | NOT NULL                              | Image URL                             |
-| `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP          | Record creation timestamp            |
-| `updated_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Record last update timestamp |
+| Coluna       | Tipo       | Restrições                           | Descrição                            |
+|--------------|------------|--------------------------------------|------------------------------------|
+| `id`         | SERIAL     | PRIMARY KEY                          | Identificador único da imagem       |
+| `product_id` | INTEGER    | NOT NULL, FOREIGN KEY → products(id) | Referência ao produto               |
+| `url`        | TEXT       | NOT NULL                             | URL da imagem                       |
+| `created_at` | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP            | Timestamp de criação do registro    |
+| `updated_at` | TIMESTAMP  | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Timestamp da última atualização |
+
+## Índices e Performance
+
+- **Índice em `products(name)`** para buscas rápidas.
+- **Índice composto em `variants(product_id, code)`** para consultas de variantes.
+- **Índice em `stock(variant_id)`** para consultas de estoque.
+
+Consulte [Database Indexes](./database-indexes.md) para informações detalhadas sobre todos os índices.
+
+## Considerações de Implementação
+
+- Use `ON CONFLICT DO NOTHING` durante operações de importação para evitar duplicação.
+- Aplique validações de formato (regex) para `ean` e URLs antes da inserção.
+- Normalize campos de texto (trim, escape HTML) conforme necessário.
+- Assegure que todas as tabelas incluam colunas `created_at` e `updated_at` para suportar consultas temporais e auditoria, conforme exigido por `rules.database.timestamp_guidelines`. Esses timestamps facilitam o rastreamento do histórico de registros e a depuração de problemas de dados.
+
+## Relações Entre Tabelas
+
+```
+products <-- variants <-- prices
+    ^          ^
+    |          |
+    v          v
+categories    stock
+    
+producers --> products
+    
+products --> images
+```
+
+## Integridade e Segurança de Dados
+
+- Todas as chaves estrangeiras têm restrições apropriadas para manter a integridade referencial
+- Campos que não podem ser nulos são devidamente marcados
+- Os timestamps automáticos garantem o rastreamento de atualizações
+- Campos de texto usam o tipo `TEXT` para flexibilidade em vez de limites rígidos de `VARCHAR`
+
+## Scripts de Migração
+
+Os scripts de migração para criar este esquema estão disponíveis em `server/src/migrations/`. Consulte esses arquivos para ver detalhes específicos da implementação SQL.
+
+## Dados de Teste
+
+Para informações sobre dados de teste e seed, consulte [Seed Data](./seed-data.md).
 
 ---
 
-### Indexes and Performance
-
-- **Index on `products(name)`** for fast searches.
-- **Composite index on `variants(product_id, code)`** for variant lookups.
-- **Index on `stock(variant_id)`** for stock queries.
-
----
-
-### Considerations
-
-- Use `ON CONFLICT DO NOTHING` during import operations to avoid duplication.
-- Apply format validations (regex) for `ean` and URLs before insertion.
-- Normalize text fields (trim, escape HTML) as needed.
-- Ensure all tables include `created_at` and `updated_at` columns to support temporal queries and auditing, as required by `rules.database.timestamp_guidelines`. These timestamps facilitate tracking record history and debugging data issues.
-
----
+> Última atualização: [2025-05-08 23:45:00 UTC]  
+> Autor: Claude

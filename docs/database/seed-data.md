@@ -1,10 +1,10 @@
-# Seed Data Documentation
-
-Este documento descreve os dados de exemplo (seed data) gerados para o AliTools B2B e-commerce.
+# Documentação de Dados de Teste (Seed Data)
+> Documento criado: [2024-05-05 15:00:00]  
+> Última atualização: [2025-05-09 00:00:00 UTC]
 
 ## Visão Geral
 
-Os dados de exemplo foram criados para facilitar o desenvolvimento e testes, fornecendo um ambiente com dados realistas. Eles incluem:
+Os dados de exemplo foram criados para facilitar o desenvolvimento e testes, fornecendo um ambiente com dados realistas para a plataforma AliTools B2B E-commerce. Eles incluem:
 
 - Usuários com diferentes perfis (admin, gerente, vendas, clientes)
 - Clientes com informações de empresa
@@ -32,6 +32,7 @@ Os arquivos seguem uma ordem específica para respeitar as dependências entre a
 ## Dados de Exemplo
 
 ### Usuários
+> Criado: [2025-05-16 00:00:01]
 
 - Admin: admin@alitools.com.br (Admin@123)
 - Gerente: manager@alitools.com.br (Manager@123)
@@ -39,11 +40,13 @@ Os arquivos seguem uma ordem específica para respeitar as dependências entre a
 - Clientes: customer1@example.com, customer2@example.com (Customer@123)
 
 ### Clientes
+> Criado: [2025-05-16 00:00:02]
 
 - Ferramentas Express Ltda. (Loja de varejo)
 - Construções e Reformas SA (Construtora)
 
 ### Categorias
+> Criado: [2025-05-16 00:00:04]
 
 Categorias principais:
 - Ferramentas Elétricas
@@ -56,6 +59,7 @@ Subcategorias:
 - Parafusos, Buchas, Pregos (Fixação)
 
 ### Produtos
+> Criado: [2025-05-16 00:00:06]
 
 Exemplos de produtos nos dados:
 - Furadeira de Impacto 750W (Bosch)
@@ -65,6 +69,7 @@ Exemplos de produtos nos dados:
 - Parafusos Phillips 4.5x40mm (TechTools)
 
 ### Pedidos
+> Criado: [2025-05-16 00:00:07]
 
 - PED-2025-0001: Pedido completado para Ferramentas Express
 - PED-2025-0002: Pedido em processamento para Construções e Reformas
@@ -101,4 +106,17 @@ npm run db:seed:all
 - As senhas nos seeds estão codificadas com bcrypt
 - Os IDs de produtos, variantes, etc. são numéricos sequenciais
 - Os IDs de usuários, clientes, endereços, pedidos são UUIDs
-- Existem relacionamentos entre todas as entidades para testes de join e queries relacionais 
+- Existem relacionamentos entre todas as entidades para testes de join e queries relacionais
+
+## Histórico de Atualizações
+
+| Data | Versão | Descrição | Autor |
+|------|--------|-----------|-------|
+| [2024-05-05] | 1.0.0 | Documentação inicial de seeds | DevTeam |
+| [2025-05-16] | 1.1.0 | Adicionados novos dados de exemplo para pedidos | DevOps |
+| [2025-05-09] | 1.1.1 | Atualizada documentação com timestamps | Claude |
+
+---
+
+> Última atualização: [2025-05-09 00:00:00 UTC]  
+> Autor: Claude 
