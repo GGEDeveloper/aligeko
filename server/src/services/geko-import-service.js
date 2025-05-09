@@ -12,6 +12,7 @@ import fs from 'fs';
 import sequelize from '../config/sequelize.js';
 import { Category, Producer, Unit, Product, Variant, Stock, Price, Image, Document, ProductProperty } from '../models/index.js';
 import GekoXmlParser from '../utils/geko-xml-parser.js';
+import { checkAndManageStorage } from '../scripts/storage-management.js';
 
 /**
  * Service for importing GEKO XML data into the database
