@@ -86,6 +86,70 @@ Os scripts relacionados ao banco de dados podem ser encontrados em:
 - A manutenção de índices é programada semanalmente
 - O monitoramento de desempenho é configurado no painel de administração
 
+# Database Exploration Tools
+
+This directory contains scripts for exploring the Neon PostgreSQL database structure and testing connections.
+
+## Available Scripts
+
+### Basic Database Connection Test
+
+```bash
+node docs/database/simple-db-test.js
+```
+
+This script establishes a connection to the Neon PostgreSQL database and lists all tables found in the database.
+
+### Table Structure Explorer
+
+```bash
+node docs/database/show-table-structure.js <tableName>
+```
+
+This script displays detailed information about a specific table including:
+- Column definitions
+- Primary keys
+- Foreign keys
+- Indexes
+- Sample data (first 5 rows)
+- Total row count
+
+**Example:**
+```bash
+node docs/database/show-table-structure.js products
+```
+
+## Environment Variables
+
+These scripts rely on the following environment variables:
+
+- `NEON_DB_URL` (primary)
+- `POSTGRES_URL` (fallback)
+- `DATABASE_URL` (fallback)
+
+The scripts will attempt to use these connection strings in the order listed above.
+
+## Documentation
+
+For more information about the database schema:
+
+- [Schema Summary](./schema-summary.md) - Overview of database structure
+- [Connection Support](./db-connection-support.md) - Troubleshooting and connection details
+
+## Requirements
+
+These scripts require:
+- Node.js (v14+)
+- Sequelize
+- pg (PostgreSQL driver)
+- dotenv
+
+If not already installed, you can install the required packages with:
+
+```bash
+npm install sequelize pg pg-hstore dotenv
+```
+
 ---
 
 > Última atualização: [2025-05-08 23:50:00 UTC]  

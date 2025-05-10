@@ -1,8 +1,8 @@
 {
   "models": {
     "main": {
-      "provider": "google",
-      "modelId": "gemini-2.0-flash",
+      "provider": "openrouter",
+      "modelId": "openai/o1-mini",
       "maxTokens": 120000,
       "temperature": 0.2
     },

@@ -1,26 +1,37 @@
-import { Router } from 'express';
-// Import route modules
-import authRoutes from './auth.routes';
-import productRoutes from './product.routes';
+/**
+ * API Routes
+ * 
+ * Main entry point for all API routes
+ */
+
+import express from 'express';
+import productRoutes from './product.routes.js';
+import categoryRoutes from './category.routes.js';
+import authRoutes from './auth.routes.js';
+import userRoutes from './user.routes.js';
+import cartRoutes from './cart.routes.js';
+import orderRoutes from './order.routes.js';
+import fileUploadRoutes from './file-upload.routes.js';
 import customerRoutes from './customer.routes';
-import orderRoutes from './order.routes';
 import gekoApiRoutes from './geko-api.routes';
-import cartRoutes from './cart.routes';
-import companyInfoRoutes from './companyInfo';
+import companyInfoRoutes from './companyInfo.js';
 // import adminRoutes from './admin.routes';
 
-const router = Router();
+const router = express.Router();
 
 // API version prefix
 const API_PREFIX = '/v1';
 
-// Define routes
-router.use(`${API_PREFIX}/auth`, authRoutes);
+// Register routes
 router.use(`${API_PREFIX}/products`, productRoutes);
-router.use(`${API_PREFIX}/customers`, customerRoutes);
-router.use(`${API_PREFIX}/orders`, orderRoutes);
-router.use(`${API_PREFIX}/geko-api`, gekoApiRoutes);
+router.use(`${API_PREFIX}/categories`, categoryRoutes);
+router.use(`${API_PREFIX}/auth`, authRoutes);
+router.use(`${API_PREFIX}/users`, userRoutes);
 router.use(`${API_PREFIX}/cart`, cartRoutes);
+router.use(`${API_PREFIX}/orders`, orderRoutes);
+router.use(`${API_PREFIX}/upload`, fileUploadRoutes);
+router.use(`${API_PREFIX}/customers`, customerRoutes);
+router.use(`${API_PREFIX}/geko-api`, gekoApiRoutes);
 router.use(`${API_PREFIX}/company-info`, companyInfoRoutes);
 // router.use(`${API_PREFIX}/admin`, adminRoutes);
 
@@ -38,6 +49,7 @@ router.get('/', (req, res) => {
       { path: '/api/v1/geko-api', description: 'GEKO API integration endpoints' },
       { path: '/api/v1/cart', description: 'Shopping cart endpoints' },
       { path: '/api/v1/company-info', description: 'Company information endpoints' },
+      { path: '/api/v1/upload', description: 'File upload and import endpoints' },
       { path: '/api/v1/admin', description: 'Admin management endpoints' }
     ]
   });

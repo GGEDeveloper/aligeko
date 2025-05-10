@@ -7,6 +7,7 @@ import './assets/styles/index.css';
 // Layouts
 import MainLayout from './components/layouts/MainLayout';
 import AdminLayout from './components/layouts/AdminLayout';
+import CustomerDashboardLayout from './components/layouts/CustomerDashboardLayout';
 
 // Components
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -28,6 +29,12 @@ import TwoFactorSettingsPage from './pages/auth/TwoFactorSettingsPage';
 
 // User
 import DashboardPage from './pages/user/DashboardPage';
+import ProfilePage from './pages/user/ProfilePage';
+import OrdersPage from './pages/user/OrdersPage';
+import AddressesPage from './pages/user/AddressesPage';
+import SavedCartsPage from './pages/user/SavedCartsPage';
+import NotificationsPage from './pages/user/NotificationsPage';
+import SecurityPage from './pages/user/SecurityPage';
 import CartPage from './pages/user/CartPage';
 import CheckoutPage from './pages/user/CheckoutPage';
 import CheckoutSuccessPage from './pages/user/CheckoutSuccessPage';
@@ -44,6 +51,7 @@ import CreateProductPage from './pages/admin/CreateProductPage';
 import EditProductPage from './pages/admin/EditProductPage';
 import AdminProductDetailPage from './pages/admin/ProductDetailPage';
 import CategoriesAndAttributesPage from './pages/admin/CategoriesAndAttributesPage';
+import XMLImportPage from './pages/admin/XMLImportPage';
 
 // Customer Management Pages
 import CustomersManagementPage from './pages/admin/CustomersManagementPage';
@@ -100,9 +108,17 @@ function App() {
             {/* Checkout routes */}
             <Route path="checkout" element={<CheckoutPage />} />
             <Route path="checkout/success" element={<CheckoutSuccessPage />} />
-            
-            {/* User dashboard routes */}
-            <Route path="user/dashboard" element={<DashboardPage />} />
+          </Route>
+          
+          {/* Customer Dashboard Routes */}
+          <Route path="/account" element={<CustomerDashboardLayout />}>
+            <Route index element={<DashboardPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="orders" element={<OrdersPage />} />
+            <Route path="addresses" element={<AddressesPage />} />
+            <Route path="saved-carts" element={<SavedCartsPage />} />
+            <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="security" element={<SecurityPage />} />
           </Route>
         </Route>
         
@@ -117,6 +133,7 @@ function App() {
             <Route path="products/:id" element={<AdminProductDetailPage />} />
             <Route path="products/:id/edit" element={<EditProductPage />} />
             <Route path="products/categories-attributes" element={<CategoriesAndAttributesPage />} />
+            <Route path="products/xml-import" element={<XMLImportPage />} />
             
             {/* Admin customer management routes */}
             <Route path="customers" element={<CustomersManagementPage />} />

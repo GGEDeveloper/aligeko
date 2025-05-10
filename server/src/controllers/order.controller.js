@@ -1,8 +1,8 @@
-import { Order, OrderItem, Customer, Product, Variant, User, Address, Shipment } from '../models';
+import { Order, OrderItem, Customer, Product, Variant, User, Address, Shipment } from '../models.js';
 import { Op } from 'sequelize';
-import { sequelize } from '../config/database';
-import { Cart, CartItem, Payment } from '../models';
-import { orderConfirmationTemplate, orderShipmentTemplate } from '../utils/emailTemplates';
+import sequelize from '../config/database.js';
+import { Cart, CartItem, Payment } from '../models.js';
+import { orderConfirmationTemplate, orderShipmentTemplate } from '../utils/emailTemplates.js';
 import nodemailer from 'nodemailer';
 
 /**

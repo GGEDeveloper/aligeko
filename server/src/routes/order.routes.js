@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as orderController from '../controllers/order.controller';
 import { authenticate as isAuthenticated } from '../middleware/auth.middleware';
-import { isAdmin, isManager, isSales } from '../middleware/role';
+import { isAdmin, isManager, isSales } from '../middleware/role.js';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
-import sequelize from '../config/database';
+import sequelize from '../config/database.js';
 
 class Stock extends Model {}
 
@@ -17,24 +17,51 @@ Stock.init({
       key: 'id'
     }
   },
-  warehouse_id: {
-    type: DataTypes.TEXT,
-    allowNull: false
-  },
   quantity: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    defaultValue: 0
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  min_order_quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1
+  },
+  restock_date: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  warehouse_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  warehouse_location: {
+    type: DataTypes.STRING(50),
+    allowNull: true
+  },
+  last_updated: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
 }, {
   sequelize,
   modelName: 'Stock',
-  tableName: 'stock',
+  tableName: 'stocks',
   timestamps: true,
   underscored: true, // Ensure column names use snake_case
   indexes: [
     {
       name: 'idx_stock_variant_id',
       fields: ['variant_id']
+    },
+    {
+      name: 'idx_stock_available',
+      fields: ['available']
     }
   ]
 });

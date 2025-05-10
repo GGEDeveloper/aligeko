@@ -1,56 +1,91 @@
-import winston from 'winston';
-import fs from 'fs';
-import path from 'path';
-import config from './app-config';
+/**
+ * Simple Logging Utility
+ * 
+ * This module provides consistent logging with timestamp and log levels.
+ */
 
-// Make sure logs directory exists
-const logsDir = path.dirname(config.logging.file);
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+class Logger {
+  constructor() {
+    this.logLevel = process.env.LOG_LEVEL || 'info';
+    
+    // Log levels (in order of severity)
+    this.levels = {
+      error: 0,
+      warn: 1,
+      info: 2,
+      debug: 3
+    };
+  }
+  
+  /**
+   * Get current timestamp
+   * @returns {string} Formatted timestamp
+   */
+  _getTimestamp() {
+    const now = new Date();
+    return now.toISOString();
+  }
+  
+  /**
+   * Check if a log level should be displayed
+   * @param {string} level - The level to check
+   * @returns {boolean} True if the level should be displayed
+   */
+  _shouldLog(level) {
+    return this.levels[level] <= this.levels[this.logLevel];
+  }
+  
+  /**
+   * Log an error message
+   * @param {string} message - The message to log
+   */
+  error(message) {
+    if (this._shouldLog('error')) {
+      console.error(`[ERROR] ${this._getTimestamp()} - ${message}`);
+    }
+  }
+  
+  /**
+   * Log a warning message
+   * @param {string} message - The message to log
+   */
+  warn(message) {
+    if (this._shouldLog('warn')) {
+      console.warn(`[WARN] ${this._getTimestamp()} - ${message}`);
+    }
+  }
+  
+  /**
+   * Log an info message
+   * @param {string} message - The message to log
+   */
+  info(message) {
+    if (this._shouldLog('info')) {
+      console.info(`[INFO] ${this._getTimestamp()} - ${message}`);
+    }
+  }
+  
+  /**
+   * Log a debug message
+   * @param {string} message - The message to log
+   */
+  debug(message) {
+    if (this._shouldLog('debug')) {
+      console.debug(`[DEBUG] ${this._getTimestamp()} - ${message}`);
+    }
+  }
+  
+  /**
+   * Set the log level
+   * @param {string} level - The log level to set
+   */
+  setLogLevel(level) {
+    if (this.levels[level] !== undefined) {
+      this.logLevel = level;
+    }
+  }
 }
 
-// Define log format
-const logFormat = winston.format.combine(
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-  winston.format.printf(({ timestamp, level, message, ...meta }) => {
-    return `${timestamp} [${level.toUpperCase()}]: ${message} ${
-      Object.keys(meta).length ? JSON.stringify(meta) : ''
-    }`;
-  })
-);
-
-// Create logger instance
-export const logger = winston.createLogger({
-  level: config.logging.level,
-  format: logFormat,
-  transports: [
-    // File transport for all logs
-    new winston.transports.File({
-      filename: config.logging.file,
-      maxsize: config.logging.maxSize,
-      maxFiles: config.logging.maxFiles,
-      tailable: true
-    }),
-    // Separate file for error logs
-    new winston.transports.File({
-      level: 'error',
-      filename: path.join(logsDir, 'error.log'),
-      maxsize: config.logging.maxSize,
-      maxFiles: config.logging.maxFiles,
-      tailable: true
-    })
-  ]
-});
-
-// Add console transport in development environment
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(),
-      logFormat
-    )
-  }));
-}
-
-// Export default logger
+// Create and export a singleton instance
+const logger = new Logger();
 export default logger; 

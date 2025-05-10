@@ -37,6 +37,22 @@ const ProductsPage = () => {
     refetch
   } = useGetProductsQuery(queryParams);
   
+  // Log any errors to console for debugging
+  useEffect(() => {
+    if (isError) {
+      console.error('Error fetching products:', error);
+      if (error?.data) {
+        console.error('API Error Response:', error.data);
+      }
+      if (error?.status) {
+        console.error('API Error Status:', error.status);
+      }
+      if (error?.error) {
+        console.error('Error details:', error.error);
+      }
+    }
+  }, [isError, error]);
+  
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
@@ -122,14 +138,22 @@ const ProductsPage = () => {
       <div className="py-6">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">Erro!</strong>
-          <span className="block sm:inline"> {error?.data?.message || 'Ocorreu um erro desconhecido'}</span>
+          <span className="block sm:inline"> {error?.data?.message || error?.error || 'Ocorreu um erro ao carregar os produtos. Por favor, tente novamente mais tarde.'}</span>
+          <div className="mt-2">
+            <button 
+              className="bg-red-200 hover:bg-red-300 text-red-800 py-1 px-3 rounded"
+              onClick={() => refetch()}
+            >
+              Tentar novamente
+            </button>
+          </div>
         </div>
       </div>
     );
   }
   
-  // Destructure data
-  const { products, totalItems, totalPages } = data || { products: [], totalItems: 0, totalPages: 0 };
+  // Handle empty data safely
+  const { products = [], totalItems = 0, totalPages = 0 } = data || {};
   
   return (
     <div className="py-6">

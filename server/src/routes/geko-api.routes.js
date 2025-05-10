@@ -1,7 +1,7 @@
 import express from 'express';
 import gekoApiController from '../controllers/geko-api.controller';
 import { checkAuth, checkRole } from '../middleware/auth.middleware';
-import { authJwt } from '../middleware';
+import { authJwt } from '../middleware.js';
 
 const router = express.Router();
 

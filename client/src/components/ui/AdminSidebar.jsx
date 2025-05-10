@@ -59,6 +59,10 @@ const AdminSidebar = () => {
         {
           name: 'Producers',
           path: '/producers'
+        },
+        {
+          name: 'XML Import',
+          path: '/products/xml-import'
         }
       ]
     },

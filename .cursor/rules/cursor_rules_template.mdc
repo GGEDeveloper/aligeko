@@ -1,7 +1,7 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
 # [Component/Feature Name] Patterns
 
@@ -107,9 +107,10 @@ describe('Component/Feature Tests', () => {
 
 ## External References
 
-- [External Documentation](https://example.com/docs) - Description of external documentation
-- [Library/Tool Documentation](https://library-docs.com) - Reference to relevant library docs
+- [External Documentation](mdc:https:/example.com/docs) - Description of external documentation
+- [Library/Tool Documentation](mdc:https:/library-docs.com) - Reference to relevant library docs
 
 ---
 
 *Last updated: [DATE]*
+

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '../../store/slices/authSlice';
 
 // Icons
 import { BsSearch, BsCart3, BsPersonCircle, BsList, BsX, BsTelephone, BsEnvelope } from 'react-icons/bs';
@@ -13,9 +15,23 @@ import { BsSearch, BsCart3, BsPersonCircle, BsList, BsX, BsTelephone, BsEnvelope
 const Header = ({ isAdmin = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const user = useSelector(selectCurrentUser);
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
+
+  // Get the appropriate account link and text based on user state
+  const getAccountLinkInfo = () => {
+    if (isAdmin) {
+      return { link: "/admin", text: "Painel Admin" };
+    } else if (user) {
+      return { link: "/account", text: "Minha Conta" };
+    } else {
+      return { link: "/auth/login", text: "Entrar" };
+    }
+  };
+
+  const accountInfo = getAccountLinkInfo();
 
   return (
     <header style={{ 
@@ -205,7 +221,7 @@ const Header = ({ isAdmin = false }) => {
           </Link>
           
           <Link 
-            to={isAdmin ? "/admin" : "/auth/login"}
+            to={accountInfo.link}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -226,7 +242,7 @@ const Header = ({ isAdmin = false }) => {
             }}
           >
             <BsPersonCircle size={22} />
-            <span>{isAdmin ? "Painel Admin" : "Conta"}</span>
+            <span>{accountInfo.text}</span>
           </Link>
           
           {/* Mobile Menu Toggle */}
@@ -557,7 +573,7 @@ const Header = ({ isAdmin = false }) => {
             </Link>
             
             <Link 
-              to={isAdmin ? "/admin" : "/auth/login"}
+              to={accountInfo.link}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -573,7 +589,7 @@ const Header = ({ isAdmin = false }) => {
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
               <BsPersonCircle size={20} />
-              <span>{isAdmin ? "Painel Admin" : "Conta"}</span>
+              <span>{accountInfo.text}</span>
             </Link>
           </div>
         </div>

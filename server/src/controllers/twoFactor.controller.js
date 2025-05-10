@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../models';
+import { User } from '../models.js';
 import { 
   generateSecret, 
   generateBackupCodes, 
   verifyToken, 
   generateQRCodeURL,
   verifyBackupCode
-} from '../utils/twoFactor';
+} from '../utils/twoFactor.js';
 
 /**
  * Generate 2FA secret for a user

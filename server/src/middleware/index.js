@@ -2,6 +2,9 @@
 import * as authMiddleware from './auth.middleware';
 import * as errorMiddleware from './error.middleware';
 import * as validateMiddleware from './validate.middleware';
+import * as csrfMiddleware from './csrf.middleware';
+import * as sanitizeMiddleware from './sanitize.middleware';
+import * as loggerMiddleware from './logger.middleware';
 import errorHandler from './errorHandler';
 import * as role from './role';
 
@@ -15,6 +18,9 @@ export const authJwt = {
 
 export const validate = validateMiddleware;
 export const error = errorMiddleware;
+export const csrf = csrfMiddleware;
+export const sanitize = sanitizeMiddleware;
+export const logger = loggerMiddleware;
 export const handler = errorHandler;
 export const roles = role;
 
@@ -23,6 +29,9 @@ export default {
   authJwt,
   validate,
   error,
+  csrf,
+  sanitize,
+  logger,
   handler,
   roles
 }; 

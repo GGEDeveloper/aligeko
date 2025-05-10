@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { XmlParser } from '../utils/xml-parser';
-import { logger } from '../config/logger';
+import { XmlParser } from '../utils/xml-parser.js';
+import { logger } from '../config/logger.js';
 import { 
   Product, 
   Category, 
@@ -10,9 +10,9 @@ import {
   Stock, 
   Price, 
   Image 
-} from '../models';
-import sequelize from '../config/database';
-import { SyncHealthService } from './sync-health-service';
+} from '../models.js';
+import sequelize from '../config/database.js';
+import { SyncHealthService } from './sync-health-service.js';
 
 /**
  * GekoDataService

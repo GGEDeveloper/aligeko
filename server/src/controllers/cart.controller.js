@@ -1,6 +1,6 @@
-import { Cart, CartItem, Variant, Product, Image, Stock, Price } from '../models';
-import { sequelize } from '../config/database';
-import ApiError from '../utils/ApiError';
+import { Cart, CartItem, Variant, Product, Image, Stock, Price } from '../models.js';
+import { sequelize } from '../config/database.js';
+import ApiError from '../utils/ApiError.js';
 import httpStatus from 'http-status';
 
 /**

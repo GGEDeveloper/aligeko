@@ -1,4 +1,4 @@
-import { Customer, User, Address } from '../models';
+import { Customer, User, Address } from '../models.js';
 import { Op } from 'sequelize';
 
 /**

@@ -5,9 +5,11 @@ import compression from 'compression';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { rateLimit } from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import routes from './routes';
 import { errorHandler } from './middleware/errorHandler';
 import sequelize from './config/database';
+import { csrf, sanitize, logger } from './middleware';
 
 // Load environment variables
 dotenv.config();
@@ -17,12 +19,71 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 
 // Middleware
-app.use(helmet()); // Security headers
-app.use(compression()); // Compress responses
-app.use(cors()); // Enable CORS
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-app.use(morgan('dev')); // Logging
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https://*.alitools.com", "https://via.placeholder.com"],
+      connectSrc: ["'self'", "https://*.alitools.com"]
+    }
+  },
+  referrerPolicy: { policy: 'same-origin' },
+  frameguard: { action: 'deny' },
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true }
+})); 
+
+// Compression for better performance
+app.use(compression());
+
+// CORS configuration
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      'http://localhost:3000', 
+      'https://alitools-b2b.vercel.app'
+    ];
+    
+    // Allow all Vercel preview deployment URLs
+    if (
+      allowedOrigins.includes(origin) || 
+      origin.match(/https:\/\/aligekow-[a-z0-9]+-alitools-projects\.vercel\.app/)
+    ) {
+      return callback(null, true);
+    }
+    
+    // Log blocked origins for debugging
+    console.log(`CORS blocked origin: ${origin}`);
+    return callback(new Error(`CORS policy does not allow access from origin ${origin}`), false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-XSRF-TOKEN']
+}));
+
+// Parse cookies, JSON and URL-encoded request bodies
+app.use(cookieParser());
+app.use(express.json({
+  limit: '1mb',  // Limit payload size
+  verify: (req, res, buf) => {
+    // Store raw body for signature verification if needed
+    req.rawBody = buf.toString();
+  }
+}));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Logging middleware
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('dev')); // HTTP request logging
+  app.use(logger.apiRequestLogger); // Detailed API request logging
+  app.use(logger.sensitiveResourceLogger); // Security logging for sensitive resources
+}
 
 // Rate limiting
 const limiter = rateLimit({
@@ -34,6 +95,15 @@ const limiter = rateLimit({
 
 // Apply rate limiting to all requests
 app.use(limiter);
+
+// Set CSRF cookie on all requests
+app.use(csrf.setCsrfCookie);
+
+// Apply CSRF protection to all non-GET requests
+app.use(csrf.csrfProtection);
+
+// Apply input sanitization to all requests
+app.use(sanitize.sanitizeRequest);
 
 // API routes
 app.use('/api', routes);

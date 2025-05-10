@@ -1,112 +1,190 @@
-import { SyncHealth } from '../models';
-import { logger } from '../config/logger';
+import { SyncHealth } from '../models/sync-health.model.js';
+import logger from '../config/logger.js';
 import nodemailer from 'nodemailer';
-import config from '../config/app-config';
+import config from '../config/app-config.js';
 import { Op } from 'sequelize';
 
 /**
  * SyncHealthService
  * Service for monitoring and tracking the health of GEKO API synchronization
  */
-export class SyncHealthService {
+class SyncHealthService {
   /**
    * Start tracking a new sync operation
-   * @param {string} syncType - Type of sync ('scheduled' or 'manual')
-   * @param {string} apiUrl - The API URL being used
-   * @returns {Object} - Sync tracking object
+   * @param {string} syncType - Type of sync (e.g., 'api', 'file_upload')
+   * @param {string} apiUrl - API URL or file path
+   * @returns {Object} Tracking object
    */
   static startSyncTracking(syncType, apiUrl) {
-    const startTime = new Date();
-    const trackingId = Date.now();
+    console.log(`Starting sync tracking for ${syncType}: ${apiUrl}`);
+    
+    try {
+      // Create tracking object
+      const tracking = {
+        syncType,
+        apiUrl,
+        startTime: new Date(),
+        errors: [],
+        errorCount: 0,
+        recordId: null
+      };
 
-    logger.info(`Starting sync health tracking (ID: ${trackingId}) for ${syncType} sync`);
+      // Create database record async
+      // Note: We're not awaiting this to avoid blocking the import process
+      this._createSyncRecord(tracking)
+        .then(record => {
+          if (record && record.id) {
+            tracking.recordId = record.id;
+            console.log(`Created sync health record with ID: ${record.id}`);
+          }
+        })
+        .catch(error => {
+          console.error('Error creating sync health record:', error);
+        });
 
-    return {
-      trackingId,
-      syncType,
-      apiUrl,
-      startTime,
-      errors: [],
-      itemsProcessed: {}
-    };
+      return tracking;
+    } catch (error) {
+      console.error('Error in startSyncTracking:', error);
+      // Return a basic tracking object even if DB operations fail
+      return {
+        syncType,
+        apiUrl,
+        startTime: new Date(),
+        errors: [],
+        errorCount: 0
+      };
+    }
   }
 
   /**
-   * Record error during sync process
-   * @param {Object} tracking - Sync tracking object
+   * Create a sync record in the database
+   * @param {Object} tracking - Tracking object
+   * @returns {Promise<Object>} Created record
+   * @private
+   */
+  static async _createSyncRecord(tracking) {
+    try {
+      // Create record in database
+      const record = await SyncHealth.create({
+        sync_type: tracking.syncType,
+        status: 'in_progress',
+        start_time: tracking.startTime,
+        api_url: tracking.apiUrl,
+        error_count: 0,
+        errors: []
+      });
+      
+      return record;
+    } catch (error) {
+      console.error('Error creating sync health record:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Record an error during sync
+   * @param {Object} tracking - Tracking object
    * @param {string} errorType - Type of error
    * @param {string} errorMessage - Error message
    * @param {Object} details - Additional error details
    */
   static recordError(tracking, errorType, errorMessage, details = {}) {
     if (!tracking) return;
-
-    logger.error(`Sync error (ID: ${tracking.trackingId}): [${errorType}] ${errorMessage}`);
     
-    tracking.errors.push({
-      type: errorType,
-      message: errorMessage,
-      timestamp: new Date(),
-      details
-    });
-  }
-
-  /**
-   * Update item processing counts
-   * @param {Object} tracking - Sync tracking object
-   * @param {string} itemType - Type of item (e.g., 'products', 'categories')
-   * @param {number} count - Number of items processed
-   */
-  static updateItemsProcessed(tracking, itemType, count) {
-    if (!tracking) return;
-    
-    tracking.itemsProcessed[itemType] = (tracking.itemsProcessed[itemType] || 0) + count;
-    logger.debug(`Sync (ID: ${tracking.trackingId}): Processed ${count} ${itemType}`);
-  }
-
-  /**
-   * Finish sync tracking and save results to database
-   * @param {Object} tracking - Sync tracking object
-   * @param {string} status - Final status ('success', 'partial_success', 'failed')
-   * @param {number} requestSizeBytes - Size of the request in bytes
-   * @returns {Promise<Object>} - The created SyncHealth record
-   */
-  static async finishSyncTracking(tracking, status, requestSizeBytes = null) {
-    if (!tracking) return null;
-    
-    const endTime = new Date();
-    const durationSeconds = (endTime - tracking.startTime) / 1000;
-    
-    logger.info(`Finishing sync health tracking (ID: ${tracking.trackingId}), status: ${status}, duration: ${durationSeconds}s`);
-    
-    // Get memory usage
-    const memoryUsage = process.memoryUsage();
-    const memoryUsageMB = Math.round(memoryUsage.heapUsed / 1024 / 1024 * 100) / 100;
+    console.error(`Sync error (${errorType}): ${errorMessage}`);
     
     try {
-      // Create health record
-      const healthRecord = await SyncHealth.create({
-        sync_type: tracking.syncType,
-        status,
-        start_time: tracking.startTime,
-        end_time: endTime,
-        duration_seconds: durationSeconds,
-        api_url: tracking.apiUrl,
-        request_size_bytes: requestSizeBytes,
-        items_processed: tracking.itemsProcessed,
-        error_count: tracking.errors.length,
-        error_details: tracking.errors.length > 0 ? tracking.errors : null,
-        memory_usage_mb: memoryUsageMB
-      });
+      // Add error to tracking object
+      const error = {
+        type: errorType,
+        message: errorMessage,
+        timestamp: new Date(),
+        details: details
+      };
       
-      // Send alerts if needed
-      if (status === 'failed' || (status === 'partial_success' && tracking.errors.length > 0)) {
-        this.sendAlerts(healthRecord);
+      if (Array.isArray(tracking.errors)) {
+        tracking.errors.push(error);
+      } else {
+        tracking.errors = [error];
       }
       
-      return healthRecord;
+      tracking.errorCount = (tracking.errorCount || 0) + 1;
+      
+      // Update database record if available
+      if (tracking.recordId) {
+        this._updateSyncRecord(tracking.recordId, {
+          error_count: tracking.errorCount,
+          errors: tracking.errors
+        }).catch(err => console.error('Error updating sync record with error:', err));
+      }
+    } catch (err) {
+      console.error('Error in recordError:', err);
+    }
+  }
+
+  /**
+   * Finish tracking a sync operation
+   * @param {Object} tracking - Tracking object
+   * @param {string} status - Final status ('success', 'partial_success', 'error')
+   * @param {number} requestSizeBytes - Size of processed data in bytes
+   * @param {Object} itemsProcessed - Counts of processed items by type
+   */
+  static finishSyncTracking(tracking, status, requestSizeBytes = 0, itemsProcessed = {}) {
+    if (!tracking) return;
+    
+    console.log(`Finishing sync tracking for ${tracking.syncType} with status: ${status}`);
+    
+    try {
+      // Calculate duration
+      const endTime = new Date();
+      const durationSeconds = (endTime - tracking.startTime) / 1000;
+      
+      console.log(`Sync duration: ${durationSeconds.toFixed(2)} seconds`);
+      
+      // Update tracking object
+      tracking.endTime = endTime;
+      tracking.durationSeconds = durationSeconds;
+      tracking.status = status;
+      tracking.requestSizeBytes = requestSizeBytes;
+      tracking.itemsProcessed = itemsProcessed;
+      
+      // Update database record if available
+      if (tracking.recordId) {
+        this._updateSyncRecord(tracking.recordId, {
+          status: status,
+          end_time: endTime,
+          duration_seconds: durationSeconds,
+          request_size_bytes: requestSizeBytes,
+          items_processed: itemsProcessed
+        }).catch(err => console.error('Error updating sync record on finish:', err));
+      }
+      
+      return tracking;
     } catch (error) {
-      logger.error(`Failed to save sync health record (ID: ${tracking.trackingId}): ${error.message}`);
+      console.error('Error in finishSyncTracking:', error);
+      return tracking;
+    }
+  }
+
+  /**
+   * Update a sync record in the database
+   * @param {number} recordId - ID of the record to update
+   * @param {Object} data - Data to update
+   * @returns {Promise<Object>} Updated record
+   * @private
+   */
+  static async _updateSyncRecord(recordId, data) {
+    try {
+      const record = await SyncHealth.findByPk(recordId);
+      if (!record) {
+        console.error(`Sync health record not found: ${recordId}`);
+        return null;
+      }
+      
+      await record.update(data);
+      return record;
+    } catch (error) {
+      console.error('Error updating sync health record:', error);
       return null;
     }
   }
@@ -262,4 +340,6 @@ export class SyncHealthService {
       html: body
     });
   }
-} 
+}
+
+export default SyncHealthService; 

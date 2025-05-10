@@ -1,7 +1,7 @@
-import { GekoDataService } from '../services/geko-data-service';
-import { SyncHealthService } from '../services/sync-health-service';
-import { logger } from '../config/logger';
-import config from '../config/config';
+import { GekoDataService } from '../services/geko-data-service.js';
+import { SyncHealthService } from '../services/sync-health-service.js';
+import { logger } from '../config/logger.js';
+import config from '../config/config.js';
 import { Op } from 'sequelize';
 
 // Scheduled sync task reference

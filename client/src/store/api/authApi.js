@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { appendCSRFToken } from '../../utils/csrf';
 
 export const authApi = createApi({
   reducerPath: 'authApi',
@@ -13,8 +14,18 @@ export const authApi = createApi({
         headers.set('authorization', `Bearer ${token}`);
       }
       
+      // Add CSRF token header for non-GET requests
+      const method = headers.get('X-Method') || 'GET';
+      if (method !== 'GET') {
+        const csrfHeaders = appendCSRFToken();
+        for (const [key, value] of Object.entries(csrfHeaders)) {
+          headers.set(key, value);
+        }
+      }
+      
       return headers;
     },
+    credentials: 'include', // Include cookies in requests
   }),
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -84,18 +95,18 @@ export const authApi = createApi({
     }),
     
     verify2FA: builder.mutation({
-      query: (token) => ({
+      query: (code) => ({
         url: '/2fa/verify',
         method: 'POST',
-        body: { token },
+        body: { code },
       }),
     }),
     
     disable2FA: builder.mutation({
-      query: (token) => ({
+      query: (code) => ({
         url: '/2fa/disable',
         method: 'POST',
-        body: { token },
+        body: { code },
       }),
     }),
   }),

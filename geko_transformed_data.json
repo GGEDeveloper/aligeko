@@ -1,0 +1,389 @@
+{
+  "products": [
+    {
+      "code": "C00049",
+      "code_on_card": "C00049",
+      "ean": "5901477140723",
+      "producer_code": "5901477140723",
+      "vat": 0,
+      "url": "https://b2b.geko.pl/en/front-wheel-10pcs-back-wheelor-floor-jack-2-5t",
+      "delivery_date": null,
+      "status": "active",
+      "discontinued": false,
+      "name": "Front wheel 10pcs + back wheelor floor jack 2,5T",
+      "description_short": "",
+      "description_long": "",
+      "description_html": "",
+      "category_id": "105266",
+      "producer_id": "GEKO",
+      "unit_id": "1409457136565705379",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "code": "C00050",
+      "code_on_card": "C00050",
+      "ean": "5901477128028",
+      "producer_code": "5901477128028",
+      "vat": 0,
+      "url": "https://b2b.geko.pl/en/set-of-wheels-for-hydraulic-jacks-2t-and-2-5t",
+      "delivery_date": null,
+      "status": "active",
+      "discontinued": false,
+      "name": "Set of wheels for hydraulic jacks 2T and 2,5T",
+      "description_short": "",
+      "description_long": "",
+      "description_html": "",
+      "category_id": "105266",
+      "producer_id": "GEKO",
+      "unit_id": "4800399769571371698",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "code": "C00052",
+      "code_on_card": "C00052",
+      "ean": "5901477140730",
+      "producer_code": "5901477140730",
+      "vat": 0,
+      "url": "https://b2b.geko.pl/en/handle-for-floor-jack-2-5t",
+      "delivery_date": null,
+      "status": "active",
+      "discontinued": false,
+      "name": "Handle for floor jack 2,5T",
+      "description_short": "",
+      "description_long": "",
+      "description_html": "",
+      "category_id": "105266",
+      "producer_id": "GEKO",
+      "unit_id": "4800399769571371698",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "code": "C00053",
+      "code_on_card": "C00053",
+      "ean": "5901477140747",
+      "producer_code": "5901477140747",
+      "vat": 0,
+      "url": "https://b2b.geko.pl/en/bearing-for-floor-jack-2-5t",
+      "delivery_date": null,
+      "status": "active",
+      "discontinued": false,
+      "name": "Bearing for floor jack 2,5T",
+      "description_short": "",
+      "description_long": "",
+      "description_html": "",
+      "category_id": "105266",
+      "producer_id": "GEKO",
+      "unit_id": "4800399769571371698",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "code": "C00054",
+      "code_on_card": "C00054",
+      "ean": "5901477140754",
+      "producer_code": "5901477140754",
+      "vat": 0,
+      "url": "https://b2b.geko.pl/en/plastic-handle-for-floor-jack-2-5t",
+      "delivery_date": null,
+      "status": "active",
+      "discontinued": false,
+      "name": "Plastic handle for floor jack 2,5T",
+      "description_short": "",
+      "description_long": "",
+      "description_html": "",
+      "category_id": "105266",
+      "producer_id": "GEKO",
+      "unit_id": "4800399769571371698",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "105266",
+      "name": "Hydraulic Lifts",
+      "path": "Spare Parts\\Hydraulic Lifts",
+      "idosell_path": "Spare Parts\\Hydraulic Lifts",
+      "created_at": "2025-05-09T15:07:22.836Z",
+      "updated_at": "2025-05-09T15:07:22.836Z"
+    },
+    {
+      "id": "105267",
+      "name": "Welders and Mig Machines",
+      "path": "Spare Parts\\Welders and Mig Machines",
+      "idosell_path": "Spare Parts\\Welders and Mig Machines",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "id": "105276",
+      "name": "Other",
+      "path": "Spare Parts\\Other",
+      "idosell_path": "Spare Parts\\Other",
+      "created_at": "2025-05-09T15:07:22.838Z",
+      "updated_at": "2025-05-09T15:07:22.838Z"
+    },
+    {
+      "id": "105268",
+      "name": "Power Transmitter Shafts",
+      "path": "Spare Parts\\Power Transmitter Shafts",
+      "idosell_path": "Spare Parts\\Power Transmitter Shafts",
+      "created_at": "2025-05-09T15:07:22.838Z",
+      "updated_at": "2025-05-09T15:07:22.838Z"
+    },
+    {
+      "id": "105262",
+      "name": "Compressors",
+      "path": "Spare Parts\\Compressors",
+      "idosell_path": "Spare Parts\\Compressors",
+      "created_at": "2025-05-09T15:07:22.838Z",
+      "updated_at": "2025-05-09T15:07:22.838Z"
+    }
+  ],
+  "producers": [
+    {
+      "name": "GEKO",
+      "description": "",
+      "website": "",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "name": "John Gardener",
+      "description": "",
+      "website": "",
+      "created_at": "2025-05-09T15:07:22.844Z",
+      "updated_at": "2025-05-09T15:07:22.844Z"
+    },
+    {
+      "name": "Heidmann",
+      "description": "",
+      "website": "",
+      "created_at": "2025-05-09T15:07:22.865Z",
+      "updated_at": "2025-05-09T15:07:22.865Z"
+    },
+    {
+      "name": "Keltin",
+      "description": "",
+      "website": "",
+      "created_at": "2025-05-09T15:07:22.889Z",
+      "updated_at": "2025-05-09T15:07:22.889Z"
+    },
+    {
+      "name": "Tvardy",
+      "description": "",
+      "website": "",
+      "created_at": "2025-05-09T15:07:22.903Z",
+      "updated_at": "2025-05-09T15:07:22.903Z"
+    }
+  ],
+  "units": [
+    {
+      "id": "1409457136565705379",
+      "name": "kpl.",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z",
+      "moq": 1
+    },
+    {
+      "id": "4800399769571371698",
+      "name": "pcs",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z",
+      "moq": 1
+    },
+    {
+      "id": "2497730944679420735",
+      "name": "op.zb.",
+      "created_at": "2025-05-09T15:07:22.845Z",
+      "updated_at": "2025-05-09T15:07:22.845Z",
+      "moq": 5
+    },
+    {
+      "id": "4379202505189091598",
+      "name": "cart.",
+      "created_at": "2025-05-09T15:07:22.854Z",
+      "updated_at": "2025-05-09T15:07:22.854Z",
+      "moq": 1
+    },
+    {
+      "id": "406753793092698870",
+      "name": "pack.",
+      "created_at": "2025-05-09T15:07:22.881Z",
+      "updated_at": "2025-05-09T15:07:22.881Z",
+      "moq": 1
+    }
+  ],
+  "variants": [
+    {
+      "product_id": null,
+      "code": "C00049",
+      "weight": 90,
+      "gross_weight": 0,
+      "name": "",
+      "size": "",
+      "color": "",
+      "status": "active",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "product_id": null,
+      "code": "C00050",
+      "weight": 3250,
+      "gross_weight": 0,
+      "name": "",
+      "size": "",
+      "color": "",
+      "status": "active",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "product_id": null,
+      "code": "C00052",
+      "weight": 50,
+      "gross_weight": 0,
+      "name": "",
+      "size": "",
+      "color": "",
+      "status": "active",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "product_id": null,
+      "code": "C00053",
+      "weight": 600,
+      "gross_weight": 650,
+      "name": "",
+      "size": "",
+      "color": "",
+      "status": "active",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "product_id": null,
+      "code": "C00054",
+      "weight": 50,
+      "gross_weight": 0,
+      "name": "",
+      "size": "",
+      "color": "",
+      "status": "active",
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    }
+  ],
+  "stocks": [
+    {
+      "variant_id": null,
+      "variant_code": "C00049",
+      "quantity": 0,
+      "available": false,
+      "min_order_quantity": 1,
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "variant_id": null,
+      "variant_code": "C00050",
+      "quantity": 0,
+      "available": false,
+      "min_order_quantity": 1,
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "variant_id": null,
+      "variant_code": "C00052",
+      "quantity": 0,
+      "available": false,
+      "min_order_quantity": 1,
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "variant_id": null,
+      "variant_code": "C00053",
+      "quantity": 0,
+      "available": false,
+      "min_order_quantity": 1,
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "variant_id": null,
+      "variant_code": "C00054",
+      "quantity": 0,
+      "available": false,
+      "min_order_quantity": 1,
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    }
+  ],
+  "prices": [
+    {
+      "variant_id": null,
+      "variant_code": "C00049",
+      "gross_price": 2.18,
+      "net_price": 2.18,
+      "currency": "EUR",
+      "price_type": "retail",
+      "min_quantity": 1,
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "variant_id": null,
+      "variant_code": "C00049",
+      "gross_price": 0,
+      "net_price": 0,
+      "currency": "EUR",
+      "price_type": "suggested",
+      "min_quantity": 1,
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "variant_id": null,
+      "variant_code": "C00050",
+      "gross_price": 6.71,
+      "net_price": 6.71,
+      "currency": "EUR",
+      "price_type": "retail",
+      "min_quantity": 1,
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "variant_id": null,
+      "variant_code": "C00050",
+      "gross_price": 0,
+      "net_price": 0,
+      "currency": "EUR",
+      "price_type": "suggested",
+      "min_quantity": 1,
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    },
+    {
+      "variant_id": null,
+      "variant_code": "C00052",
+      "gross_price": 1.44,
+      "net_price": 1.44,
+      "currency": "EUR",
+      "price_type": "retail",
+      "min_quantity": 1,
+      "created_at": "2025-05-09T15:07:22.837Z",
+      "updated_at": "2025-05-09T15:07:22.837Z"
+    }
+  ],
+  "images": [],
+  "documents": [],
+  "productProperties": []
+}

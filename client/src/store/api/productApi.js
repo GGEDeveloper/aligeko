@@ -46,7 +46,7 @@ export const productApi = createApi({
         };
       },
       providesTags: (result) => 
-        result 
+        result && result.products
           ? [
               ...result.products.map(({ id }) => ({ type: 'Products', id })),
               { type: 'Products', id: 'LIST' }

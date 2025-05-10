@@ -1,4 +1,4 @@
-import { Product, Category, Producer, Unit, Variant, Stock, Price, Image } from '../models';
+import { Product, Category, Producer, Unit, Variant, Stock, Price, Image } from '../models.js';
 
 /**
  * Get all products with pagination

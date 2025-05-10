@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
+import dbLogger from '../utils/dbLogger.js';
 
 // Load environment variables
 dotenv.config();
@@ -39,60 +40,68 @@ const config = {
   }
 };
 
-// Prioridade: POSTGRES_URL (Vercel) > NEON_DB_URL > configuração individual
-if (NODE_ENV === 'production' && POSTGRES_URL) {
-  // Use Vercel Postgres connection URL
-  sequelize = new Sequelize(POSTGRES_URL, {
-    dialect: 'postgres',
-    logging: false,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
+// Priority: POSTGRES_URL (Vercel) > NEON_DB_URL > individual configuration
+try {
+  if (NODE_ENV === 'production' && POSTGRES_URL) {
+    console.log('Connecting using POSTGRES_URL in production environment');
+    // Use Vercel Postgres connection URL
+    sequelize = new Sequelize(POSTGRES_URL, {
+      dialect: 'postgres',
+      logging: false,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
       }
-    }
-  });
-  config.production.use_env_variable = 'POSTGRES_URL';
-} else if (NEON_DB_URL) {
-  // Use Neon DB URL for production or development with Neon
-  sequelize = new Sequelize(NEON_DB_URL, {
-    dialect: 'postgres',
-    logging: false,
-    ssl: true,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
+    });
+    config.production.use_env_variable = 'POSTGRES_URL';
+  } else if (NEON_DB_URL) {
+    console.log('Connecting using NEON_DB_URL');
+    // Use Neon DB URL for production or development with Neon
+    sequelize = new Sequelize(NEON_DB_URL, {
+      dialect: 'postgres',
+      logging: false,
+      ssl: true,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
       }
-    }
-  });
-  config.development.use_env_variable = 'NEON_DB_URL';
-  config.production.use_env_variable = 'NEON_DB_URL';
-} else {
-  // Use local database for development
-  sequelize = new Sequelize({
-    host: DB_HOST || 'localhost',
-    port: DB_PORT || 5432,
-    username: DB_USER || 'postgres',
-    password: DB_PASSWORD || 'postgres',
-    database: DB_NAME || 'alitools_b2b',
-    dialect: 'postgres',
-    logging: NODE_ENV === 'development',
-    ssl: DB_SSL === 'true',
-    dialectOptions: DB_SSL === 'true' ? {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    } : {}
-  });
-  
-  // Set up config for local connection
-  config.development.host = DB_HOST || 'localhost';
-  config.development.port = DB_PORT || 5432;
-  config.development.username = DB_USER || 'postgres';
-  config.development.password = DB_PASSWORD || 'postgres';
-  config.development.database = DB_NAME || 'alitools_b2b';
+    });
+    config.development.use_env_variable = 'NEON_DB_URL';
+    config.production.use_env_variable = 'NEON_DB_URL';
+  } else {
+    console.log('Connecting using individual database parameters');
+    // Use local database for development
+    sequelize = new Sequelize({
+      host: DB_HOST || 'localhost',
+      port: DB_PORT || 5432,
+      username: DB_USER || 'postgres',
+      password: DB_PASSWORD || 'postgres',
+      database: DB_NAME || 'alitools_b2b',
+      dialect: 'postgres',
+      logging: NODE_ENV === 'development',
+      ssl: DB_SSL === 'true',
+      dialectOptions: DB_SSL === 'true' ? {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      } : {}
+    });
+    
+    // Set up config for local connection
+    config.development.host = DB_HOST || 'localhost';
+    config.development.port = DB_PORT || 5432;
+    config.development.username = DB_USER || 'postgres';
+    config.development.password = DB_PASSWORD || 'postgres';
+    config.development.database = DB_NAME || 'alitools_b2b';
+  }
+} catch (error) {
+  console.error('Error creating database connection:', error);
+  throw error;
 }
 
 // Test database connection
@@ -100,6 +109,11 @@ export const configureDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
+    
+    // Set up database logging hooks if not in test environment
+    if (NODE_ENV !== 'test') {
+      console.log('Setting up database logging hooks...');
+    }
     
     // Sync database models in development (only if NODE_ENV is development)
     if (NODE_ENV === 'development') {
@@ -118,5 +132,5 @@ export const configureDatabase = async () => {
 // Export the sequelize instance
 export default sequelize; 
 
-// CommonJS exports for Sequelize CLI
-module.exports = config; 
+// Export config for Sequelize CLI (compatible with ES modules)
+export { config }; 

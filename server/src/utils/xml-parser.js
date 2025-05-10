@@ -1,5 +1,5 @@
 import { parseStringPromise } from 'xml2js';
-import { logger } from '../config/logger';
+import { logger } from '../config/logger.js';
 
 /**
  * XML Parser for GEKO API data
