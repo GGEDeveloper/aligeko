@@ -165,6 +165,65 @@ Search icons should be consistently sized across the application to maintain vis
 </div>
 ```
 
+## Input Field Icons
+
+Special care must be taken with icons that appear inside input fields, particularly search icons:
+
+### Search Icon Guidelines
+
+- **Size**: 
+  - Search icons inside input fields should be h-4 w-4 (16px) maximum
+  - For mobile inputs, consider even smaller sizing (h-3.5 w-3.5 or 14px)
+  
+- **Visual Weight**:
+  - Use `fill="none" stroke="currentColor"` for lighter appearance in search boxes
+  - If using `fill="currentColor"`, ensure the icon doesn't appear too heavy
+  
+- **Color**:
+  - Use `text-gray-500` for sufficient contrast within inputs
+  - Avoid using `text-gray-400` which can appear too light against white backgrounds
+  
+- **Position**:
+  - Always position search icons 12px (pl-3) from the left edge of the input
+  - Center vertically within the input field
+  - Use `pointer-events-none` to ensure they don't interfere with input field interactions
+  
+- **Accessibility**:
+  - Ensure sufficient color contrast (minimum 4.5:1 ratio)
+  - If the icon is functional (clickable), provide proper `aria-label`
+
+### Examples
+
+```jsx
+// ✅ DO: Proper search icon implementation in an input field
+<div className="relative">
+  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+      <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+    </svg>
+  </div>
+  <input
+    type="text"
+    placeholder="Search..."
+    className="pl-10 pr-3 py-2 border rounded-md focus:ring-1 focus:ring-yellow-500 w-full"
+  />
+</div>
+
+// ❌ DON'T: Oversized or heavy search icon
+<div className="relative">
+  <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+    </svg>
+  </div>
+  <input
+    type="text"
+    placeholder="Search..."
+    className="pl-10 pr-3 py-2 border rounded-md"
+  />
+</div>
+```
+
 ---
 
 *Last updated: 2025-05-07*

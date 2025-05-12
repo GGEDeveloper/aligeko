@@ -88,6 +88,10 @@ const ProductsPage = () => {
   const meta = data?.data?.meta || {};
   const totalProducts = meta.totalItems || 0;
   const totalPages = meta.totalPages || 1;
+  
+  console.log("API Response Meta:", meta);  // Debug the meta object
+  console.log("Total Products:", totalProducts);  // Debug total products
+  console.log("Current Products:", products.length);  // Debug current page products count
 
   // Handle page change
   const handlePageChange = (page) => {
@@ -161,7 +165,11 @@ const ProductsPage = () => {
     
     const start = (currentPage - 1) * pageSize + 1;
     const end = Math.min(currentPage * pageSize, totalProducts);
-    return `Exibindo ${start}-${end} de ${totalProducts} produtos`;
+    
+    // Ensure totalProducts is a number
+    const displayTotal = typeof totalProducts === 'number' ? totalProducts : parseInt(totalProducts) || 0;
+    
+    return `Exibindo ${products.length > 0 ? start : 0}-${products.length > 0 ? end : 0} de ${displayTotal} produtos`;
   };
   
   return (

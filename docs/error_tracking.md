@@ -193,4 +193,46 @@ None currently.
   2. Established standard sizes for different UI elements (24px for category icons, max 16px for inline search icons)
   3. Ensured mobile/desktop consistency in all icon implementations
 
+### Product Count Display Issues (Fixed)
+
+- **Date:** [2025-05-09 11:30]
+- **Error Type:** Frontend / UI / Display
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  Incorrect product count display: "Mostrando 12 de 0 produtos"
+  ```
+- **Root Cause:** 
+  - The product count display was showing incorrect values, such as "0 total products" despite products being present
+  - This was caused by the possible presence of a string value for totalItems, leading to improper formatting
+  - Additionally, when products were loading or when no products were returned, the start-end range was incorrect
+  - The FiltersPanel component had an oversized search icon that was using fill="currentColor" with 20x20 viewbox
+
+- **Resolution:** 
+  1. Improved product count display logic in ProductsPage component:
+     - Added better handling for totalProducts value (ensuring it's a number)
+     - Fixed the start-end range to show "0-0" when no products are displayed
+     - Added debugging logs to verify the API response meta values
+  2. Fixed the oversized search icon in FiltersPanel:
+     - Reduced icon size from h-5 w-5 to h-4 w-4
+     - Changed color from text-gray-400 to text-gray-500 for better contrast
+     - Changed the icon to use stroke="currentColor" with fill="none" for a lighter appearance
+     - Added proper viewBox sizing
+
+- **Verification:** 
+  - Verified the product count shows correct values for total products
+  - Confirmed the product count range shows "0-0" when no products match filters
+  - Visually confirmed the search icon size is appropriate across all components
+  
+- **Affected Files:** 
+  - `client/src/pages/ProductsPage.jsx` - Fixed product count display logic
+  - `client/src/components/products/FiltersPanel.jsx` - Fixed search icon sizing
+
+- **Prevention:**
+  1. Add data type validation for all data from API responses
+  2. Implement more rigorous error handling for edge cases
+  3. Follow established icon sizing guidelines from cursor rules
+  4. Add automated tests to verify UI components render correctly with different data inputs
+  5. Standardize icon implementations across all search inputs
+
 // ... existing code ... 
