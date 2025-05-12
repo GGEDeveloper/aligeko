@@ -1,0 +1,124 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Icon Usage Patterns
+
+This rule documents the standard patterns for implementing and using icons in the AliTools B2B E-commerce platform.
+
+## Overview
+
+Icons play a crucial role in the user interface by providing visual cues and enhancing navigation. The platform uses a mix of custom SVG icons and react-icons/bs (Bootstrap icons) as a fallback, with specific guidelines for sizing, color, and placement to maintain visual consistency.
+
+## Key Components/Architecture
+
+- **Main Elements:**
+  - **Custom SVG Icons**: Primary icons stored in the assets directory, following our brand guidelines
+  - **react-icons/bs**: Bootstrap icon library used as a fallback or for common UI elements
+  - **CategoryCard**: Component that displays category icons in a consistent format
+  - **Icon utilities**: Helper functions for rendering and handling icons
+
+- **File References:**
+  - [CategoryCard.jsx](mdc:client/src/components/products/CategoryCard.jsx) - Component displaying category icons
+  - [categoryData.js](mdc:client/src/utils/categoryData.js) - Data structure defining categories with icon mappings
+  - [icons README](mdc:client/src/assets/icons/README.md) - Documentation of the icon system
+
+## Implementation Patterns
+
+### Pattern 1: Custom SVG Icon Implementation
+
+```javascript
+// ✅ DO: Import custom SVG icons as React components
+import { ReactComponent as HammerIcon } from '../assets/icons/handtools/alitools-icon-handtools-hammer-24-default.svg';
+
+// Use in components
+const MyComponent = () => (
+  <div className="icon-container">
+    <HammerIcon className="icon" />
+  </div>
+);
+
+// ❌ DON'T: Use direct <img> tags for SVG icons
+const BadExample = () => (
+  <div>
+    <img src="../assets/icons/handtools/hammer.svg" alt="Hammer" />
+  </div>
+);
+```
+
+**Why this matters:**
+Using the ReactComponent import pattern allows SVG icons to inherit styling and color properties, making them more adaptable and consistent with the design system.
+
+### Pattern 2: Icon Sizing and Container
+
+```javascript
+// ✅ DO: Use fixed-size containers with centered icons
+<div className="w-12 h-12 flex items-center justify-center rounded-full">
+  <BsTools size={24} />
+</div>
+
+// ❌ DON'T: Allow icons to dictate their own size without constraints
+<div>
+  <BsTools size={32} /> {/* Too large, inconsistent */}
+</div>
+```
+
+**Why this matters:**
+Fixed-size containers ensure consistent spacing and alignment across the UI, preventing oversized icons from disrupting the layout.
+
+### Pattern 3: Fallback System for Icons
+
+```javascript
+// ✅ DO: Implement a fallback system for icons
+const renderIcon = () => {
+  if (category.customIcon) {
+    return category.customIcon;
+  }
+  return iconMap[category.icon] || <BsTools size={24} />;
+};
+
+// ❌ DON'T: Use icons without fallbacks
+const badRenderIcon = () => {
+  return category.customIcon; // May return undefined
+};
+```
+
+## Icon Size Guidelines
+
+| Context | Size | Container | Example |
+|---------|------|-----------|---------|
+| Category cards | 24px | 48px circle | CategoryCard component |
+| Navigation | 20px | None | Navbar icons |
+| Buttons | 16px | None | Action buttons |
+| Feature highlights | 32px | 64px circle | Homepage features |
+
+## Icon Color Guidelines
+
+- **Primary**: Match icon colors to the text color of their container for consistent contrast
+- **Brand Icons**: Use brand yellow (#FFCC00) for emphasis
+- **Interactive Icons**: Ensure they follow the same hover/active states as their parent components
+- **Accessibility**: Maintain a minimum contrast ratio of 4.5:1 for icons used as functional elements
+
+## Best Practices
+
+1. **Consistency**: Use the same icon style throughout the application
+2. **Responsiveness**: Ensure icons scale appropriately on different screen sizes
+3. **Semantics**: Add appropriate aria-labels for icons that convey meaning
+4. **Performance**: Use SVG icons instead of icon fonts for better performance and accessibility
+5. **Organization**: Follow the established naming convention for new icons
+6. **Size Constraints**: Always use fixed-size containers to prevent layout disruptions
+
+## Related Rules
+
+- [Branding Guidelines](mdc:.cursor/rules/branding.mdc) - Guidelines for brand-consistent visuals
+- [UI Components](mdc:.cursor/rules/ui_components.mdc) - UI component patterns
+
+## External References
+
+- [React Icons Documentation](https://react-icons.github.io/react-icons/) - Reference for react-icons usage
+- [SVG Best Practices](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial) - MDN guide for SVG optimization
+
+---
+
+*Last updated: 2025-05-07*

@@ -217,7 +217,7 @@ const ProductsPage = () => {
       {!selectedCategory && currentPage === 1 && !searchQuery && (
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Categorias em Destaque</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {categories.map(category => (
               <CategoryCard 
                 key={category.id}

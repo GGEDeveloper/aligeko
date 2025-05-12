@@ -79,6 +79,45 @@ None currently.
   6. Add schema validation for API requests/responses
   7. Establish clear conventions for database naming and case sensitivity
 
+### Oversized Icons in CategoryCard Component (Fixed)
+
+- **Date:** [2025-05-07 15:45]
+- **Error Type:** Frontend / UI / Styling
+- **Environment:** Production
+- **Error Message:** n/a - Visual issue
+- **Root Cause:** 
+  - The CategoryCard component was using react-icons/bs with size={32} which was too large
+  - Icons were displayed without proper size constraints, causing layout issues
+  - Missing container constraints allowed icons to dictate their own size
+  - No fallback system for custom SVG icons was implemented
+
+- **Resolution:**
+  1. Reduced icon size from 32px to 24px in the CategoryCard component
+  2. Added a fixed-size container (w-12 h-12) with flexbox centering to constraint icons
+  3. Implemented a proper fallback system for icons that checks for custom SVG icons first
+  4. Added support for custom SVG icons in categoryData.js
+  5. Modified the grid layout in ProductsPage to be more responsive
+  6. Created comprehensive icon usage pattern documentation
+
+- **Verification:**
+  - Verified icons display at correct size across all breakpoints
+  - Confirmed icons maintain proper alignment in their containers
+  - Tested custom icon system with fallback
+  - Validated on different screen sizes to ensure responsive behavior
+
+- **Affected Files:**
+  - `client/src/components/products/CategoryCard.jsx`
+  - `client/src/utils/categoryData.js`
+  - `client/src/pages/ProductsPage.jsx`
+  - `.cursor/rules/icons.mdc` (new file)
+
+- **Prevention:**
+  1. Document icon sizing guidelines in the cursor rules
+  2. Use consistent container sizing patterns for all icons
+  3. Always implement fallback mechanisms for all visual components
+  4. Test UI components across different screen sizes before deployment
+  5. Use the new icons.mdc rule as reference for future icon implementations
+
 ### Missing Utility Modules in ProductsPage (Fixed)
 
 - **Date:** [2025-05-20 14:30]
