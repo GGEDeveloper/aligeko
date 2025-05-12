@@ -119,6 +119,52 @@ const badRenderIcon = () => {
 - [React Icons Documentation](https://react-icons.github.io/react-icons/) - Reference for react-icons usage
 - [SVG Best Practices](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial) - MDN guide for SVG optimization
 
+## Search Icons
+
+Search icons should be consistently sized across the application to maintain visual harmony.
+
+### Guidelines for Search Icons
+
+- **Size:**
+  - Inline search icons (inside input fields): 16px (0.8-1rem) maximum 
+  - Standalone search buttons: 20px (1rem) maximum
+
+- **Color:**
+  - Input fields: Use text-gray-500 (medium gray) for sufficient contrast
+  - Search buttons: Use color that contrasts with the button background (like black on yellow)
+
+### Search Icon Implementations
+
+```jsx
+// ✅ DO: Proper search icon in input field
+<div className="relative">
+  <input
+    type="text"
+    placeholder="Search..."
+    className="pl-10 pr-4 py-2 border rounded-lg"
+  />
+  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+    <svg className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+  </div>
+</div>
+
+// ❌ DON'T: Oversized search icon
+<div className="relative">
+  <input
+    type="text"
+    placeholder="Search..."
+    className="pl-10 pr-4 py-2 border rounded-lg"
+  />
+  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+    <svg className="h-6 w-6 text-gray-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+  </div>
+</div>
+```
+
 ---
 
 *Last updated: 2025-05-07*

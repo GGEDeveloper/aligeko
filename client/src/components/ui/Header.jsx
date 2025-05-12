@@ -189,7 +189,7 @@ const Header = ({ isAdmin = false }) => {
               e.currentTarget.style.boxShadow = 'none';
             }}
           >
-            <BsSearch style={{ color: '#1A1A1A', fontSize: '1.1rem' }} />
+            <BsSearch style={{ color: '#1A1A1A', fontSize: '0.9rem' }} />
           </button>
         </div>
         
@@ -418,18 +418,28 @@ const Header = ({ isAdmin = false }) => {
             </button>
           </div>
           
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ marginBottom: '1.5rem', position: 'relative' }}>
             <input 
               type="text" 
               placeholder="Procurar produtos..." 
               style={{
                 width: '100%',
                 padding: '0.5rem 1rem',
+                paddingLeft: '2rem',
                 borderRadius: '0.25rem',
                 border: '1px solid #e5e5e5',
                 fontSize: '0.875rem'
               }}
             />
+            <div style={{ 
+              position: 'absolute', 
+              left: '0.5rem', 
+              top: '50%', 
+              transform: 'translateY(-50%)',
+              pointerEvents: 'none'
+            }}>
+              <BsSearch style={{ fontSize: '0.8rem', color: '#666' }} />
+            </div>
           </div>
           
           <nav style={{ flex: 1 }}>

@@ -160,4 +160,37 @@ None currently.
   4. Create shared utility libraries with consistent naming and documentation
   5. Document utility dependencies in component comments
 
+### Oversized Search Icons (Fixed)
+
+- **Date:** [2025-05-08 10:30]
+- **Error Type:** Frontend / UI / Styling
+- **Environment:** Production
+- **Error Message:** n/a - Visual issue
+- **Root Cause:** 
+  - The search icons in both the ProductsPage and Header components were too large
+  - In the ProductsPage, the icon was 5x5 pixels and using a dark gray color (gray-400)
+  - In the Header component, the desktop search icon was set to 1.1rem
+  - The mobile search input in the Header component was missing a search icon entirely
+
+- **Resolution:**
+  1. Reduced the ProductsPage search icon size from 5x5 px to 4x4 px
+  2. Changed the ProductsPage icon color from gray-400 to gray-500 for better contrast
+  3. Reduced the Header component desktop search icon from 1.1rem to 0.9rem
+  4. Added a search icon to the mobile search input with appropriate sizing (0.8rem)
+  5. Ensured proper positioning and styling of all search icons for consistency
+
+- **Verification:**
+  - Visually verified that all search icons are appropriately sized
+  - Confirmed that mobile and desktop experiences are consistent
+  - Checked that the icons maintain proper alignment and contrast
+  
+- **Affected Files:**
+  - `client/src/pages/ProductsPage.jsx` - Reduced icon size and adjusted color
+  - `client/src/components/ui/Header.jsx` - Reduced desktop icon size and added mobile icon
+
+- **Prevention:**
+  1. Added guidelines for icon sizing in the cursor rules documentation
+  2. Established standard sizes for different UI elements (24px for category icons, max 16px for inline search icons)
+  3. Ensured mobile/desktop consistency in all icon implementations
+
 // ... existing code ... 
