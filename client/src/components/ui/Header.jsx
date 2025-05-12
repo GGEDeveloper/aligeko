@@ -189,7 +189,7 @@ const Header = ({ isAdmin = false }) => {
               e.currentTarget.style.boxShadow = 'none';
             }}
           >
-            <BsSearch style={{ color: '#1A1A1A', fontSize: '0.9rem' }} />
+            <BsSearch style={{ color: '#1A1A1A', fontSize: '0.8rem' }} />
           </button>
         </div>
         

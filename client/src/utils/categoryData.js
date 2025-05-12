@@ -1,10 +1,3 @@
-import React from 'react';
-import { BsTools, BsLightningFill, BsGear, BsTree, BsShield } from 'react-icons/bs';
-
-// Import custom SVG icons
-import { ReactComponent as HammerIcon } from '../assets/icons/handtools/alitools-icon-handtools-hammer-24-default.svg';
-import { ReactComponent as WrenchIcon } from '../assets/icons/handtools/alitools-icon-handtools-wrench-24-default.svg';
-
 /**
  * Store categories data with icon names and descriptions
  */
@@ -13,7 +6,6 @@ export const categories = [
     id: 'ferramentas-manuais', 
     name: 'Ferramentas Manuais', 
     icon: 'tools', 
-    customIcon: <HammerIcon />,
     description: 'Chaves, martelos, alicates e mais'
   },
   { 

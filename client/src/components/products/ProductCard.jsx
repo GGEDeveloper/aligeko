@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button, Badge, Form } from 'react-bootstrap';
 import { toast } from 'react-hot-toast';
 import { useCart } from '../../hooks/useCart';
 import { formatCurrency } from '../../utils/formatters';
 import AddToCartNotification from '../cart/AddToCartNotification';
 
 /**
- * ProductCard component for displaying a product with Add to Cart functionality
+ * ProductCard component for displaying a product with enhanced information and Add to Cart functionality
  *
  * @param {Object} props
  * @param {Object} props.product - Product data
@@ -16,16 +15,30 @@ import AddToCartNotification from '../cart/AddToCartNotification';
 const ProductCard = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [showSpecsTooltip, setShowSpecsTooltip] = useState(false);
   const { addToCart, isInCart, getItemQuantity } = useCart();
   
   // Calculate product price
-  const price = product.Prices && product.Prices.length > 0
-    ? product.Prices[0].amount
-    : product.price || 0;
+  const price = product.price || 
+    (product.variants && product.variants.length > 0 && 
+     product.variants[0].prices && product.variants[0].prices.length > 0)
+    ? product.variants[0].prices[0].gross_price
+    : 0;
   
-  // Get product image URL
-  const imageUrl = product.Images && product.Images.length > 0
-    ? product.Images[0].url
+  // Calculate discount price (if exists)
+  const retailPrice = product.retail_price || 
+    (product.variants && product.variants.length > 0 && 
+     product.variants[0].prices && product.variants[0].prices.length > 1)
+    ? product.variants[0].prices.find(p => p.type === 'retail')?.gross_price
+    : null;
+  
+  const hasDiscount = retailPrice && retailPrice > price;
+  const discountPercentage = hasDiscount ? Math.round((1 - price / retailPrice) * 100) : 0;
+  
+  // Get product image URL (use main image if available)
+  const imageUrl = product.images && product.images.length > 0
+    ? product.images.find(img => img.is_main)?.url || product.images[0].url
     : '/placeholder-product.png';
   
   // Check if product is in cart
@@ -33,16 +46,22 @@ const ProductCard = ({ product }) => {
   const cartQuantity = getItemQuantity(product.id);
   
   // Check stock availability
-  const stockQuantity = product.Variants && product.Variants.length > 0 && product.Variants[0].Stock
-    ? product.Variants[0].Stock.quantity
-    : 0;
+  const stockQuantity = product.variants && product.variants.length > 0 && 
+                       product.variants[0].stock
+    ? product.variants[0].stock.quantity
+    : 999; // Default to 999 if stock information is not available
   
   const isOutOfStock = stockQuantity <= 0;
+  
+  // Format description
+  const shortDescription = product.short_description || 
+                          product.description?.substring(0, 100) || 
+                          'Descrição não disponível';
   
   // Handle add to cart
   const handleAddToCart = () => {
     if (isOutOfStock) {
-      toast.error('This product is out of stock');
+      toast.error('Este produto está fora de estoque');
       return;
     }
     
@@ -61,7 +80,7 @@ const ProductCard = ({ product }) => {
         position: 'bottom-right',
       });
     } catch (error) {
-      toast.error('Failed to add product to cart');
+      toast.error('Falha ao adicionar produto ao carrinho');
       console.error('Add to cart error:', error);
     } finally {
       setIsAddingToCart(false);
@@ -75,130 +94,233 @@ const ProductCard = ({ product }) => {
       setQuantity(Math.min(value, stockQuantity));
     }
   };
+
+  // Get product specifications for tooltip
+  const getSpecifications = () => {
+    const specs = [];
+    if (product.weight) specs.push(`Peso: ${product.weight}kg`);
+    if (product.dimensions) specs.push(`Dimensões: ${product.dimensions}`);
+    if (product.ean) specs.push(`EAN: ${product.ean}`);
+    if (product.material) specs.push(`Material: ${product.material}`);
+    
+    return specs.length > 0 ? specs.join(' | ') : 'Especificações não disponíveis';
+  };
   
   return (
-    <Card className="h-100 product-card shadow-sm">
-      <div className="position-relative">
+    <div className="bg-white rounded-lg shadow-sm h-full flex flex-col overflow-hidden border border-gray-200 hover:shadow-md transition-shadow duration-300">
+      <div className="relative pt-[100%]"> {/* Aspect ratio 1:1 */}
         <Link to={`/products/${product.id}`}>
-          <Card.Img 
-            variant="top" 
+          <img 
             src={imageUrl} 
             alt={product.name}
-            className="product-image"
-            style={{ height: '200px', objectFit: 'cover' }}
+            className="absolute top-0 left-0 w-full h-full object-contain p-4"
           />
         </Link>
         
+        {/* Discount Badge */}
+        {hasDiscount && (
+          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+            -{discountPercentage}%
+          </span>
+        )}
+        
         {/* Stock Badge */}
         {isOutOfStock ? (
-          <Badge bg="danger" className="position-absolute top-0 end-0 m-2">
-            Out of Stock
-          </Badge>
+          <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+            Esgotado
+          </span>
         ) : stockQuantity < 10 ? (
-          <Badge bg="warning" className="position-absolute top-0 end-0 m-2">
-            Low Stock: {stockQuantity}
-          </Badge>
+          <span className="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded">
+            Estoque Baixo: {stockQuantity}
+          </span>
         ) : (
-          <Badge bg="success" className="position-absolute top-0 end-0 m-2">
-            In Stock
-          </Badge>
+          <span className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+            Em Estoque
+          </span>
         )}
         
         {/* Category Badge */}
-        {product.Category && (
-          <Badge bg="primary" className="position-absolute top-0 start-0 m-2">
-            {product.Category.name}
-          </Badge>
+        {product.category && (
+          <span className="absolute bottom-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+            {product.category.name}
+          </span>
         )}
+        
+        {/* Quick view button */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-20">
+          <Link 
+            to={`/products/${product.id}`}
+            className="bg-white text-gray-800 rounded-full p-2 shadow-lg hover:bg-yellow-500 hover:text-white transition-colors duration-300"
+            aria-label="Visualização rápida"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </Link>
+        </div>
       </div>
       
-      <Card.Body className="d-flex flex-column">
-        <Link to={`/products/${product.id}`} className="text-decoration-none">
-          <Card.Title className="mb-2 text-truncate">{product.name}</Card.Title>
-        </Link>
-        
-        {product.Producer && (
-          <Card.Subtitle className="mb-2 text-muted">
-            {product.Producer.name}
-          </Card.Subtitle>
+      <div className="p-4 flex-grow flex flex-col">
+        {/* Producer name and code */}
+        {product.producer && (
+          <div className="flex justify-between items-start mb-1">
+            <span className="text-xs text-gray-600">
+              {product.producer.name}
+            </span>
+            <span className="text-xs text-gray-500">
+              Cód: {product.code?.substring(0, 8)}
+            </span>
+          </div>
         )}
         
-        <Card.Text className="product-description text-truncate mb-2">
-          {product.description || 'No description available'}
-        </Card.Text>
+        {/* Product name */}
+        <Link to={`/products/${product.id}`} className="text-gray-900 hover:text-yellow-600">
+          <h3 className="font-medium text-lg line-clamp-2 mb-1 min-h-[3.5rem]">{product.name}</h3>
+        </Link>
         
-        <div className="d-flex justify-content-between align-items-center mt-auto">
-          <span className="fs-5 fw-bold text-primary">
-            {formatCurrency(price)}
-          </span>
-          
-          {productInCart ? (
-            <Link to="/cart" className="btn btn-outline-primary">
-              In Cart ({cartQuantity})
-            </Link>
-          ) : (
-            <Button 
-              variant={isOutOfStock ? "secondary" : "primary"}
-              disabled={isOutOfStock || isAddingToCart}
-              onClick={handleAddToCart}
-            >
-              {isAddingToCart ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Adding...
-                </>
-              ) : (
-                <>Add to Cart</>
-              )}
-            </Button>
+        {/* Short description with custom tooltip */}
+        <div className="relative">
+          <p 
+            className="text-sm text-gray-500 line-clamp-2 mb-3 cursor-help"
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            {shortDescription}
+          </p>
+          {showTooltip && (
+            <div className="absolute z-10 bottom-full left-0 mb-2 w-full max-w-xs bg-gray-800 text-white text-sm rounded-md p-2 shadow-lg">
+              {product.description || shortDescription}
+              <div className="absolute left-0 w-3 h-3 -bottom-1.5 transform translate-x-6 rotate-45 bg-gray-800"></div>
+            </div>
+        )}
+        </div>
+        
+        {/* Specifications tooltip */}
+        <div className="relative mb-3">
+          <div 
+            className="flex items-center cursor-help text-xs text-gray-500"
+            onMouseEnter={() => setShowSpecsTooltip(true)}
+            onMouseLeave={() => setShowSpecsTooltip(false)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Ver especificações
+          </div>
+          {showSpecsTooltip && (
+            <div className="absolute z-10 bottom-full left-0 mb-2 w-full max-w-xs bg-gray-800 text-white text-sm rounded-md p-2 shadow-lg">
+              {getSpecifications()}
+              <div className="absolute left-0 w-3 h-3 -bottom-1.5 transform translate-x-6 rotate-45 bg-gray-800"></div>
+            </div>
           )}
         </div>
-      </Card.Body>
+        
+        {/* Price */}
+        <div className="mt-auto">
+          <div className="flex justify-between items-end mb-3">
+            <div>
+              {hasDiscount && (
+                <span className="text-sm text-gray-500 line-through block">
+                  {formatCurrency(retailPrice)}
+                </span>
+              )}
+          <span className="text-lg font-bold text-yellow-600">
+            {formatCurrency(price)}
+          </span>
+            </div>
+          
+            {product.ean && (
+              <span className="text-xs text-gray-500">
+                EAN: {product.ean}
+              </span>
+              )}
+      </div>
       
-      {/* Quantity selector */}
-      {!isOutOfStock && !productInCart && (
-        <Card.Footer className="bg-white border-top-0">
-          <div className="d-flex align-items-center">
-            <Form.Label htmlFor={`quantity-${product.id}`} className="me-2 mb-0">
-              Qty:
-            </Form.Label>
-            <div className="d-flex align-items-center quantity-selector">
-              <Button 
-                variant="outline-secondary" 
-                size="sm"
+          {/* Add to cart button */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <button 
+                className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-l-md hover:bg-gray-100 disabled:opacity-50"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
-                aria-label="Decrease quantity"
+                disabled={quantity <= 1 || isOutOfStock || isAddingToCart || productInCart}
+                aria-label="Diminuir quantidade"
               >
-                <i className="bi bi-dash"></i>
-              </Button>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                </svg>
+              </button>
               
-              <Form.Control
+              <input
                 id={`quantity-${product.id}`}
                 type="number"
                 min="1"
                 max={stockQuantity}
                 value={quantity}
                 onChange={handleQuantityChange}
-                className="mx-2 text-center"
-                style={{ width: '50px' }}
+                disabled={isOutOfStock || isAddingToCart || productInCart}
+                className="h-8 w-12 border-t border-b border-gray-300 text-center text-sm focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
               />
               
-              <Button 
-                variant="outline-secondary" 
-                size="sm"
+              <button 
+                className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-r-md hover:bg-gray-100 disabled:opacity-50"
                 onClick={() => setQuantity(Math.min(quantity + 1, stockQuantity))}
-                disabled={quantity >= stockQuantity}
-                aria-label="Increase quantity"
+                disabled={quantity >= stockQuantity || isOutOfStock || isAddingToCart || productInCart}
+                aria-label="Aumentar quantidade"
               >
-                <i className="bi bi-plus"></i>
-              </Button>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
             </div>
+            
+            {productInCart ? (
+              <Link to="/cart" className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span>No Carrinho ({cartQuantity})</span>
+              </Link>
+            ) : (
+              <button 
+                className={`px-3 py-2 rounded-md flex items-center ${
+                  isOutOfStock || isAddingToCart
+                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    : 'bg-yellow-500 text-white hover:bg-yellow-600'
+                }`}
+                disabled={isOutOfStock || isAddingToCart}
+                onClick={handleAddToCart}
+              >
+                {isAddingToCart ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Adicionando...</span>
+                  </>
+                ) : isOutOfStock ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Esgotado</span>
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Adicionar</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
-        </Card.Footer>
-      )}
-    </Card>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default ProductCard; 
+export default ProductCard;

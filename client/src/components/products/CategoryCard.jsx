@@ -5,11 +5,11 @@ import { BsTools, BsLightningFill, BsGear, BsTree, BsShield } from 'react-icons/
  * Map icon names to their respective React components
  */
 const iconMap = {
-  'tools': <BsTools size={24} />,
-  'lightning': <BsLightningFill size={24} />,
-  'gear': <BsGear size={24} />,
-  'tree': <BsTree size={24} />,
-  'shield': <BsShield size={24} />
+  'tools': <BsTools size={20} />,
+  'lightning': <BsLightningFill size={20} />,
+  'gear': <BsGear size={20} />,
+  'tree': <BsTree size={20} />,
+  'shield': <BsShield size={20} />
 };
 
 /**
@@ -27,7 +27,7 @@ const CategoryCard = ({ category, isActive, onClick }) => {
     if (category.customIcon) {
       return category.customIcon;
     }
-    return iconMap[category.icon] || <BsTools size={24} />;
+    return iconMap[category.icon] || <BsTools size={20} />;
   };
 
   return (
@@ -39,7 +39,7 @@ const CategoryCard = ({ category, isActive, onClick }) => {
           : 'bg-white border border-gray-200 hover:shadow-md hover:border-yellow-300'
       }`}
     >
-      <div className={`p-3 rounded-full mb-3 w-12 h-12 flex items-center justify-center ${
+      <div className={`p-3 rounded-full mb-3 w-10 h-10 flex items-center justify-center ${
         isActive 
           ? 'bg-yellow-400 text-white' 
           : 'bg-gray-100 text-gray-700'
