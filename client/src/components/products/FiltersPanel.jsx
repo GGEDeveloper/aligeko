@@ -89,7 +89,7 @@ const FiltersPanel = ({ currentFilters, onFilterChange }) => {
               <div className="p-4">
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-gray-500" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-500" viewBox="0 0 20 20" fill="none" stroke="currentColor">
                       <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                     </svg>
                   </div>
@@ -170,7 +170,7 @@ const FiltersPanel = ({ currentFilters, onFilterChange }) => {
                       name="inStock"
                       checked={localFilters.inStock || false}
                       onChange={handleCheckboxChange}
-                      className="h-3.5 w-3.5 text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded"
+                      className="h-3 w-3 text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded"
                     />
                     <label htmlFor="inStock" className="ml-2 block text-sm text-gray-700">
                       Em estoque
@@ -183,7 +183,7 @@ const FiltersPanel = ({ currentFilters, onFilterChange }) => {
                       name="onSale"
                       checked={localFilters.onSale || false}
                       onChange={handleCheckboxChange}
-                      className="h-3.5 w-3.5 text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded"
+                      className="h-3 w-3 text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded"
                     />
                     <label htmlFor="onSale" className="ml-2 block text-sm text-gray-700">
                       Promoção
