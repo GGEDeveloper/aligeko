@@ -1,17 +1,30 @@
 {
   "version": 2,
-  "name": "alitools-b2b",
   "builds": [
-    { 
+    {
       "src": "index.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "buildCommand": "npm install pg && npm install"
+      }
     }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/index.js" }
+    {
+      "src": "/api/(.*)",
+      "dest": "index.js"
+    },
+    {
+      "src": "/(.*)\\.(.+)$",
+      "headers": { "cache-control": "public, max-age=0, must-revalidate" },
+      "dest": "index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "index.js"
+    }
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "public": true
-} 
+  }
+}
