@@ -150,10 +150,10 @@ const ProductCard = ({ product }) => {
         <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-20">
           <Link 
             to={`/products/${product.id}`}
-            className="bg-white text-gray-800 rounded-full p-2 shadow-lg hover:bg-yellow-500 hover:text-white transition-colors duration-300"
+            className="bg-white text-gray-800 rounded-full p-1.5 shadow-lg hover:bg-yellow-500 hover:text-white transition-colors duration-300"
             aria-label="Visualização rápida"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
@@ -189,11 +189,11 @@ const ProductCard = ({ product }) => {
             {shortDescription}
           </p>
           {showTooltip && (
-            <div className="absolute z-10 bottom-full left-0 mb-2 w-full max-w-xs bg-gray-800 text-white text-sm rounded-md p-2 shadow-lg">
+            <div className="absolute z-10 bottom-full left-0 mb-2 w-full max-w-xs bg-gray-800 text-white text-xs rounded-md p-1.5 shadow-lg">
               {product.description || shortDescription}
-              <div className="absolute left-0 w-3 h-3 -bottom-1.5 transform translate-x-6 rotate-45 bg-gray-800"></div>
+              <div className="absolute left-0 w-2 h-2 -bottom-1 transform translate-x-6 rotate-45 bg-gray-800"></div>
             </div>
-        )}
+          )}
         </div>
         
         {/* Specifications tooltip */}
@@ -203,15 +203,15 @@ const ProductCard = ({ product }) => {
             onMouseEnter={() => setShowSpecsTooltip(true)}
             onMouseLeave={() => setShowSpecsTooltip(false)}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Ver especificações
+            <span className="text-xs">Ver especificações</span>
           </div>
           {showSpecsTooltip && (
-            <div className="absolute z-10 bottom-full left-0 mb-2 w-full max-w-xs bg-gray-800 text-white text-sm rounded-md p-2 shadow-lg">
+            <div className="absolute z-10 bottom-full left-0 mb-2 w-full max-w-xs bg-gray-800 text-white text-xs rounded-md p-1.5 shadow-lg">
               {getSpecifications()}
-              <div className="absolute left-0 w-3 h-3 -bottom-1.5 transform translate-x-6 rotate-45 bg-gray-800"></div>
+              <div className="absolute left-0 w-2 h-2 -bottom-1 transform translate-x-6 rotate-45 bg-gray-800"></div>
             </div>
           )}
         </div>
@@ -276,7 +276,7 @@ const ProductCard = ({ product }) => {
             
             {productInCart ? (
               <Link to="/cart" className="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 <span>No Carrinho ({cartQuantity})</span>
@@ -293,7 +293,7 @@ const ProductCard = ({ product }) => {
               >
                 {isAddingToCart ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-2 h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -301,14 +301,14 @@ const ProductCard = ({ product }) => {
                   </>
                 ) : isOutOfStock ? (
                   <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span>Esgotado</span>
                   </>
                 ) : (
                   <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     <span>Adicionar</span>
