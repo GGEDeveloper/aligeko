@@ -107,9 +107,9 @@ const ProductCard = ({ product }) => {
   };
   
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col h-full product-card">
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col h-full product-card hover:shadow-md transition-shadow duration-300">
       <div className="relative pt-[100%]"> {/* Aspect ratio 1:1 */}
-        <Link to={`/products/${product.id}`}>
+        <Link to={`/products/${product.id}`} className="block product-image">
           <img 
             src={imageUrl} 
             alt={product.name}
@@ -146,14 +146,14 @@ const ProductCard = ({ product }) => {
           </span>
         )}
         
-        {/* Quick view button - Size fixed to h-3 w-3 */}
+        {/* Quick view button - Size fixed to h-4 w-4 for better visibility */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-20">
           <Link 
             to={`/products/${product.id}`}
-            className="bg-white text-gray-800 rounded-full p-1 shadow-lg hover:bg-yellow-500 hover:text-white transition-colors duration-300 visualizacao-rapida"
+            className="bg-white text-gray-800 rounded-full p-1.5 shadow-lg hover:bg-yellow-500 hover:text-white transition-colors duration-300 visualizacao-rapida button-icon-wrapper"
             aria-label="Visualização rápida"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
@@ -176,7 +176,7 @@ const ProductCard = ({ product }) => {
         
         {/* Product name */}
         <Link to={`/products/${product.id}`} className="text-gray-900 hover:text-yellow-600">
-          <h3 className="font-medium text-lg line-clamp-2 mb-1 min-h-[3.5rem]">{product.name}</h3>
+          <h3 className="font-medium text-lg product-name mb-1 min-h-[3.5rem]">{product.name}</h3>
         </Link>
         
         {/* Short description with custom tooltip */}
@@ -186,7 +186,7 @@ const ProductCard = ({ product }) => {
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-500 info-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500 info-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -206,7 +206,7 @@ const ProductCard = ({ product }) => {
             onMouseEnter={() => setShowSpecsTooltip(true)}
             onMouseLeave={() => setShowSpecsTooltip(false)}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 mr-1 info-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1 info-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span className="text-xs">Ver especificações</span>

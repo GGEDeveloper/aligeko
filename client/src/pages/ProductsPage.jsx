@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useGetProductsQuery } from '../store/api/productApi';
 import ProductsList from '../components/products/ProductsList';
 import BatchAddToCart from '../components/cart/BatchAddToCart';
-import { BsTools, BsLightningFill, BsGear, BsTree, BsShield } from 'react-icons/bs';
+import { BsTools, BsLightningFill, BsGear, BsTree, BsShield, BsGrid, BsList } from 'react-icons/bs';
 import CategoryCard from '../components/products/CategoryCard';
 import Pagination from '../components/ui/Pagination';
 import FiltersPanel from '../components/products/FiltersPanel';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import { categories } from '../utils/categoryData';
+import ProductCard from '../components/products/ProductCard';
 
 // Simple error tracking utility (fallback if modules aren't available)
 const trackErrors = (error, context = {}, source = 'unknown') => {
@@ -51,12 +52,14 @@ const ProductsPage = () => {
     max: parseInt(searchParams.get('maxPrice')) || 1000
   });
   const [sortOption, setSortOption] = useState(searchParams.get('sort') || 'name_asc');
-  
+  const [viewMode, setViewMode] = useState(searchParams.get('view') || 'grid');
+
   // Get query params for API request
   const getQueryParams = () => {
     const params = {
       page: currentPage,
       limit: pageSize,
+      view: viewMode
     };
     
     if (searchQuery) params.search = searchQuery;
@@ -72,12 +75,12 @@ const ProductsPage = () => {
     
     return params;
   };
-  
+
   // Update search params when filters change
   useEffect(() => {
     const params = getQueryParams();
     setSearchParams(params, { replace: true });
-  }, [currentPage, pageSize, searchQuery, selectedCategory, priceRange, sortOption]);
+  }, [currentPage, pageSize, searchQuery, selectedCategory, priceRange, sortOption, viewMode]);
   
   // Fetch products data
   const {
@@ -176,7 +179,76 @@ const ProductsPage = () => {
     
     return `Exibindo ${products.length > 0 ? start : 0}-${products.length > 0 ? end : 0} de ${displayTotal} produtos`;
   };
-  
+
+  // Toggle view mode between grid and list
+  const toggleViewMode = () => {
+    setViewMode(prevMode => prevMode === 'grid' ? 'list' : 'grid');
+  };
+
+  // Render product list in grid mode
+  const renderGridView = () => {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grid-view">
+        {products.map(product => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+    );
+  };
+
+  // Render product list in list mode
+  const renderListView = () => {
+    return (
+      <div className="flex flex-col space-y-4 list-view">
+        {products.map(product => (
+          <div key={product.id} className="bg-white rounded-lg shadow-sm overflow-hidden flex product-card">
+            <div className="w-48 relative product-image-container">
+              <Link to={`/products/${product.id}`}>
+                <img 
+                  src={product.images && product.images.length > 0
+                    ? product.images.find(img => img.is_main)?.url || product.images[0].url
+                    : '/placeholder-product.png'} 
+                  alt={product.name}
+                  className="w-full h-full object-contain p-2"
+                />
+              </Link>
+            </div>
+            <div className="p-4 flex-grow flex flex-col">
+              {product.producer && (
+                <span className="text-xs text-gray-600 mb-1">
+                  {product.producer.name}
+                </span>
+              )}
+              <Link to={`/products/${product.id}`} className="text-gray-900 hover:text-yellow-600">
+                <h3 className="font-medium text-lg mb-1 product-name">{product.name}</h3>
+              </Link>
+              <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                {product.short_description || product.description?.substring(0, 100) || 'Descrição não disponível'}
+              </p>
+              
+              <div className="mt-auto flex justify-between items-end">
+                <div>
+                  {product.retail_price && product.retail_price > product.price && (
+                    <span className="text-sm text-gray-500 line-through block">
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'EUR' }).format(product.retail_price)}
+                    </span>
+                  )}
+                  <span className="text-lg font-bold text-yellow-600">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'EUR' }).format(product.price || 0)}
+                  </span>
+                </div>
+                
+                <Link to={`/products/${product.id}`} className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition-colors">
+                  Ver Detalhes
+                </Link>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 product-page">
       <h1 className="text-2xl font-bold mb-6">Produtos</h1>
@@ -199,7 +271,7 @@ const ProductsPage = () => {
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-2.5 w-2.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -226,7 +298,7 @@ const ProductsPage = () => {
                   <option value="48">48</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                  <svg className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
@@ -246,15 +318,38 @@ const ProductsPage = () => {
                   <option value="newest">Mais recentes</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                  <svg className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               </div>
+
+              {/* View Mode Toggle */}
+              <div className="ml-4 flex border border-gray-300 rounded-lg overflow-hidden">
+                <button 
+                  className={`px-3 py-2 flex items-center view-toggle-button ${viewMode === 'grid' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+                  onClick={() => setViewMode('grid')}
+                  aria-label="Visualização em Grade"
+                >
+                  <BsGrid className="h-4 w-4" />
+                </button>
+                <button 
+                  className={`px-3 py-2 flex items-center view-toggle-button ${viewMode === 'list' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+                  onClick={() => setViewMode('list')}
+                  aria-label="Visualização em Lista"
+                >
+                  <BsList className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
           
-          {/* Products display */}
+          {/* Products count display */}
+          <div className="text-sm text-gray-600 mb-4">
+            {productCountMessage()}
+        </div>
+        
+        {/* Products display */}
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
@@ -276,7 +371,7 @@ const ProductsPage = () => {
             </div>
           ) : (
             <>
-              <ProductsList products={products} />
+              {viewMode === 'grid' ? renderGridView() : renderListView()}
               
               {/* Pagination */}
               {totalPages > 1 && (

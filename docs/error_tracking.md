@@ -235,4 +235,102 @@ None currently.
   4. Add automated tests to verify UI components render correctly with different data inputs
   5. Standardize icon implementations across all search inputs
 
+### Ícones Inconsistentes em Múltiplos Componentes (Corrigido)
+
+- **Data:** [2025-05-22 14:30]
+- **Tipo de Erro:** Frontend / UI / Styling
+- **Ambiente:** Produção
+- **Mensagem de Erro:** n/a - Problema visual
+- **Causa Raiz:** 
+  - Ícones inconsistentes em vários componentes estavam com tamanhos inadequados:
+    1. Os ícones "óculos amarelos" (visualização rápida) no ProductCard eram muito grandes (32px)
+    2. Os ícones "bolas de informações" (info icons) estavam com tamanho inadequado (muito pequenos para visualização)
+    3. Os ícones de pesquisa em FiltersPanel e ProductsPage estavam muito pequenos (3.5x3.5px)
+    4. Falta de um sistema consistente para dimensionamento de ícones em toda a aplicação
+    5. Ausência de regras CSS para sobrescrever tamanhos de ícones quando necessário
+
+- **Resolução:** 
+  1. Criado arquivo CSS dedicado (overrides.css) com regras !important para forçar tamanhos consistentes:
+     - Definido .h-4/.w-4 para 1rem (16px) para melhor visibilidade
+     - Ajustado .h-3/.w-3 para 0.85rem (~13.6px) para ícones secundários 
+     - Aumentado os ícones de pesquisa de 0.75rem para 0.9rem
+  2. No componente ProductCard:
+     - Aumentado o ícone de "visualização rápida" (olho) de h-3/w-3 para h-4/w-4
+     - Aumentado o ícone de informações de h-3/w-3 para h-4/w-4
+     - Ajustado o ícone de especificações de h-2.5/w-2.5 para h-3/w-3
+  3. No componente FiltersPanel:
+     - Aumentado o ícone de pesquisa de h-3.5/w-3.5 para h-4/w-4
+  4. No componente ProductsPage:
+     - Aumentado todos os ícones de pesquisa e dropdown de h-3.5/w-3.5 para h-4/w-4
+  5. Modificado a configuração do Vite para evitar problemas de cache, gerando hashes únicos para cada build
+
+- **Verificação:** 
+  - Verificado visualmente que todos os ícones têm tamanho apropriado e consistente
+  - Confirmado que os ícones de visualização rápida são facilmente clicáveis
+  - Confirmado que os ícones de informações são claramente visíveis
+  - Testado em diferentes tamanhos de tela para garantir responsividade
+  - Verificado que as regras de CSS estão sendo aplicadas corretamente
+
+- **Arquivos Afetados:** 
+  - `client/src/assets/styles/overrides.css` - Adicionadas regras CSS para tamanhos de ícones
+  - `client/src/components/products/ProductCard.jsx` - Ajustadas classes de tamanho de ícones
+  - `client/src/components/products/FiltersPanel.jsx` - Ajustadas classes de tamanho de ícones de pesquisa
+  - `client/src/pages/ProductsPage.jsx` - Ajustadas classes de tamanho de ícones de pesquisa e dropdown
+
+- **Prevenção:**
+  1. Criar documentação de padrões de tamanho de ícones (pequeno: 0.75rem, médio: 0.85rem, grande: 1rem)
+  2. Implementar sistema de componentes para ícones com tamanhos padronizados
+  3. Usar classes CSS específicas (como .info-icon, .search-icon) para facilitar alterações globais
+  4. Adicionar testes visuais para garantir consistência de UI
+  5. Utilizar um arquivo de override CSS para ajustes finos mantendo o design system principal intacto
+
+### Correção de Implementação de Visualização em Grade/Lista para Produtos
+
+- **Data:** [2025-05-24 09:15]
+- **Tipo de Correção:** Frontend / UI / UX / Arquitetura
+- **Ambiente:** Produção
+- **Descrição:** Correção da implementação de visualização em grade e lista na página de produtos que apresentava problemas de renderização.
+
+- **Problemas Corrigidos:** 
+  1. **Importação de Componente:** 
+     - O ProductCard estava sendo importado usando React.lazy() após o seu uso no renderGridView()
+     - Isso causava erros de renderização inconsistentes e problemas com a suspensão do React
+     - Problema fix: Substituída a importação lazy por importação estática no topo do arquivo
+  
+  2. **Estrutura de Suspense Incorreta:**
+     - A implementação usava <React.Suspense> de forma incorreta envolvendo ambas as visualizações
+     - Isso causava problemas de renderização quando alternava entre os modos de visualização
+     - Problema fix: Removido o Suspense desnecessário, já que a importação é agora estática
+  
+  3. **Estilos CSS Inconsistentes:**
+     - Faltavam estilos específicos para garantir renderização correta em diferentes tamanhos de tela
+     - Problema fix: Adicionadas regras responsivas para adaptar visualização em grade e lista para diferentes tamanhos de tela
+     - Melhorados estilos de imagens de produtos para garantir alinhamento e tamanho consistentes
+
+- **Resolução:**
+  1. Corrigida a importação do ProductCard para usar importação estática regular no topo do arquivo
+  2. Removido Suspense desnecessário que estava causando problemas de renderização
+  3. Adicionadas regras de estilo específicas para cada modo de visualização em overrides.css:
+     - Melhorado estilo responsivo para visualização em lista em dispositivos móveis
+     - Garantido proporções consistentes para imagens de produtos
+     - Adicionado suporte para colunas responsivas na visualização em grade
+     - Melhorados efeitos de hover e transições
+
+- **Verificação:**
+  - Testada a alternância entre modos de visualização sem problemas de renderização
+  - Verificado que ambos os modos funcionam corretamente em diferentes tamanhos de tela
+  - Verificado que não existem erros de JavaScript no console durante a alternância
+  - Verificado que o layout e estilos estão consistentes em ambos os modos
+
+- **Arquivos Afetados:**
+  - `client/src/pages/ProductsPage.jsx` - Corrigida a estrutura de importação e renderização
+  - `client/src/assets/styles/overrides.css` - Melhorados os estilos para visualizações em grade e lista
+
+- **Lições Aprendidas:**
+  1. Importações dinâmicas (React.lazy) devem ser usadas no nível do componente, não dentro de métodos render
+  2. Suspense deve envolver apenas componentes importados via lazy(), não componentes regulares
+  3. Em renderizações condicionais, garantir que todos os caminhos de renderização tenham estilos apropriados
+  4. Manter estilos responsivos para todos os modos de visualização disponíveis
+  5. Seguir práticas recomendadas para importação de componentes React
+
 // ... existing code ... 
