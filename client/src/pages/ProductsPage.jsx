@@ -32,6 +32,11 @@ if (typeof window !== 'undefined') {
   window.debounce = window.debounce || debounce;
 }
 
+/**
+ * ProductsPage component for displaying and filtering products
+ * 
+ * @returns {JSX.Element}
+ */
 const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -173,84 +178,87 @@ const ProductsPage = () => {
   };
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Page title and search */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Nossos Produtos</h1>
-        
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="Buscar produtos..."
-              defaultValue={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-            />
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-2.5 w-2.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-          </div>
-          
-          <div className="flex items-center">
-            <span className="text-gray-600 mr-2">Exibir:</span>
-            <div className="relative">
-              <select 
-                value={pageSize}
-                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                className="border border-gray-300 rounded-lg py-2 pl-3 pr-10 text-gray-700 focus:ring-2 focus:ring-yellow-500 focus:border-transparent appearance-none bg-white"
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <svg className="h-2.5 w-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    <div className="container mx-auto px-4 py-8 product-page">
+      <h1 className="text-2xl font-bold mb-6">Produtos</h1>
+      
+      {/* Category Cards */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        {categories.map((category) => (
+          <CategoryCard 
+            key={category.id}
+            category={category}
+            isActive={selectedCategory === category.id}
+            onClick={() => handleCategoryClick(category.id)}
+          />
+        ))}
+      </div>
+      
+      {/* Search and filter section */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        <div className="w-full lg:w-3/4 space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <div className="relative flex-1">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-2.5 w-2.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                placeholder="Buscar produtos..."
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+              />
+            </div>
+          
+            <div className="flex items-center">
+              <span className="text-gray-600 mr-2">Exibir:</span>
+              <div className="relative">
+                <select 
+                  value={pageSize}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                  className="border border-gray-300 rounded-lg py-2 pl-3 pr-10 text-gray-700 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 appearance-none"
+                >
+                  <option value="6">6</option>
+                  <option value="12">12</option>
+                  <option value="24">24</option>
+                  <option value="48">48</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                  <svg className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              
+              <span className="text-gray-600 ml-4 mr-2">Ordenar por:</span>
+              <div className="relative">
+                <select 
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value)}
+                  className="border border-gray-300 rounded-lg py-2 pl-3 pr-10 text-gray-700 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 appearance-none"
+                >
+                  <option value="name_asc">Nome (A-Z)</option>
+                  <option value="name_desc">Nome (Z-A)</option>
+                  <option value="price_asc">Preço (menor-maior)</option>
+                  <option value="price_desc">Preço (maior-menor)</option>
+                  <option value="newest">Mais recentes</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                  <svg className="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div className="mt-2 text-sm text-gray-600">
-          {productCountMessage()}
-        </div>
-      </div>
-      
-      {/* Featured Categories */}
-      {!selectedCategory && currentPage === 1 && !searchQuery && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Categorias em Destaque</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            {categories.map(category => (
-              <CategoryCard 
-                key={category.id}
-                category={category}
-                onSelect={() => handleCategoryClick(category.id)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {/* Main content with filters and products */}
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Filters sidebar */}
-        <div className="lg:w-1/4">
-          <FiltersPanel 
-            currentFilters={currentFilters}
-            onFilterChange={handleFilterChange}
-          />
-        </div>
-        
-        {/* Products list */}
-        <div className="lg:w-3/4">
+          
+          {/* Products display */}
           {isLoading ? (
-            <LoadingSpinner />
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+            </div>
           ) : isError ? (
             <ErrorMessage 
               title="Erro ao carregar produtos"

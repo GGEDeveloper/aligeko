@@ -1,0 +1,51 @@
+/**
+ * Overrides para tamanhos de ícones e elementos UI
+ * Este arquivo contém regras !important que garantem que os tamanhos
+ * sejam aplicados corretamente, independentemente da ordem de carregamento
+ */
+
+/* Forçar tamanho dos ícones - Override geral */
+.h-3, .w-3 {
+  height: 0.75rem !important;
+  width: 0.75rem !important;
+}
+
+.h-2\.5, .w-2\.5 {
+  height: 0.625rem !important;
+  width: 0.625rem !important;
+}
+
+/* Redução específica para os ícones SVG */
+.product-card svg,
+.filters-panel svg,
+.product-page svg {
+  height: 0.625rem !important;
+  width: 0.625rem !important;
+  transform-origin: center !important;
+  transform: scale(0.9) !important;
+}
+
+/* Ícones de componentes específicos */
+.visualizacao-rapida svg,
+.info-icon svg {
+  height: 0.625rem !important;
+  width: 0.625rem !important;
+}
+
+/* Reduzir o padding dos containers de ícones */
+a[aria-label="Visualização rápida"] {
+  padding: 0.25rem !important; /* p-1 */
+}
+
+/* Reduzir o tamanho dos checkboxes */
+input[type="checkbox"] {
+  height: 0.75rem !important;
+  width: 0.75rem !important;
+}
+
+/* Garantir que os ícones de pesquisa estejam com o tamanho correto */
+.absolute.inset-y-0.left-0.pl-3.flex.items-center svg,
+.absolute.inset-y-0.right-0.flex.items-center svg {
+  height: 0.625rem !important;
+  width: 0.625rem !important;
+} 

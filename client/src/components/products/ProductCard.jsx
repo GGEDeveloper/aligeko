@@ -107,7 +107,7 @@ const ProductCard = ({ product }) => {
   };
   
   return (
-    <div className="bg-white rounded-lg shadow-sm h-full flex flex-col overflow-hidden border border-gray-200 hover:shadow-md transition-shadow duration-300">
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col h-full product-card">
       <div className="relative pt-[100%]"> {/* Aspect ratio 1:1 */}
         <Link to={`/products/${product.id}`}>
           <img 
@@ -150,7 +150,7 @@ const ProductCard = ({ product }) => {
         <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-20">
           <Link 
             to={`/products/${product.id}`}
-            className="bg-white text-gray-800 rounded-full p-1 shadow-lg hover:bg-yellow-500 hover:text-white transition-colors duration-300"
+            className="bg-white text-gray-800 rounded-full p-1 shadow-lg hover:bg-yellow-500 hover:text-white transition-colors duration-300 visualizacao-rapida"
             aria-label="Visualização rápida"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -181,13 +181,16 @@ const ProductCard = ({ product }) => {
         
         {/* Short description with custom tooltip */}
         <div className="relative">
-          <p 
-            className="text-sm text-gray-500 line-clamp-2 mb-3 cursor-help"
+          <div 
+            className="cursor-help"
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
           >
-            {shortDescription}
-          </p>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-gray-500 info-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          
           {showTooltip && (
             <div className="absolute z-10 bottom-full left-0 mb-2 w-full max-w-xs bg-gray-800 text-white text-xs rounded-md p-1.5 shadow-lg">
               {product.description || shortDescription}
@@ -203,14 +206,22 @@ const ProductCard = ({ product }) => {
             onMouseEnter={() => setShowSpecsTooltip(true)}
             onMouseLeave={() => setShowSpecsTooltip(false)}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 mr-1 info-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span className="text-xs">Ver especificações</span>
           </div>
+          
           {showSpecsTooltip && (
-            <div className="absolute z-10 bottom-full left-0 mb-2 w-full max-w-xs bg-gray-800 text-white text-xs rounded-md p-1.5 shadow-lg">
-              {getSpecifications()}
+            <div className="absolute z-10 bottom-0 left-0 mb-5 w-full max-w-xs bg-gray-800 text-white text-xs rounded-md p-1.5 shadow-lg">
+              <ul className="list-disc pl-4">
+                {product.specs && product.specs.map((spec, index) => (
+                  <li key={index}>{spec}</li>
+                ))}
+                {(!product.specs || product.specs.length === 0) && (
+                  <li>Informações técnicas não disponíveis</li>
+                )}
+              </ul>
               <div className="absolute left-0 w-2 h-2 -bottom-1 transform translate-x-6 rotate-45 bg-gray-800"></div>
             </div>
           )}

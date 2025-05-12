@@ -66,27 +66,16 @@ const FiltersPanel = ({ currentFilters, onFilterChange }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm mb-6">
-      <div className="border-b border-gray-200 px-4 py-3 flex justify-between items-center">
-        <h3 className="text-lg font-medium">Filtrar Produtos</h3>
-        <button
-          onClick={handleReset}
-          className="text-sm text-gray-500 hover:text-gray-700"
-          type="button"
-        >
-          Limpar Filtros
-        </button>
-      </div>
-      <div className="p-4">
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            {/* Seções de filtro em cartões independentes */}
-            {/* Seção de pesquisa */}
-            <div className="border border-gray-200 rounded-md overflow-hidden">
-              <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 font-medium">
-                Pesquisar
-              </div>
-              <div className="p-4">
+    <div className="bg-white shadow-sm rounded-lg p-4 mb-4 filters-panel">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold mb-2">Filtros</h3>
+        <div className="pt-2">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+                Busca
+              </label>
+              <div className="relative">
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 text-gray-500" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -95,11 +84,12 @@ const FiltersPanel = ({ currentFilters, onFilterChange }) => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Pesquisar produtos..."
                     name="search"
+                    id="search"
                     value={localFilters.search || ''}
                     onChange={handleChange}
-                    className="border border-gray-300 rounded-md pl-10 pr-3 py-2 w-full focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+                    className="pl-10 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
+                    placeholder="Buscar produtos..."
                   />
                 </div>
               </div>
@@ -260,8 +250,8 @@ const FiltersPanel = ({ currentFilters, onFilterChange }) => {
                 Aplicar Filtros
               </button>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
