@@ -4,145 +4,179 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
+import { Sequelize, Op } from 'sequelize';
+import * as dotenv from 'dotenv';
 
 // ES Module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Load environment variables
+dotenv.config({ path: join(__dirname, '.env') });
+dotenv.config({ path: join(__dirname, '.env.local') });
+
+console.log('====== ENVIRONMENT ======');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('Database URL exists:', !!process.env.NEON_DB_URL || !!process.env.POSTGRES_URL || !!process.env.DATABASE_URL);
+
+// Setup database connection
+const setupDatabase = async () => {
+  let sequelize = null;
+  const dbUrl = process.env.NEON_DB_URL || process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  
+  if (!dbUrl) {
+    console.error('No database URL found in environment variables. Please set NEON_DB_URL, POSTGRES_URL, or DATABASE_URL');
+    return null;
+  }
+  
+  try {
+    console.log('Initializing Sequelize connection to PostgreSQL...');
+    sequelize = new Sequelize(dbUrl, {
+      dialect: 'postgres',
+      dialectModule: await import('pg'),
+      logging: false,
+      ssl: true,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      },
+      pool: {
+        max: 10,
+        min: 0,
+        idle: 20000,
+        acquire: 60000,
+      }
+    });
+    
+    // Test connection
+    await sequelize.authenticate();
+    console.log('Successfully connected to the database');
+    return sequelize;
+  } catch (error) {
+    console.error('Failed to connect to the database:', error);
+    return null;
+  }
+};
+
+// Initialize Express
 const app = express();
 
-// Aplicar helmet para segurança
-app.use(helmet({
-  contentSecurityPolicy: false, // Desabilitar temporariamente para desenvolvimento
-  crossOriginEmbedderPolicy: false
-}));
+// Apply middleware
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
 
-// Configure CORS with a function to support dynamic origins
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests)
-    if (!origin) return callback(null, true);
-    
-    // List of allowed origins
-    const allowedOrigins = [
-      'http://localhost:3000', 
-      'https://alitools-b2b.vercel.app', 
-      'https://aligekow-iwznrnlz0-alitools-projects.vercel.app'
-    ];
-    
-    // Allow all Vercel preview deployment URLs
-    if (
-      allowedOrigins.includes(origin) || 
-      origin.match(/https:\/\/aligekow-[a-z0-9]+-alitools-projects\.vercel\.app/)
-    ) {
-      return callback(null, true);
-    }
-    
-    // Log blocked origins for debugging
-    console.log(`CORS blocked origin: ${origin}`);
-    return callback(new Error(`CORS policy does not allow access from origin ${origin}`), false);
-  },
-  credentials: true
-}));
+// Define a database state object for lazy initialization
+const dbState = {
+  connection: null,
+  isConnecting: false,
+  initialized: false,
+  connectionPromise: null
+};
 
-// Serve static files from the React app with explicit MIME types
-app.use(express.static(join(__dirname, 'client/dist'), {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
-    } else if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css; charset=UTF-8');
-    } else if (path.endsWith('.html')) {
-      res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-    }
-    
-    // Add cache headers for static assets
-    if (path.includes('/assets/')) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    } else {
-      res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour for other files
-    }
+// Database connection middleware
+const connectDb = async (req, res, next) => {
+  if (!dbState.initialized && !dbState.isConnecting) {
+    dbState.isConnecting = true;
+    dbState.connectionPromise = setupDatabase();
+    dbState.connection = await dbState.connectionPromise;
+    dbState.initialized = !!dbState.connection;
+    dbState.isConnecting = false;
+  } else if (dbState.isConnecting && dbState.connectionPromise) {
+    await dbState.connectionPromise;
   }
-}));
+  
+  req.sequelize = dbState.connection;
+  next();
+};
 
-// API endpoint mock para funcionar sem o servidor
-app.get('/api/v1/products', (req, res) => {
-  // Fornecer dados demo para produtos
-  res.json({
-    success: true,
-    data: {
-      totalItems: 12,
-      items: [
-        { id: 1, name: "Martelo Profissional", price: 49.99, category: "Ferramentas Manuais", imageUrl: "/assets/images/products/hammer.jpg" },
-        { id: 2, name: "Alicate Universal", price: 29.99, category: "Ferramentas Manuais", imageUrl: "/assets/images/products/plier.jpg" },
-        { id: 3, name: "Furadeira Elétrica", price: 129.99, category: "Ferramentas Elétricas", imageUrl: "/assets/images/products/drill.jpg" },
-        { id: 4, name: "Chave de Fenda", price: 12.99, category: "Ferramentas Manuais", imageUrl: "/assets/images/products/screwdriver.jpg" },
-        { id: 5, name: "Serra Circular", price: 199.99, category: "Ferramentas Elétricas", imageUrl: "/assets/images/products/saw.jpg" },
-        { id: 6, name: "Nível a Laser", price: 89.99, category: "Medição", imageUrl: "/assets/images/products/level.jpg" },
-        { id: 7, name: "Lixadeira Orbital", price: 159.99, category: "Ferramentas Elétricas", imageUrl: "/assets/images/products/sander.jpg" },
-        { id: 8, name: "Conjunto de Chaves", price: 69.99, category: "Ferramentas Manuais", imageUrl: "/assets/images/products/wrench-set.jpg" },
-        { id: 9, name: "Pistola de Solda", price: 139.99, category: "Soldagem", imageUrl: "/assets/images/products/solder.jpg" },
-        { id: 10, name: "Compressor de Ar", price: 249.99, category: "Pneumática", imageUrl: "/assets/images/products/compressor.jpg" },
-        { id: 11, name: "Escada de Alumínio", price: 179.99, category: "Acesso", imageUrl: "/assets/images/products/ladder.jpg" },
-        { id: 12, name: "Kit de Segurança", price: 99.99, category: "EPI", imageUrl: "/assets/images/products/safety.jpg" }
-      ],
-      page: 1,
-      limit: 12,
-      totalPages: 1
-    }
-  });
-});
+// Serve static client files
+app.use(express.static(join(__dirname, 'client/dist')));
 
-// Rota para informações da empresa (mock)
-app.get('/api/v1/company-info', (req, res) => {
-  res.json({
-    success: true,
-    data: {
-      name: "AliTools",
-      description: "Fornecendo as melhores ferramentas e equipamentos para profissionais.",
-      founded: "2010",
-      mission: "Fornecer ferramentas de qualidade para profissionais que constroem um futuro melhor.",
-      vision: "Ser o principal fornecedor de ferramentas B2B no mercado nacional.",
-      values: [
-        "Qualidade em tudo que fazemos",
-        "Integridade nos negócios",
-        "Respeito pelos clientes e parceiros",
-        "Inovação constante"
-      ],
-      address: {
-        street: "Av. Paulista, 1234",
-        city: "São Paulo",
-        state: "SP",
-        zipCode: "01310-000",
-        country: "Brasil"
-      },
-      contact: {
-        phone: "+55 11 5555-5555",
-        email: "contato@alitools.com.br",
-        workingHours: "Segunda a Sexta, 8h às 18h"
-      },
-      socialMedia: {
-        instagram: "https://instagram.com/alitools",
-        facebook: "https://facebook.com/alitools",
-        linkedin: "https://linkedin.com/company/alitools",
-        youtube: "https://youtube.com/alitools"
+// API Routes
+app.get('/api/v1/products', connectDb, async (req, res) => {
+  console.log('Processing request to /api/v1/products with params:', req.query);
+  
+  // If database connection failed
+  if (!req.sequelize) {
+    console.error('Database connection not available');
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Database connection failed', 
+      details: 'The database connection could not be established. Please check environment variables and ensure the PostgreSQL server is running.'
+    });
+  }
+  
+  try {
+    // Get query parameters with defaults
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    // Log the pagination parameters for debugging
+    console.log(`Query parameters: page=${page}, limit=${limit}, offset=${offset}`);
+    
+    // Count total products
+    const countResult = await req.sequelize.query(
+      `SELECT COUNT(*) FROM products`,
+      { type: req.sequelize.QueryTypes.SELECT }
+    );
+    
+    // Extract count value properly (from the first row, first column)
+    const totalItems = parseInt(countResult[0].count || '0');
+    
+    // Calculate total pages
+    const totalPages = Math.ceil(totalItems / limit);
+    
+    // Get products with pagination
+    const products = await req.sequelize.query(
+      `SELECT * FROM products ORDER BY id LIMIT :limit OFFSET :offset`,
+      { 
+        replacements: { limit, offset },
+        type: req.sequelize.QueryTypes.SELECT 
       }
-    }
-  });
+    );
+    
+    console.log(`Found ${products ? products.length : 0} products (total: ${totalItems})`);
+    
+    // Ensure products is always an array
+    const productsArray = Array.isArray(products) ? products : [products].filter(Boolean);
+    
+    // Return the response
+    return res.json({
+      success: true,
+      data: {
+        items: productsArray,
+        meta: {
+          totalItems,
+          totalPages,
+          currentPage: page,
+          itemsPerPage: limit
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error retrieving products:', error);
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Database query failed', 
+      details: error.message
+    });
+  }
 });
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
+// SPA fallback route handler
 app.get('*', (req, res) => {
   res.sendFile(join(__dirname, 'client/dist/index.html'));
 });
 
-const port = process.env.PORT || 5000;
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
-}
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
-// Export for Vercel
 export default app;

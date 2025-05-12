@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const API_URL = '/api/v1';
+// Use a blank baseUrl for working with absolute paths
+const API_URL = '';
 
 export const productApi = createApi({
   reducerPath: 'productApi',
@@ -25,43 +26,82 @@ export const productApi = createApi({
         // Construct query params
         const queryParams = new URLSearchParams();
         
-        // Add pagination params if they exist
         if (params.page) queryParams.append('page', params.page);
         if (params.limit) queryParams.append('limit', params.limit);
-        
-        // Add filter params if they exist
+        if (params.search) queryParams.append('search', params.search);
         if (params.category) queryParams.append('category', params.category);
         if (params.producer) queryParams.append('producer', params.producer);
-        if (params.search) queryParams.append('search', params.search);
+        if (params.sort) queryParams.append('sort', params.sort);
+        if (params.order) queryParams.append('order', params.order);
         if (params.minPrice) queryParams.append('minPrice', params.minPrice);
         if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice);
         
-        // Add sorting params if they exist
-        if (params.sortBy) queryParams.append('sortBy', params.sortBy);
-        if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+        const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
         
         return {
-          url: `/products?${queryParams.toString()}`,
+          url: `/api/v1/products${queryString}`,
           method: 'GET'
         };
       },
+      transformResponse: (response) => {
+        // Check if response is successful and contains data in the expected format
+        if (response && response.success === true) {
+          // Server returns data in a structure with 'data.items' and 'data.meta'
+          if (response.data) {
+            const { items = [], meta = {} } = response.data;
+            return {
+              data: {
+                items: Array.isArray(items) ? items : [items].filter(Boolean),
+                meta: {
+                  totalItems: meta.totalItems || 0,
+                  totalPages: meta.totalPages || 1,
+                  currentPage: meta.currentPage || 1,
+                  itemsPerPage: meta.itemsPerPage || 10
+                }
+              }
+            };
+          }
+        }
+        
+        // If response indicates an error or unexpected format, log and return empty data
+        console.error('API response format unexpected:', response);
+        return { 
+          data: {
+            items: [], 
+            meta: {
+              totalItems: 0, 
+              totalPages: 1, 
+              currentPage: 1,
+              itemsPerPage: 10
+            }
+          },
+          error: response?.error || 'Unexpected API response format',
+          details: response?.details || ''
+        };
+      },
       providesTags: (result) => 
-        result && result.products
+        result 
           ? [
-              ...result.products.map(({ id }) => ({ type: 'Products', id })),
-              { type: 'Products', id: 'LIST' }
+              'Products',
+              ...result.data.items.map(({ id }) => ({ type: 'Products', id }))
             ]
-          : [{ type: 'Products', id: 'LIST' }]
+          : ['Products']
     }),
     
-    getProductById: builder.query({
-      query: (id) => `/products/${id}`,
+    getProduct: builder.query({
+      query: (id) => `/api/v1/products/${id}`,
+      transformResponse: (response) => {
+        if (response && response.success === true && response.product) {
+          return response.product;
+        }
+        return null;
+      },
       providesTags: (result, error, id) => [{ type: 'Product', id }]
     }),
     
     createProduct: builder.mutation({
       query: (productData) => ({
-        url: '/products',
+        url: '/api/v1/products',
         method: 'POST',
         body: productData
       }),
@@ -70,7 +110,7 @@ export const productApi = createApi({
     
     updateProduct: builder.mutation({
       query: ({ id, ...productData }) => ({
-        url: `/products/${id}`,
+        url: `/api/v1/products/${id}`,
         method: 'PUT',
         body: productData
       }),
@@ -82,7 +122,7 @@ export const productApi = createApi({
     
     deleteProduct: builder.mutation({
       query: (id) => ({
-        url: `/products/${id}`,
+        url: `/api/v1/products/${id}`,
         method: 'DELETE'
       }),
       invalidatesTags: [{ type: 'Products', id: 'LIST' }]
@@ -91,7 +131,7 @@ export const productApi = createApi({
     // Upload product image
     uploadProductImage: builder.mutation({
       query: ({ id, formData }) => ({
-        url: `/products/${id}/images`,
+        url: `/api/v1/products/${id}/images`,
         method: 'POST',
         body: formData,
         // Don't set Content-Type header as it will be set automatically for FormData
@@ -104,7 +144,7 @@ export const productApi = createApi({
     
     getProductImages: builder.query({
       query: (productId) => ({
-        url: `/products/${productId}/images`,
+        url: `/api/v1/products/${productId}/images`,
         method: 'GET',
       }),
       providesTags: (result, error, productId) => 
@@ -119,7 +159,7 @@ export const productApi = createApi({
     
     uploadProductImages: builder.mutation({
       query: ({ productId, formData, onUploadProgress }) => ({
-        url: `/products/${productId}/images`,
+        url: `/api/v1/products/${productId}/images`,
         method: 'POST',
         body: formData,
         formData: true,
@@ -134,7 +174,7 @@ export const productApi = createApi({
     
     deleteProductImage: builder.mutation({
       query: ({ productId, imageId }) => ({
-        url: `/products/${productId}/images/${imageId}`,
+        url: `/api/v1/products/${productId}/images/${imageId}`,
         method: 'DELETE',
       }),
       invalidatesTags: (result, error, { productId, imageId }) => [
@@ -147,7 +187,7 @@ export const productApi = createApi({
     
     setPrimaryImage: builder.mutation({
       query: ({ productId, imageId }) => ({
-        url: `/products/${productId}/images/${imageId}/primary`,
+        url: `/api/v1/products/${productId}/images/${imageId}/primary`,
         method: 'PUT',
       }),
       invalidatesTags: (result, error, { productId }) => [
@@ -160,7 +200,7 @@ export const productApi = createApi({
     // Bulk operations
     bulkUpdateProducts: builder.mutation({
       query: (data) => ({
-        url: '/products/bulk',
+        url: '/api/v1/products/bulk',
         method: 'PATCH',
         body: data
       }),
@@ -169,7 +209,7 @@ export const productApi = createApi({
     
     bulkDeleteProducts: builder.mutation({
       query: (ids) => ({
-        url: '/products/bulk',
+        url: '/api/v1/products/bulk',
         method: 'DELETE',
         body: { ids }
       }),
@@ -178,7 +218,7 @@ export const productApi = createApi({
     
     // Product variants endpoints
     getProductVariants: builder.query({
-      query: (productId) => `/products/${productId}/variants`,
+      query: (productId) => `/api/v1/products/${productId}/variants`,
       providesTags: (result, error, productId) => [
         { type: 'Product', id: productId },
         { type: 'Product', id: `${productId}-variants` }
@@ -187,7 +227,7 @@ export const productApi = createApi({
     
     createProductVariant: builder.mutation({
       query: ({ productId, variantData }) => ({
-        url: `/products/${productId}/variants`,
+        url: `/api/v1/products/${productId}/variants`,
         method: 'POST',
         body: variantData
       }),
@@ -199,7 +239,7 @@ export const productApi = createApi({
     
     updateProductVariant: builder.mutation({
       query: ({ productId, variantId, ...variantData }) => ({
-        url: `/products/${productId}/variants/${variantId}`,
+        url: `/api/v1/products/${productId}/variants/${variantId}`,
         method: 'PUT',
         body: variantData
       }),
@@ -211,7 +251,7 @@ export const productApi = createApi({
     
     deleteProductVariant: builder.mutation({
       query: ({ productId, variantId }) => ({
-        url: `/products/${productId}/variants/${variantId}`,
+        url: `/api/v1/products/${productId}/variants/${variantId}`,
         method: 'DELETE'
       }),
       invalidatesTags: (result, error, { productId }) => [
@@ -224,7 +264,7 @@ export const productApi = createApi({
 
 export const {
   useGetProductsQuery,
-  useGetProductByIdQuery,
+  useGetProductQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
