@@ -3,7 +3,7 @@
  * Fornece funções para monitorar, limpar e fazer backup do banco de dados
  * Implementado para lidar com as limitações do plano Free do Neon (0.5 GB)
  */
-import { sequelize } from '../config/database.js';
+import sequelize from '../config/database.js';
 import logger from '../config/logger.js';
 import fs from 'fs';
 import path from 'path';
@@ -508,6 +508,128 @@ export async function checkAndManageStorage(options = {}) {
   }
 }
 
+/**
+ * Limpa completamente as tabelas afetadas pela importação XML
+ * @param {Object} options Opções adicionais
+ * @returns {Promise<Object>} Resultado da operação de limpeza
+ */
+export async function purgeImportTables(options = {}) {
+  const defaultOptions = {
+    backupBeforePurge: true,            // Fazer backup antes de limpar
+    backupTablesOnly: ['categories', 'producers', 'units'], // Tabelas para backup
+    vacuumAfterPurge: true,             // Executar VACUUM após limpeza
+    importTables: [
+      'products',
+      'variants', 
+      'prices',
+      'stocks',
+      'producers',
+      'units',
+      'categories'    // Adicionar 'categories' à lista de tabelas para purga
+    ]
+  };
+  
+  const opts = { ...defaultOptions, ...options };
+  const startTime = Date.now();
+  
+  try {
+    logger.info(`Iniciando purga completa das tabelas de importação: ${JSON.stringify(opts.importTables)}`);
+    
+    // Obter tamanho inicial
+    const initialStorage = await getDatabaseStorageInfo();
+    
+    // Backup se configurado
+    let backupPath = null;
+    if (opts.backupBeforePurge) {
+      backupPath = await backupTables(opts.backupTablesOnly);
+      logger.info(`Backup realizado antes da purga: ${backupPath}`);
+    }
+    
+    // Começar transação
+    const transaction = await sequelize.transaction();
+    
+    try {
+      // Desativar temporariamente restrições de chave estrangeira
+      await sequelize.query('SET CONSTRAINTS ALL DEFERRED', { transaction });
+      
+      // Truncar todas as tabelas em ordem para evitar problemas de chave estrangeira
+      // O correto é começar pelas tabelas filhas (que têm chaves estrangeiras)
+      const tablesInOrder = [
+        'prices',
+        'stocks',
+        'variants',
+        'products',
+        'producers',
+        'units',
+        'categories'     // Adicionar 'categories' à lista de tabelas para purga em ordem
+      ];
+      
+      for (const table of tablesInOrder) {
+        if (opts.importTables.includes(table)) {
+          logger.info(`Truncando tabela: ${table}`);
+          await sequelize.query(`TRUNCATE TABLE ${table} CASCADE`, { transaction });
+        }
+      }
+      
+      // Commit da transação
+      await transaction.commit();
+      
+      // Executar VACUUM se configurado (fora da transação)
+      if (opts.vacuumAfterPurge) {
+        logger.info('Executando VACUUM para recuperar espaço...');
+        await sequelize.query('VACUUM FULL');
+        logger.info('VACUUM concluído');
+      }
+      
+      // Obter tamanho final
+      const finalStorage = await getDatabaseStorageInfo();
+      const durationMs = Date.now() - startTime;
+      
+      // Calcular espaço liberado
+      const spaceFreedBytes = initialStorage.currentSizeBytes - finalStorage.currentSizeBytes;
+      const spaceFreedMB = spaceFreedBytes / (1024 * 1024);
+      const spaceFreedGB = spaceFreedBytes / (1024 * 1024 * 1024);
+      
+      const result = {
+        success: true,
+        tablesAffected: opts.importTables,
+        initialSize: {
+          bytes: initialStorage.currentSizeBytes,
+          megabytes: initialStorage.currentSizeMB,
+          gigabytes: initialStorage.currentSizeGB
+        },
+        finalSize: {
+          bytes: finalStorage.currentSizeBytes,
+          megabytes: finalStorage.currentSizeMB,
+          gigabytes: finalStorage.currentSizeGB
+        },
+        spaceFreed: {
+          bytes: spaceFreedBytes,
+          megabytes: spaceFreedMB,
+          gigabytes: spaceFreedGB
+        },
+        percentReduction: (spaceFreedBytes / initialStorage.currentSizeBytes) * 100,
+        durationMs: durationMs,
+        durationSeconds: durationMs / 1000,
+        backupPath: backupPath,
+        timestamp: new Date(),
+        options: opts
+      };
+      
+      logger.info(`Purga completa concluída: liberado ${spaceFreedMB.toFixed(2)} MB (${result.percentReduction.toFixed(1)}%)`);
+      return result;
+    } catch (error) {
+      // Rollback em caso de erro
+      await transaction.rollback();
+      logger.error(`Erro durante purga das tabelas: ${error.message}`);
+      throw error;
+    }
+  } catch (error) {
+    logger.error(`Falha na operação de purga: ${error.message}`);
+    throw error;
+  }
+}
+
 // Exportação para uso em CLI
 if (process.argv[2] === 'check') {
   getDatabaseStorageInfo()
@@ -541,6 +663,16 @@ if (process.argv[2] === 'check') {
     });
 } else if (process.argv[2] === 'restore' && process.argv[3]) {
   restoreBackup(process.argv[3])
+    .then(result => {
+      console.log(JSON.stringify(result, null, 2));
+      process.exit(0);
+    })
+    .catch(err => {
+      console.error('Erro:', err);
+      process.exit(1);
+    });
+} else if (process.argv[2] === 'purge') {
+  purgeImportTables()
     .then(result => {
       console.log(JSON.stringify(result, null, 2));
       process.exit(0);

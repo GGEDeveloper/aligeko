@@ -1,30 +1,23 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "index.js",
-      "use": "@vercel/node",
-      "config": {
-        "buildCommand": "npm install pg && npm install"
-      }
-    }
-  ],
+  "buildCommand": "npm run build:client",
+  "outputDirectory": "client/dist",
+  "framework": null,
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "index.js"
+      "dest": "/api/$1"
     },
     {
-      "src": "/(.*)\\.(.+)$",
-      "headers": { "cache-control": "public, max-age=0, must-revalidate" },
-      "dest": "index.js"
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "index.js"
+      "dest": "/index.html"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }

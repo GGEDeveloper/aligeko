@@ -2,6 +2,20 @@
 
 A comprehensive B2B e-commerce platform for AliTools, connecting wholesale suppliers with business customers through an integrated online marketplace.
 
+## 🚨 Recent Fixes & Improvements (May 2025)
+
+We've implemented several important fixes to make the platform more stable and reliable:
+
+- **✅ Database Connection Fixes**: Resolved issues with Neon PostgreSQL connectivity
+- **✅ Product Display**: Fixed component naming inconsistencies (ProductList vs ProductsList)
+- **✅ Model Definitions**: Updated Sequelize model definitions to match actual database schema
+- **✅ API Endpoint Fixes**: Resolved issues with API response formats and data handling
+- **✅ Price Display**: Corrected price extraction from variant objects
+- **✅ Deployment Config**: Improved Vercel deployment configuration for reliable deployment
+- **✅ Error Logging**: Implemented comprehensive error tracking and documentation
+
+For detailed information about these fixes, see `docs/error_fixes.md` and `docs/deployment_guide.md`.
+
 ## Project Overview
 
 This platform enables businesses to register, browse products, place orders, and manage their accounts in a secure and efficient manner. The system integrates with the GEKO ERP system for real-time inventory management and product data.

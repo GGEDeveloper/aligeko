@@ -3,58 +3,77 @@ import { Link } from 'react-router-dom';
 import { formatCurrency } from '../../utils/formatters';
 
 /**
- * CustomToast component for cart notifications
+ * Toast notification for when a product is added to the cart
  * 
  * @param {Object} props
- * @param {Object} props.product - Product data
- * @param {number} props.quantity - Quantity added
- * @param {Object} props.variant - Optional variant data
+ * @param {Object} props.product - Product that was added to cart
+ * @param {number} props.quantity - Quantity that was added
+ * @param {Object} props.t - Toast instance from react-hot-toast
  * @returns {JSX.Element}
  */
-const AddToCartNotification = ({ product, quantity, variant }) => {
-  if (!product) return null;
+const AddToCartNotification = ({ product, quantity, t }) => {
+  // Calculate product price
+  const price = product.price || 
+    (product.Variants && product.Variants.length > 0 && 
+     product.Variants[0].Prices && product.Variants[0].Prices.length > 0)
+    ? product.Variants[0].Prices[0].amount
+    : 0;
   
-  const productName = product.name;
-  const productImage = product.image || 
-    (product.Images && product.Images.length > 0 ? product.Images[0].url : '/placeholder-product.png');
-  
-  const price = variant ? variant.price : (product.price || 0);
-  const totalPrice = price * quantity;
+  // Get product image URL
+  const imageUrl = (product.Images && product.Images.length > 0)
+    ? product.Images[0].url
+    : '/placeholder-product.png';
   
   return (
-    <div className="flex items-start" style={{ minWidth: '280px', maxWidth: '320px' }}>
-      <div className="flex-shrink-0 mr-3">
-        <img 
-          src={productImage} 
-          alt={productName}
-          className="w-16 h-16 object-cover rounded"
-        />
-      </div>
-      <div className="flex-grow">
-        <h4 className="text-sm font-medium mb-1 text-truncate">{productName}</h4>
-        {variant && (
-          <p className="text-xs text-gray-500 mb-1">
-            Variant: {variant.name || variant.code}
-          </p>
-        )}
-        <p className="text-xs text-gray-500 mb-2">
-          {quantity} × {formatCurrency(price)} = {formatCurrency(totalPrice)}
-        </p>
-        <div className="flex gap-2">
-          <Link 
-            to="/cart" 
-            className="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs px-2 py-1 rounded text-center"
-          >
-            View Cart
-          </Link>
-          <Link 
-            to="/checkout" 
-            className="flex-1 border border-primary-600 text-primary-600 hover:bg-primary-50 text-xs px-2 py-1 rounded text-center"
-          >
-            Checkout
-          </Link>
+    <div 
+      className={`${
+        t.visible ? 'animate-enter' : 'animate-leave'
+      } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex`}
+    >
+      <div className="flex-1 w-0 p-4">
+        <div className="flex items-start">
+          <div className="flex-shrink-0 pt-0.5">
+            <img 
+              className="h-12 w-12 object-cover rounded"
+              src={imageUrl} 
+              alt={product.name}
+            />
+          </div>
+          <div className="ml-3 flex-1">
+            <p className="text-sm font-medium text-gray-900">
+              Produto adicionado
+            </p>
+            <p className="mt-1 text-sm text-gray-500 line-clamp-1">
+              {product.name}
+            </p>
+            <div className="mt-1 flex justify-between">
+              <p className="text-sm text-gray-500">
+                Qtd: {quantity}
+              </p>
+              <p className="text-sm font-medium text-yellow-600">
+                {formatCurrency(price * quantity)}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
+      <div className="flex border-l border-gray-200">
+        <button
+          onClick={() => t.dismiss()}
+          className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none"
+        >
+          Fechar
+        </button>
+      </div>
+      
+      {/* View Cart Button */}
+      <Link
+        to="/cart"
+        className="absolute bottom-3 right-3 text-xs font-medium text-yellow-600 hover:text-yellow-700 bg-yellow-50 hover:bg-yellow-100 px-2 py-1 rounded-full"
+        onClick={() => t.dismiss()}
+      >
+        Ver carrinho
+      </Link>
     </div>
   );
 };

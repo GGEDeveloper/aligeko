@@ -98,8 +98,14 @@ const ProductsPage = () => {
   const totalPages = meta.totalPages || 1;
   
   console.log("API Response Meta:", meta);  // Debug the meta object
-  console.log("Total Products:", totalProducts);  // Debug total products
+  console.log("Total Products:", totalProducts);  // Debug total products count
   console.log("Current Products:", products.length);  // Debug current page products count
+  
+  // DEBUG: Log the structure of the first product to understand its format
+  if (products.length > 0) {
+    console.log("First Product Structure:", JSON.stringify(products[0], null, 2));
+    console.log("Images property:", products[0].Images || products[0].images);
+  }
 
   // Handle page change
   const handlePageChange = (page) => {
@@ -190,7 +196,7 @@ const ProductsPage = () => {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grid-view">
         {products.map(product => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.id} product={product} viewMode="grid" />
         ))}
       </div>
     );
@@ -201,52 +207,73 @@ const ProductsPage = () => {
     return (
       <div className="flex flex-col space-y-4 list-view">
         {products.map(product => (
-          <div key={product.id} className="bg-white rounded-lg shadow-sm overflow-hidden flex product-card">
-            <div className="w-48 relative product-image-container">
-              <Link to={`/products/${product.id}`}>
-                <img 
-                  src={product.images && product.images.length > 0
-                    ? product.images.find(img => img.is_main)?.url || product.images[0].url
-                    : '/placeholder-product.png'} 
-                  alt={product.name}
-                  className="w-full h-full object-contain p-2"
-                />
-              </Link>
-            </div>
-            <div className="p-4 flex-grow flex flex-col">
-              {product.producer && (
-                <span className="text-xs text-gray-600 mb-1">
-                  {product.producer.name}
-                </span>
-              )}
-              <Link to={`/products/${product.id}`} className="text-gray-900 hover:text-yellow-600">
-                <h3 className="font-medium text-lg mb-1 product-name">{product.name}</h3>
-              </Link>
-              <p className="text-sm text-gray-700 mb-2 line-clamp-2">
-                {product.short_description || product.description?.substring(0, 100) || 'Descrição não disponível'}
-              </p>
-              
-              <div className="mt-auto flex justify-between items-end">
-                <div>
-                  {product.retail_price && product.retail_price > product.price && (
-                    <span className="text-sm text-gray-500 line-through block">
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'EUR' }).format(product.retail_price)}
-                    </span>
-                  )}
-                  <span className="text-lg font-bold text-yellow-600">
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'EUR' }).format(product.price || 0)}
-                  </span>
-                </div>
-                
-                <Link to={`/products/${product.id}`} className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition-colors">
-                  Ver Detalhes
-                </Link>
-              </div>
-            </div>
-          </div>
+          <ProductCard key={product.id} product={product} viewMode="list" />
         ))}
       </div>
     );
+  };
+
+  // Render products based on view mode
+  const renderProducts = () => {
+    if (isLoading) {
+      return <LoadingSpinner />;
+    }
+    
+    if (isError) {
+      console.error('[ProductsPage-Error]', error);
+      return <ErrorMessage message="Erro ao carregar produtos. Tente novamente mais tarde." />;
+    }
+    
+    if (products.length === 0) {
+      return (
+        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+          <p className="text-lg text-neutral-600">Nenhum produto encontrado com os filtros selecionados.</p>
+          <button 
+            onClick={() => {
+              // Reset filters
+              setSearchQuery('');
+              setSelectedCategory('');
+              setPriceRange({ min: 0, max: 1000 });
+              setSortOption('name_asc');
+              setCurrentPage(1);
+            }}
+            className="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors"
+          >
+            Limpar filtros
+          </button>
+        </div>
+      );
+    }
+    
+    return viewMode === 'grid' ? renderGridView() : renderListView();
+  };
+  
+  // Use ProductsList component alternatively
+  // This is a cleaner approach that leverages the ProductsList component
+  const renderProductsAlternative = () => {
+    if (isLoading) return <LoadingSpinner />;
+    if (isError) return <ErrorMessage message="Erro ao carregar produtos. Tente novamente mais tarde." />;
+    if (products.length === 0) {
+      return (
+        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+          <p className="text-lg text-neutral-600">Nenhum produto encontrado com os filtros selecionados.</p>
+          <button 
+            onClick={() => {
+              setSearchQuery('');
+              setSelectedCategory('');
+              setPriceRange({ min: 0, max: 1000 });
+              setSortOption('name_asc');
+              setCurrentPage(1);
+            }}
+            className="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors"
+          >
+            Limpar filtros
+          </button>
+        </div>
+      );
+    }
+    
+    return <ProductsList products={products} viewMode={viewMode} />;
   };
 
   return (
@@ -350,41 +377,7 @@ const ProductsPage = () => {
         </div>
         
         {/* Products display */}
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
-            </div>
-          ) : isError ? (
-            <ErrorMessage 
-              title="Erro ao carregar produtos"
-              message={(error?.data?.error || error?.error || 'Erro ao carregar produtos.') + 
-                (error?.data?.details ? `: ${error.data.details}` : '')} 
-              action={refetch}
-            />
-          ) : products.length === 0 ? (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-              <svg className="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">Nenhum produto encontrado</h3>
-              <p className="mt-1 text-sm text-gray-500">Tente ajustar seus filtros ou buscar outro termo.</p>
-            </div>
-          ) : (
-            <>
-              {viewMode === 'grid' ? renderGridView() : renderListView()}
-              
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-8 flex justify-center">
-                  <Pagination 
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                  />
-                </div>
-              )}
-            </>
-          )}
+          {renderProducts()}
         </div>
       </div>
     </div>

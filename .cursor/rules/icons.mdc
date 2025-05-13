@@ -1,8 +1,3 @@
----
-description:
-globs:
-alwaysApply: false
----
 # Icon Usage Patterns
 
 This rule documents the standard patterns for implementing and using icons in the AliTools B2B E-commerce platform.

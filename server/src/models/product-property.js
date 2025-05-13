@@ -19,68 +19,68 @@ const ProductProperty = (sequelize) => {
       primaryKey: true,
       autoIncrement: true
     },
-    name: {
-      type: DataTypes.STRING(255),
+    product_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      comment: 'Property name/key'
+      references: {
+        model: 'Products',
+        key: 'id'
+      }
+    },
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false
     },
     value: {
       type: DataTypes.TEXT,
-      allowNull: true,
-      comment: 'Property value'
-    },
-    language: {
-      type: DataTypes.STRING(5),
-      allowNull: true,
-      defaultValue: 'en',
-      comment: 'Property language code (en, pt, etc.)'
+      allowNull: true
     },
     group: {
       type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    language: {
+      type: DataTypes.STRING(10),
       allowNull: true,
-      comment: 'Property group/category'
+      defaultValue: 'en'
     },
     order: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: 0,
-      comment: 'Display order of the property'
+      defaultValue: 0
     },
     is_filterable: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false,
-      comment: 'Whether this property can be used for filtering'
+      defaultValue: false
     },
     is_public: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
-      comment: 'Whether this property is visible to customers'
+      defaultValue: true
     },
     created_at: {
       type: DataTypes.DATE,
+      allowNull: false,
       defaultValue: DataTypes.NOW
     },
     updated_at: {
       type: DataTypes.DATE,
+      allowNull: false,
       defaultValue: DataTypes.NOW
     }
   }, {
     tableName: 'product_properties',
-    timestamps: true,
-    underscored: true,
+    timestamps: false,
     indexes: [
       {
-        name: 'idx_property_product_id',
-        fields: ['product_id']
+        unique: true,
+        fields: ['product_id', 'name', 'language']
       },
       {
-        name: 'idx_property_name',
-        fields: ['name']
+        fields: ['is_filterable']
       },
       {
-        name: 'idx_property_group',
         fields: ['group']
       }
     ]

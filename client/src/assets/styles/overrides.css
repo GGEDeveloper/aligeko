@@ -158,4 +158,127 @@
   .grid-view {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
+}
+
+/* Icon size overrides */
+.icon-sm svg {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+.icon-xs svg {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+}
+
+/* ProductCard overrides */
+.product-card .info-icon svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.product-card .visualizacao-rapida svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.product-card .product-name {
+  min-height: 2.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Product list view specific styles */
+.list-view .product-image-container {
+  position: relative;
+  min-width: 180px;
+  max-width: 200px;
+  width: 100%;
+  aspect-ratio: 1/1;
+}
+
+.grid-view .product-image-container {
+  position: relative;
+}
+
+/* CategoryCard icon size override */
+.category-card svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* FiltersPanel icon size override */
+.filters-panel svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* ProductsPage icon size override */
+.products-page-header svg,
+.sort-controls svg,
+.view-mode-controls svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* CategoryNav icon size override */
+.category-nav svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* SortDropdown icon size override */
+.sort-dropdown svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* cart controls icon size override */
+.cart-controls svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Product card action button icon size override */
+.product-card button svg,
+.product-card a svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Mobile menu icon size */
+.mobile-menu svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .list-view .product-image-container {
+    min-width: 100%;
+    max-width: 100%;
+    aspect-ratio: 1.5/1;
+  }
+  
+  .list-view .product-card {
+    max-width: 100%;
+  }
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Image loading transition */
+.transition-opacity {
+  transition: opacity 0.3s ease-in-out;
 } 

@@ -7,7 +7,12 @@
 
 import { DataTypes } from 'sequelize';
 
-export default (sequelize) => {
+/**
+ * Define the Document model
+ * @param {Sequelize} sequelize - Sequelize instance
+ * @returns {Model} Document model
+ */
+const Document = (sequelize) => {
   const Document = sequelize.define('Document', {
     id: {
       type: DataTypes.INTEGER,
@@ -18,37 +23,50 @@ export default (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'products',
+        model: 'Products',
         key: 'id'
       }
     },
     url: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-      comment: 'URL to the document file'
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false
     },
     type: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      comment: 'Document type (manual, certificate, etc.)'
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      defaultValue: 'pdf'
     },
     title: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      comment: 'Document title/name'
+      type: DataTypes.STRING(255),
+      allowNull: true
     },
     language: {
-      type: DataTypes.STRING(5),
+      type: DataTypes.STRING(10),
       allowNull: true,
-      comment: 'Document language code (en, pt, etc.)'
+      defaultValue: 'en'
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     }
   }, {
     tableName: 'documents',
-    timestamps: true,
-    underscored: true,
+    timestamps: false,
     indexes: [
-      { fields: ['product_id'] },
-      { fields: ['type'] }
+      {
+        unique: true,
+        fields: ['product_id', 'url']
+      }
     ]
   });
 
@@ -61,4 +79,6 @@ export default (sequelize) => {
   };
 
   return Document;
-}; 
+};
+
+export default Document; 

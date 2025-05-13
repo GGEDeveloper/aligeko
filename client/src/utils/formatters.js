@@ -1,37 +1,52 @@
 /**
- * Format a number as currency
+ * Format a number as currency (EUR)
  * @param {number} amount - Amount to format
- * @param {string} currencyCode - Currency code (default: USD)
+ * @param {string} locale - Locale for formatting (default: 'pt-PT')
+ * @param {string} currency - Currency code (default: 'EUR')
  * @returns {string} Formatted currency string
  */
-export const formatCurrency = (amount, currencyCode = 'USD') => {
-  return new Intl.NumberFormat('en-US', {
+export const formatCurrency = (amount, locale = 'pt-PT', currency = 'EUR') => {
+  // Handle undefined or null amount
+  if (amount === undefined || amount === null) {
+    return '€0,00';
+  }
+
+  // Use Number.parseFloat to handle string inputs
+  const numericAmount = Number.parseFloat(amount);
+  
+  // Check if the parsed amount is a valid number
+  if (Number.isNaN(numericAmount)) {
+    return '€0,00';
+  }
+
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: currencyCode
-  }).format(amount);
+    currency: currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(numericAmount);
 };
 
 /**
- * Format a date with a specified format
- * @param {Date|string} date - Date to format
- * @param {string} formatStr - Format string (default: MM/dd/yyyy)
+ * Format a date string
+ * @param {string|Date} date - Date to format
+ * @param {string} locale - Locale for formatting (default: 'pt-PT')
  * @returns {string} Formatted date string
  */
-export const formatDate = (date, formatStr = 'MM/dd/yyyy') => {
-  const d = date instanceof Date ? date : new Date(date);
+export const formatDate = (date, locale = 'pt-PT') => {
+  if (!date) return '';
   
-  // Return empty string for invalid dates
-  if (isNaN(d.getTime())) return '';
+  const dateObj = date instanceof Date ? date : new Date(date);
   
-  const day = d.getDate().toString().padStart(2, '0');
-  const month = (d.getMonth() + 1).toString().padStart(2, '0');
-  const year = d.getFullYear();
+  if (isNaN(dateObj.getTime())) {
+    return '';
+  }
   
-  // Replace format tokens with actual values
-  return formatStr
-    .replace('dd', day)
-    .replace('MM', month)
-    .replace('yyyy', year);
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(dateObj);
 };
 
 /**
@@ -47,12 +62,17 @@ export const truncateText = (text, maxLength, suffix = '...') => {
 };
 
 /**
- * Format a number with commas as thousands separators
- * @param {number} number - Number to format
+ * Format a number with specific precision
+ * @param {number} num - Number to format
+ * @param {number} precision - Decimal precision (default: 2)
  * @returns {string} Formatted number string
  */
-export const formatNumber = (number) => {
-  return new Intl.NumberFormat('en-US').format(number);
+export const formatNumber = (num, precision = 2) => {
+  if (num === undefined || num === null || Number.isNaN(Number(num))) {
+    return '0';
+  }
+  
+  return Number(num).toFixed(precision);
 };
 
 /**

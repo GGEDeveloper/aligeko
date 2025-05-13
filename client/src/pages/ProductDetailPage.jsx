@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
-  useGetProductByIdQuery, 
+  useGetProductQuery, 
   useDeleteProductMutation 
 } from '../store/api/productApi';
 import { toast } from 'react-hot-toast';
 import { useCart } from '../hooks/useCart';
 import { formatCurrency } from '../utils/formatters';
 import AddToCartNotification from '../components/cart/AddToCartNotification';
+import ProductCard from '../components/products/ProductCard';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -25,7 +26,7 @@ const ProductDetailPage = () => {
     isLoading,
     isError,
     error
-  } = useGetProductByIdQuery(id);
+  } = useGetProductQuery(id);
   
   // Delete product mutation
   const [deleteProduct, {
@@ -33,6 +34,79 @@ const ProductDetailPage = () => {
     isError: isDeleteError,
     error: deleteError
   }] = useDeleteProductMutation();
+  
+  // Load related products (by same category or producer)
+  // Use a state to store related products
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const { data: allProducts } = useGetProductQuery('all');
+
+  // Get related products when main product loads
+  useEffect(() => {
+    if (product && allProducts?.data) {
+      try {
+        console.log('Finding related products. Product:', product?.id, 'AllProducts data:', Array.isArray(allProducts.data) ? allProducts.data.length : 'not an array');
+        
+        // Make a safe copy of the data to work with
+        const safeProductsData = Array.isArray(allProducts.data) ? allProducts.data.filter(p => p && typeof p === 'object') : [];
+        
+        // First verify we have valid data to work with
+        if (safeProductsData.length === 0) {
+          console.log('No valid products data to find related products');
+          setRelatedProducts([]);
+          return;
+        }
+        
+        // Get products from the same category or producer with extensive null checks
+        const related = safeProductsData
+          .filter(p => {
+            try {
+              // Skip if product is invalid or the same as current product
+              if (!p || !p.id) return false;
+              
+              const productId = parseInt(id);
+              if (isNaN(productId) || p.id === productId) return false;
+              
+              // Safe category comparison with multiple fallback checks
+              const sameCategory = Boolean(
+                (product.category && p.category && product.category.id && p.category.id && product.category.id === p.category.id) || 
+                (product.Category && p.Category && product.Category.id && p.Category.id && product.Category.id === p.Category.id) ||
+                (product.category_id && p.category_id && product.category_id === p.category_id)
+              );
+              
+              // Safe producer comparison with multiple fallback checks
+              const sameProducer = Boolean(
+                (product.producer && p.producer && product.producer.id && p.producer.id && product.producer.id === p.producer.id) ||
+                (product.Producer && p.Producer && product.Producer.id && p.Producer.id && product.Producer.id === p.Producer.id) ||
+                (product.producer_id && p.producer_id && product.producer_id === p.producer_id)
+              );
+              
+              return sameCategory || sameProducer;
+            } catch (filterError) {
+              console.error('Error filtering a related product:', filterError);
+              return false;
+            }
+          })
+          .slice(0, 4); // Limit to 4 related products
+        
+        console.log('Related products found:', related.length);
+        
+        // Final safety check on each related product
+        const safeRelated = related.map(p => {
+          if (!p.Images) p.Images = [];
+          if (!p.Category) p.Category = {};
+          if (!p.Producer) p.Producer = {};
+          return p;
+        });
+        
+        setRelatedProducts(safeRelated);
+      } catch (error) {
+        console.error('Error finding related products:', error);
+        setRelatedProducts([]);
+      }
+    } else {
+      setRelatedProducts([]);
+    }
+  }, [product, allProducts, id]);
   
   // Handle delete product
   const handleDeleteProduct = async () => {
@@ -185,6 +259,123 @@ const ProductDetailPage = () => {
     }
   };
   
+  // Get main product image URL
+  const getMainImageUrl = () => {
+    if (!product) return '/assets/placeholder-product.png';
+    
+    // Log for debugging
+    console.log(`ProductDetail ${product.id} - ${product.name || 'unnamed'} image data:`, {
+      Images: product.Images,
+      images: product.images,
+      url: product.url,
+      image_url: product.image_url,
+      imageUrl: product.imageUrl
+    });
+    
+    // Verificar a propriedade Images (com I maiúsculo) que é retornada pelo backend
+    if (product.Images && Array.isArray(product.Images) && product.Images.length > 0) {
+      const mainImage = product.Images.find(img => img && img.is_main === true);
+      if (mainImage && mainImage.url) return mainImage.url;
+      if (product.Images[0] && product.Images[0].url) return product.Images[0].url;
+    }
+    
+    // Verificar a propriedade images (com i minúsculo) como fallback
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+      const mainImage = product.images.find(img => img && img.is_main === true);
+      if (mainImage && mainImage.url) return mainImage.url;
+      if (product.images[0] && product.images[0].url) return product.images[0].url;
+    }
+    
+    // Direct field checks
+    if (product.image_url) return product.image_url;
+    if (product.url && typeof product.url === 'string' && product.url.match(/\.(jpeg|jpg|gif|png)$/i)) return product.url;
+    if (product.imageUrl) return product.imageUrl;
+    
+    // Categoria-specific placeholder logic
+    if (product.category_id) {
+      const categoryId = product.category_id.toString().toLowerCase();
+      if (categoryId.includes('hydraulic')) {
+        return '/assets/icons/category-hydraulic.png';
+      } else if (categoryId.includes('electric')) {
+        return '/assets/icons/category-electric.png';
+      } else if (categoryId.includes('tools')) {
+        return '/assets/icons/category-tools.png';
+      }
+    }
+    
+    // Último fallback: imagem de placeholder global
+    return '/assets/placeholder-product.png';
+  };
+  
+  // Get all product images for gallery
+  const getProductImages = () => {
+    if (!product) return [];
+    
+    let images = [];
+    
+    // Primeiro, verificar a propriedade Images (com I maiúsculo)
+    if (product.Images && Array.isArray(product.Images) && product.Images.length > 0) {
+      images = product.Images.filter(img => img && img.url).map(img => ({
+        id: img.id || `img-${Math.random()}`,
+        url: img.url,
+        is_main: img.is_main || false
+      }));
+    } 
+    // Fallback para a propriedade images (com i minúsculo)
+    else if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+      images = product.images.filter(img => img && img.url).map(img => ({
+        id: img.id || `img-${Math.random()}`,
+        url: img.url,
+        is_main: img.is_main || false
+      }));
+    }
+    
+    // Se não há imagens, mas temos uma URL direta, criar um objeto de imagem
+    if (images.length === 0) {
+      if (product.image_url) {
+        images.push({
+          id: 'default',
+          url: product.image_url,
+          is_main: true
+        });
+      } else if (product.url && typeof product.url === 'string' && product.url.match(/\.(jpeg|jpg|gif|png)$/i)) {
+        images.push({
+          id: 'default',
+          url: product.url,
+          is_main: true
+        });
+      } else if (product.imageUrl) {
+        images.push({
+          id: 'default',
+          url: product.imageUrl,
+          is_main: true
+        });
+      } else {
+        // Category-specific placeholder
+        let placeholderUrl = '/assets/placeholder-product.png';
+        
+        if (product.category_id) {
+          const categoryId = product.category_id.toString().toLowerCase();
+          if (categoryId.includes('hydraulic')) {
+            placeholderUrl = '/assets/icons/category-hydraulic.png';
+          } else if (categoryId.includes('electric')) {
+            placeholderUrl = '/assets/icons/category-electric.png';
+          } else if (categoryId.includes('tools')) {
+            placeholderUrl = '/assets/icons/category-tools.png';
+          }
+        }
+        
+        images.push({
+          id: 'placeholder',
+          url: placeholderUrl,
+          is_main: true
+        });
+      }
+    }
+    
+    return images;
+  };
+  
   // Inside your render section, add this Add to Cart UI component where appropriate
   const renderAddToCartSection = () => {
     const currentPrice = getCurrentPrice();
@@ -328,8 +519,55 @@ const ProductDetailPage = () => {
     );
   };
   
+  // At the bottom of your component, add the related products section
+  const renderRelatedProducts = () => {
+    // Extra validity check for relatedProducts
+    if (!relatedProducts || !Array.isArray(relatedProducts) || relatedProducts.length === 0) {
+      console.log('No related products to render');
+      return null;
+    }
+    
+    return (
+      <div className="mt-16">
+        <h2 className="text-2xl font-bold mb-6">Produtos relacionados</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 grid-view">
+          {relatedProducts.map((relatedProduct, index) => {
+            // Extra safety check with detailed logging
+            if (!relatedProduct) {
+              console.warn('Null related product at index', index);
+              return null;
+            }
+            
+            if (typeof relatedProduct !== 'object') {
+              console.warn('Invalid related product (not an object) at index', index, typeof relatedProduct);
+              return null;
+            }
+            
+            if (!relatedProduct.id) {
+              console.warn('Related product missing ID at index', index, relatedProduct);
+              return null;
+            }
+            
+            // Ensure we have safe Images array
+            if (!relatedProduct.Images) {
+              relatedProduct.Images = [];
+            }
+            
+            return (
+              <ProductCard 
+                key={`related-${relatedProduct.id}-${index}`} 
+                product={relatedProduct} 
+                viewMode="grid"
+              />
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+  
   return (
-    <div className="py-6">
+    <div className="container mx-auto py-8 px-4">
       {/* Breadcrumb */}
       <div className="mb-6">
         <Link to="/products" className="text-primary-600 hover:text-primary-700 transition-smooth flex items-center">
@@ -341,21 +579,21 @@ const ProductDetailPage = () => {
       {/* Product Header */}
       <div className="flex flex-col md:flex-row justify-between mb-6">
         <div>
-          <h1 className="mb-2">{product.name}</h1>
+          <h1 className="mb-2">{product?.name || 'Product Details'}</h1>
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            {product.Category && (
+            {product?.Category?.name && (
               <span className="inline-block bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded">
                 {product.Category.name}
               </span>
             )}
-            {product.Producer && (
+            {product?.Producer?.name && (
               <span className="inline-block bg-neutral-100 text-neutral-800 text-xs px-2 py-1 rounded">
                 {product.Producer.name}
               </span>
             )}
             {getStockStatusBadge()}
           </div>
-          <p className="text-neutral-600 text-sm">Product ID: {product.id}</p>
+          <p className="text-neutral-600 text-sm">Product ID: {product?.id || 'N/A'}</p>
         </div>
         <div className="mt-4 md:mt-0 flex gap-2">
           <Link to={`/products/${id}/edit`}>
@@ -387,33 +625,11 @@ const ProductDetailPage = () => {
         {/* Product Image */}
         <div className="md:col-span-1">
           <div className="card">
-            {product.Images && product.Images.length > 0 ? (
-              <img
-                src={product.Images[0].url}
-                alt={product.name}
-                className="w-full h-64 object-cover rounded-t-lg"
-              />
-            ) : (
-              <div className="w-full h-64 bg-neutral-200 flex flex-col items-center justify-center rounded-t-lg">
-                <i className="bi bi-image text-neutral-400 text-5xl"></i>
-                <p className="mt-3 text-neutral-500">No image available</p>
-              </div>
-            )}
-            {product.Images && product.Images.length > 1 && (
-              <div className="p-4">
-                <div className="grid grid-cols-3 gap-2">
-                  {product.Images.slice(1).map((image, index) => (
-                    <div key={image.id || index}>
-                      <img
-                        src={image.url}
-                        alt={`${product.name} ${index + 2}`}
-                        className="w-full h-16 object-cover rounded border border-neutral-300"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <img
+              src={getMainImageUrl()}
+              alt={product.name}
+              className="w-full h-64 object-cover rounded-t-lg"
+            />
           </div>
         </div>
         
@@ -617,29 +833,23 @@ const ProductDetailPage = () => {
               {activeTab === 'images' && (
                 <div>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {product.Images && product.Images.length > 0 ? (
-                      product.Images.map((image, index) => (
-                        <div key={image.id || index} className="relative group">
-                          <img
-                            src={image.url}
-                            alt={`${product.name} ${index + 1}`}
-                            className="w-full h-48 object-cover rounded border border-neutral-300"
-                          />
-                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                            <button className="text-white bg-red-500 hover:bg-red-600 p-2 rounded-full mx-1">
-                              <i className="bi bi-trash"></i>
-                            </button>
-                            <button className="text-white bg-neutral-700 hover:bg-neutral-800 p-2 rounded-full mx-1">
-                              <i className="bi bi-arrows-move"></i>
-                            </button>
-                          </div>
+                    {getProductImages().map((image, index) => (
+                      <div key={image.id || index} className="relative group">
+                        <img
+                          src={image.url}
+                          alt={`${product.name} ${index + 1}`}
+                          className="w-full h-48 object-cover rounded border border-neutral-300"
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                          <button className="text-white bg-red-500 hover:bg-red-600 p-2 rounded-full mx-1">
+                            <i className="bi bi-trash"></i>
+                          </button>
+                          <button className="text-white bg-neutral-700 hover:bg-neutral-800 p-2 rounded-full mx-1">
+                            <i className="bi bi-arrows-move"></i>
+                          </button>
                         </div>
-                      ))
-                    ) : (
-                      <div className="col-span-full text-center py-8 text-neutral-600">
-                        No images available for this product.
                       </div>
-                    )}
+                    ))}
                   </div>
                   
                   <div className="mt-4 flex justify-end">
@@ -683,6 +893,9 @@ const ProductDetailPage = () => {
       
       {/* Add to Cart Section */}
       {renderAddToCartSection()}
+      
+      {/* Related Products Section */}
+      {renderRelatedProducts()}
     </div>
   );
 };

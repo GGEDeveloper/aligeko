@@ -20,15 +20,55 @@ import {
   useDeleteProductMutation
 } from '../../store/api/productApi';
 import PropTypes from 'prop-types';
+import ProductCard from './ProductCard';
 
+/**
+ * ProductsList component - Flexible product display component that can function in two modes:
+ * 1. Simple mode: Display a grid of product cards (when just 'products' prop is passed)
+ * 2. Advanced mode: Data fetching, pagination, filtering, selection (when additional props are provided)
+ * 
+ * This standardized component replaces both ProductList and ProductsList to avoid naming conflicts
+ * 
+ * @param {Object} props Component props
+ * @param {Array} props.products Array of product objects to display
+ * @param {boolean} props.isLoading Loading state indicator
+ * @param {Array} props.selectedItems IDs of selected products
+ * @param {Function} props.onSelectItem Callback for item selection
+ * @param {Function} props.onSelectAll Callback for select all
+ * @param {Object} props.pagination Pagination configuration and callbacks
+ * @param {string} props.viewMode Display mode: 'grid' or 'list'
+ * @returns {JSX.Element}
+ */
 const ProductsList = ({ 
   products = [], 
   isLoading = false,
   selectedItems = [],
   onSelectItem,
   onSelectAll,
-  pagination
+  pagination,
+  viewMode = 'grid'
 }) => {
+  // If only products are passed, render the simple grid view (replacing ProductList functionality)
+  if (products.length > 0 && !pagination && !onSelectItem && !onSelectAll) {
+    // Container class based on viewMode
+    const containerClass = viewMode === 'grid' 
+      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grid-view" 
+      : "flex flex-col space-y-4 list-view";
+    
+    return (
+      <div className={containerClass}>
+        {products.map(product => (
+          <ProductCard 
+            key={product.id || product.code} 
+            product={product}
+            viewMode={viewMode}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // For the rest of the component, keep the existing ProductsList functionality
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
@@ -485,11 +525,11 @@ ProductsList.propTypes = {
   onSelectItem: PropTypes.func,
   onSelectAll: PropTypes.func,
   pagination: PropTypes.shape({
-    currentPage: PropTypes.number.isRequired,
-    totalPages: PropTypes.number.isRequired,
-    totalItems: PropTypes.number,
-    onPageChange: PropTypes.func.isRequired
-  })
+    currentPage: PropTypes.number,
+    totalPages: PropTypes.number,
+    onPageChange: PropTypes.func
+  }),
+  viewMode: PropTypes.string
 };
 
 export default ProductsList; 

@@ -17,10 +17,11 @@ import {
   Modal
 } from 'react-bootstrap';
 import { 
-  useGetProductByIdQuery,
+  useGetProductQuery,
   useDeleteProductMutation,
   useGetProductVariantsQuery,
-  useGetProductImagesQuery 
+  useGetProductImagesQuery,
+  useUpdateProductMutation
 } from '../../store/api/productApi';
 import AdminBreadcrumbs from '../../components/layouts/AdminBreadcrumbs';
 import ProductImageManagement from '../../components/products/ProductImageManagement';
@@ -39,7 +40,7 @@ const ProductDetailPage = () => {
     isError, 
     error,
     refetch 
-  } = useGetProductByIdQuery(id);
+  } = useGetProductQuery(id);
   
   const { 
     data: variants, 

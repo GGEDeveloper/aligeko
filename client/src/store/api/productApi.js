@@ -44,14 +44,111 @@ export const productApi = createApi({
         };
       },
       transformResponse: (response) => {
+        // Add debug logging to see the raw API response
+        console.log('API Response Meta:', response?.data?.meta || 'No meta data');
+        console.log('Total Products:', response?.data?.meta?.totalItems || 'Unknown');
+        console.log('Current Products:', Array.isArray(response?.data?.items) ? response.data.items.length : 'Not an array');
+        
+        // Log a sample of the first product to understand structure
+        if (response?.data?.items && response.data.items.length > 0) {
+          console.log('First Product Structure:', response.data.items[0]);
+          console.log('Images property:', response.data.items[0].Images || response.data.items[0].images || []);
+        }
+        
         // Check if response is successful and contains data in the expected format
         if (response && response.success === true) {
           // Server returns data in a structure with 'data.items' and 'data.meta'
           if (response.data) {
             const { items = [], meta = {} } = response.data;
+            
+            // Processar cada item para garantir que a estrutura de dados seja consistente
+            const processedItems = Array.isArray(items) 
+              ? items.map(item => {
+                  // Garantir que Images está disponível e formatado corretamente
+                  if (!item.Images && item.images) {
+                    item.Images = item.images; // Padronizar com I maiúsculo
+                  } else if (!item.Images) {
+                    item.Images = []; // Garantir que pelo menos existe um array vazio
+                  }
+                  
+                  // Se Images está vazio, mas temos uma URL direta, criar um objeto de imagem
+                  if (item.Images.length === 0) {
+                    // Check different possible image URL sources
+                    if (item.image_url) {
+                      item.Images.push({
+                        id: `default-${item.id}-1`,
+                        url: item.image_url,
+                        is_main: true
+                      });
+                    }
+                    
+                    if (item.url && typeof item.url === 'string' && item.url.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                      item.Images.push({
+                        id: `default-${item.id}-2`,
+                        url: item.url,
+                        is_main: !item.Images.length // Only set as main if no other image exists
+                      });
+                    }
+                    
+                    if (item.imageUrl) {
+                      item.Images.push({
+                        id: `default-${item.id}-3`,
+                        url: item.imageUrl,
+                        is_main: !item.Images.length // Only set as main if no other image exists
+                      });
+                    }
+                  }
+                  
+                  // Padronizar preço e outras propriedades importantes
+                  if (!item.price && item.variants && item.variants.length > 0 && 
+                      item.variants[0].prices && item.variants[0].prices.length > 0) {
+                    item.price = item.variants[0].prices[0].gross_price;
+                  }
+                  
+                  return item;
+                })
+              : [items].filter(Boolean).map(item => {
+                  // Mesmo processamento para o caso de item único
+                  if (!item.Images && item.images) {
+                    item.Images = item.images;
+                  } else if (!item.Images) {
+                    item.Images = [];
+                  }
+                  
+                  // Se Images está vazio, mas temos uma URL direta, criar um objeto de imagem
+                  if (item.Images.length === 0) {
+                    // Check different possible image URL sources
+                    if (item.image_url) {
+                      item.Images.push({
+                        id: `default-${item.id}-1`,
+                        url: item.image_url,
+                        is_main: true
+                      });
+                    }
+                    
+                    if (item.url && typeof item.url === 'string' && item.url.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                      item.Images.push({
+                        id: `default-${item.id}-2`,
+                        url: item.url,
+                        is_main: !item.Images.length // Only set as main if no other image exists
+                      });
+                    }
+                    
+                    if (item.imageUrl) {
+                      item.Images.push({
+                        id: `default-${item.id}-3`,
+                        url: item.imageUrl,
+                        is_main: !item.Images.length // Only set as main if no other image exists
+                      });
+                    }
+                  }
+                  
+                  return item;
+                });
+                
             return {
               data: {
-                items: Array.isArray(items) ? items : [items].filter(Boolean),
+                items: processedItems,
                 meta: {
                   totalItems: meta.totalItems || 0,
                   totalPages: meta.totalPages || 1,
@@ -91,8 +188,78 @@ export const productApi = createApi({
     getProduct: builder.query({
       query: (id) => `/api/v1/products/${id}`,
       transformResponse: (response) => {
+        // Add debug logging for individual product
+        console.log('API Product Response:', response?.success, response?.product ? 'Product found' : 'No product');
+        
         if (response && response.success === true && response.product) {
-          return response.product;
+          // Processar produto para garantir estrutura consistente
+          const product = response.product;
+          console.log('Raw product data:', product);
+          
+          // Garantir que Images está disponível e formatado corretamente
+          if (!product.Images && product.images) {
+            product.Images = product.images; // Padronizar com I maiúsculo
+          } else if (!product.Images) {
+            product.Images = []; // Garantir que pelo menos existe um array vazio
+          }
+          
+          // Se Images está vazio, mas temos uma URL direta, criar um objeto de imagem
+          if (product.Images.length === 0) {
+            // Check different possible image URL sources
+            if (product.image_url) {
+              product.Images.push({
+                id: `default-${product.id}-1`,
+                url: product.image_url,
+                is_main: true
+              });
+            }
+            
+            if (product.url && typeof product.url === 'string' && product.url.match(/\.(jpeg|jpg|gif|png)$/i)) {
+              product.Images.push({
+                id: `default-${product.id}-2`,
+                url: product.url,
+                is_main: !product.Images.length // Only set as main if no other image exists
+              });
+            }
+            
+            if (product.imageUrl) {
+              product.Images.push({
+                id: `default-${product.id}-3`,
+                url: product.imageUrl,
+                is_main: !product.Images.length // Only set as main if no other image exists
+              });
+            }
+            
+            // If we still don't have images, check other fields that might have image information
+            if (product.Images.length === 0 && product.category_id) {
+              // Add a placeholder based on category
+              const categoryId = product.category_id.toLowerCase();
+              let placeholderUrl = '/assets/placeholder-product.png';
+              
+              if (categoryId.includes('hydraulic')) {
+                placeholderUrl = '/assets/icons/category-hydraulic.png';
+              } else if (categoryId.includes('electric')) {
+                placeholderUrl = '/assets/icons/category-electric.png';
+              } else if (categoryId.includes('tools')) {
+                placeholderUrl = '/assets/icons/category-tools.png';
+              }
+              
+              product.Images.push({
+                id: `placeholder-${product.id}`,
+                url: placeholderUrl,
+                is_main: true
+              });
+            }
+          }
+          
+          // Padronizar preço e outras propriedades importantes
+          if (!product.price && product.variants && product.variants.length > 0 && 
+              product.variants[0].prices && product.variants[0].prices.length > 0) {
+            product.price = product.variants[0].prices[0].gross_price;
+          }
+          
+          console.log('Processed product data:', product);
+          return product;
         }
         return null;
       },

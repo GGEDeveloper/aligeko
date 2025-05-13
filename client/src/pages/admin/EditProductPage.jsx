@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import ProductImageManagement from '../../components/products/ProductImageManagement';
 
 // Import API queries for the product and related data
-import { useGetProductByIdQuery } from '../../store/api/productApi';
+import { useGetProductQuery } from '../../store/api/productApi';
 import { useGetCategoriesQuery } from '../../store/api/categoryApi';
 import { useGetAllProducersQuery } from '../../store/api/producerApi';
 import { useGetAllUnitsQuery } from '../../store/api/unitApi';
@@ -17,13 +17,12 @@ const EditProductPage = () => {
   const navigate = useNavigate();
   
   // Fetch the product to edit
-  const { 
-    data: product, 
-    isLoading: isLoadingProduct, 
-    error: productError,
-    isError: isProductError,
-    refetch
-  } = useGetProductByIdQuery(id);
+  const {
+    data: product,
+    isLoading,
+    isError,
+    error
+  } = useGetProductQuery(id);
   
   // Fetch required data for the form
   const { data: categories, isLoading: isLoadingCategories } = useGetCategoriesQuery();
@@ -31,7 +30,7 @@ const EditProductPage = () => {
   const { data: units, isLoading: isLoadingUnits } = useGetAllUnitsQuery();
   
   // Combined loading state
-  const isLoading = isLoadingProduct || isLoadingCategories || isLoadingProducers || isLoadingUnits;
+  const isLoadingForm = isLoading || isLoadingCategories || isLoadingProducers || isLoadingUnits;
   
   const [activeTab, setActiveTab] = useState('basic');
   
@@ -60,15 +59,15 @@ const EditProductPage = () => {
           className="mb-4"
         >
           <Tab eventKey="basic" title="Informações Básicas">
-            {isLoading ? (
+            {isLoadingForm ? (
               <div className="text-center">
                 <div className="spinner-border text-primary" role="status">
                   <span className="visually-hidden">Carregando...</span>
                 </div>
               </div>
-            ) : isProductError ? (
+            ) : isError ? (
               <Alert variant="danger">
-                {productError?.data?.message || `Não foi possível carregar o produto (ID: ${id})`}
+                {error?.data?.message || `Não foi possível carregar o produto (ID: ${id})`}
               </Alert>
             ) : (
               <ProductForm 
@@ -90,7 +89,6 @@ const EditProductPage = () => {
               <ProductImageManagement 
                 productId={product.id}
                 images={product.images || []}
-                onImagesUpdated={() => refetch()}
               />
             ) : (
               <Alert variant="info">

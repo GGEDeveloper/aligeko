@@ -1,4 +1,6 @@
-import { Product, Category, Producer, Unit, Variant, Stock, Price, Image } from '../models.js';
+import { Product, Category, Producer, Unit, Variant, Stock, Price, Image } from '../models/index.js';
+import sequelize from '../config/database.js';
+import logger from '../config/logger.js';
 
 /**
  * Get all products with pagination
@@ -6,31 +8,75 @@ import { Product, Category, Producer, Unit, Variant, Stock, Price, Image } from 
  */
 export const getAllProducts = async (req, res) => {
   try {
+    // Test and log database connection first
+    try {
+      await sequelize.authenticate();
+      logger.info('Database connection is successful');
+    } catch (dbError) {
+      logger.error('Database connection error:', dbError);
+      throw new Error(`Database connection failed: ${dbError.message}`);
+    }
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     
+    // Add query parameters for filtering
+    const whereClause = {};
+    const categoryFilter = req.query.category ? { name: req.query.category } : {};
+    const producerFilter = req.query.producer ? { name: req.query.producer } : {};
+    
+    // Add search filter
+    if (req.query.search) {
+      whereClause.name = { $like: `%${req.query.search}%` };
+    }
+    
+    // Add price range filter
+    if (req.query.minPrice || req.query.maxPrice) {
+      whereClause.price = {};
+      if (req.query.minPrice) whereClause.price.$gte = parseFloat(req.query.minPrice);
+      if (req.query.maxPrice) whereClause.price.$lte = parseFloat(req.query.maxPrice);
+    }
+    
+    // Log the query we're about to execute
+    logger.info(`Executing product query with limit ${limit}, offset ${offset}`);
+    
     const { count, rows } = await Product.findAndCountAll({
+      where: whereClause,
       limit,
       offset,
       include: [
-        { model: Category, attributes: ['id', 'name'] },
-        { model: Producer, attributes: ['id', 'name'] },
+        { model: Category, attributes: ['id', 'name'], where: categoryFilter },
+        { model: Producer, attributes: ['id', 'name'], where: producerFilter },
         { model: Unit, attributes: ['id', 'name', 'moq'] },
         { model: Image, attributes: ['id', 'url'] }
       ],
-      order: [['id', 'ASC']]
+      order: [['id', 'ASC']],
+      distinct: true // Count only distinct products regardless of joined rows
     });
     
+    // Log the response
+    logger.info(`Found ${count} products, returning ${rows.length} items`);
+    
     return res.status(200).json({
-      products: rows,
+      success: true,
+      data: {
+        items: rows,
       totalItems: count,
       totalPages: Math.ceil(count / limit),
-      currentPage: page
+        page,
+        limit
+      }
     });
   } catch (error) {
-    console.error('Error fetching products:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    logger.error('Error fetching products:', error);
+    
+    // If there's a database connection error, respond with error instead of fallback mock data
+    return res.status(500).json({ 
+      success: false,
+      error: error.message || 'Internal server error',
+      message: 'Failed to fetch products from database'
+    });
   }
 };
 

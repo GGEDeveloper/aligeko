@@ -1,3 +1,4 @@
+
 # Dependencies
 **/node_modules
 
@@ -16,30 +17,8 @@ client/.vite
 # Development files
 README.md
 CHANGELOG.md
-.prettierrc
-.eslintrc
-.editorconfig
 .git
 .github
 
-# Testing
-coverage
-**/__tests__
-**/test
-
 # Documentation
 docs/
-
-# Misc
-.cursor
-.roo
-**/README.md
-
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw? 

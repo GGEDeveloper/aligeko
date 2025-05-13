@@ -7,18 +7,19 @@
 
 import { Sequelize } from 'sequelize';
 import logger from '../config/logger.js';
+import sequelize from '../config/database.js';
 
 // Import model definitions
-import Product from './product.js';
-import Category from './category.js';
-import Producer from './producer.js';
-import Unit from './unit.js';
-import Variant from './variant.js';
-import Stock from './stock.js';
-import Price from './price.js';
-import Image from './image.js';
-import Document from './document.js';
-import ProductProperty from './product-property.js';
+import CategoryModel from './category.js';
+import ProducerModel from './producer.js';
+import UnitModel from './unit.js';
+import ProductModel from './product.js';
+import VariantModel from './variant.js';
+import StockModel from './stock.js';
+import PriceModel from './price.js';
+import ImageModel from './image.js';
+import DocumentModel from './document.js';
+import ProductPropertyModel from './product-property.js';
 
 const env = process.env.NODE_ENV || 'development';
 const config = {
@@ -37,35 +38,33 @@ const config = {
   }
 };
 
-// Initialize Sequelize
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  {
-    host: config.host,
-    port: config.port,
-    dialect: config.dialect,
-    logging: config.logging,
-    pool: config.pool
-  }
-);
+// Initialize models by calling the model functions with sequelize instance
+const Category = CategoryModel(sequelize);
+const Producer = ProducerModel(sequelize);
+const Unit = UnitModel(sequelize);
+const Product = ProductModel(sequelize);
+const Variant = VariantModel(sequelize);
+const Stock = StockModel(sequelize);
+const Price = PriceModel(sequelize);
+const Image = ImageModel(sequelize);
+const Document = DocumentModel(sequelize);
+const ProductProperty = ProductPropertyModel(sequelize);
 
 // Initialize models
 const models = {
-  Product: Product(sequelize),
-  Category: Category(sequelize),
-  Producer: Producer(sequelize),
-  Unit: Unit(sequelize),
-  Variant: Variant(sequelize),
-  Stock: Stock(sequelize),
-  Price: Price(sequelize),
-  Image: Image(sequelize),
-  Document: Document(sequelize),
-  ProductProperty: ProductProperty(sequelize)
+  Category,
+  Producer,
+  Unit,
+  Product,
+  Variant,
+  Stock,
+  Price,
+  Image,
+  Document,
+  ProductProperty
 };
 
-// Set up associations
+// Set up associations using the associate method in each model
 Object.keys(models).forEach(modelName => {
   if (models[modelName].associate) {
     models[modelName].associate(models);

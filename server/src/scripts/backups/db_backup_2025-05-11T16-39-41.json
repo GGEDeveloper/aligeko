@@ -1,0 +1,503 @@
+{
+  "categories": [
+    {
+      "id": "105266",
+      "name": "Hydraulic Lifts",
+      "path": "Spare Parts\\Hydraulic Lifts",
+      "createdAt": "2025-05-11T16:03:52.078Z",
+      "updatedAt": "2025-05-11T16:03:52.078Z"
+    },
+    {
+      "id": "105267",
+      "name": "Welders and Mig Machines",
+      "path": "Spare Parts\\Welders and Mig Machines",
+      "createdAt": "2025-05-11T16:03:52.078Z",
+      "updatedAt": "2025-05-11T16:03:52.078Z"
+    }
+  ],
+  "producers": [
+    {
+      "id": 8193,
+      "name": "GEKO",
+      "createdAt": "2025-05-11T16:03:52.216Z",
+      "updatedAt": "2025-05-11T16:03:52.216Z"
+    }
+  ],
+  "units": [
+    {
+      "id": "1409457136565705379",
+      "name": "kpl.",
+      "moq": 1,
+      "createdAt": "2025-05-11T16:03:52.262Z",
+      "updatedAt": "2025-05-11T16:03:52.262Z"
+    },
+    {
+      "id": "4800399769571371698",
+      "name": "pcs",
+      "moq": 1,
+      "createdAt": "2025-05-11T16:03:52.262Z",
+      "updatedAt": "2025-05-11T16:03:52.262Z"
+    }
+  ],
+  "products": [
+    {
+      "id": 102214,
+      "code": "C00049",
+      "name": "Front wheel 10pcs + back wheelor floor jack 2,5T",
+      "description_long": "{\"xml:lang\":\"en\"}",
+      "description_short": "{\"xml:lang\":\"en\"}",
+      "ean": null,
+      "producer_code": "5901477140723",
+      "category_id": "105266",
+      "producer_id": null,
+      "unit_id": "1409457136565705379",
+      "vat": "0.00",
+      "url": "https://b2b.geko.pl/en/front-wheel-10pcs-back-wheelor-floor-jack-2-5t",
+      "createdAt": "2025-05-11T16:03:52.393Z",
+      "updatedAt": "2025-05-11T16:03:52.393Z"
+    },
+    {
+      "id": 102215,
+      "code": "C00050",
+      "name": "Set of wheels for hydraulic jacks 2T and 2,5T",
+      "description_long": "{\"xml:lang\":\"en\"}",
+      "description_short": "{\"xml:lang\":\"en\"}",
+      "ean": null,
+      "producer_code": "5901477128028",
+      "category_id": "105266",
+      "producer_id": null,
+      "unit_id": "4800399769571371698",
+      "vat": "0.00",
+      "url": "https://b2b.geko.pl/en/set-of-wheels-for-hydraulic-jacks-2t-and-2-5t",
+      "createdAt": "2025-05-11T16:03:52.528Z",
+      "updatedAt": "2025-05-11T16:03:52.528Z"
+    },
+    {
+      "id": 102216,
+      "code": "C00052",
+      "name": "Handle for floor jack 2,5T",
+      "description_long": "{\"xml:lang\":\"en\"}",
+      "description_short": "{\"xml:lang\":\"en\"}",
+      "ean": null,
+      "producer_code": "5901477140730",
+      "category_id": "105266",
+      "producer_id": null,
+      "unit_id": "4800399769571371698",
+      "vat": "0.00",
+      "url": "https://b2b.geko.pl/en/handle-for-floor-jack-2-5t",
+      "createdAt": "2025-05-11T16:03:52.658Z",
+      "updatedAt": "2025-05-11T16:03:52.658Z"
+    },
+    {
+      "id": 102217,
+      "code": "C00053",
+      "name": "Bearing for floor jack 2,5T",
+      "description_long": "{\"xml:lang\":\"en\"}",
+      "description_short": "{\"xml:lang\":\"en\"}",
+      "ean": null,
+      "producer_code": "5901477140747",
+      "category_id": "105266",
+      "producer_id": null,
+      "unit_id": "4800399769571371698",
+      "vat": "0.00",
+      "url": "https://b2b.geko.pl/en/bearing-for-floor-jack-2-5t",
+      "createdAt": "2025-05-11T16:03:52.790Z",
+      "updatedAt": "2025-05-11T16:03:52.790Z"
+    },
+    {
+      "id": 102218,
+      "code": "C00054",
+      "name": "Plastic handle for floor jack 2,5T",
+      "description_long": "{\"xml:lang\":\"en\"}",
+      "description_short": "{\"xml:lang\":\"en\"}",
+      "ean": null,
+      "producer_code": "5901477140754",
+      "category_id": "105266",
+      "producer_id": null,
+      "unit_id": "4800399769571371698",
+      "vat": "0.00",
+      "url": "https://b2b.geko.pl/en/plastic-handle-for-floor-jack-2-5t",
+      "createdAt": "2025-05-11T16:03:52.920Z",
+      "updatedAt": "2025-05-11T16:03:52.920Z"
+    },
+    {
+      "id": 102219,
+      "code": "C00056",
+      "name": "Cylinder for floor jack 2,5T",
+      "description_long": "{\"xml:lang\":\"en\"}",
+      "description_short": "{\"xml:lang\":\"en\"}",
+      "ean": null,
+      "producer_code": "5901477140761",
+      "category_id": "105266",
+      "producer_id": null,
+      "unit_id": "4800399769571371698",
+      "vat": "0.00",
+      "url": "https://b2b.geko.pl/en/cylinder-for-floor-jack-2-5t",
+      "createdAt": "2025-05-11T16:03:53.048Z",
+      "updatedAt": "2025-05-11T16:03:53.048Z"
+    },
+    {
+      "id": 102220,
+      "code": "C00100",
+      "name": "Welding clamp with cable for MIG250",
+      "description_long": "{\"xml:lang\":\"en\"}",
+      "description_short": "{\"xml:lang\":\"en\"}",
+      "ean": null,
+      "producer_code": "5901477128882",
+      "category_id": "105267",
+      "producer_id": null,
+      "unit_id": "4800399769571371698",
+      "vat": "0.00",
+      "url": "https://b2b.geko.pl/en/welding-clamp-with-cable-for-mig250",
+      "createdAt": "2025-05-11T16:03:53.180Z",
+      "updatedAt": "2025-05-11T16:03:53.180Z"
+    },
+    {
+      "id": 102221,
+      "code": "C00101",
+      "name": "Welding torch with cable for MIG250",
+      "description_long": "{\"xml:lang\":\"en\"}",
+      "description_short": "{\"xml:lang\":\"en\"}",
+      "ean": null,
+      "producer_code": "5901477128899",
+      "category_id": "105267",
+      "producer_id": null,
+      "unit_id": "4800399769571371698",
+      "vat": "0.00",
+      "url": "https://b2b.geko.pl/en/welding-torch-with-cable-for-mig250",
+      "createdAt": "2025-05-11T16:03:53.314Z",
+      "updatedAt": "2025-05-11T16:03:53.314Z"
+    },
+    {
+      "id": 102222,
+      "code": "C00102",
+      "name": "Switch for MIG250",
+      "description_long": "{\"xml:lang\":\"en\"}",
+      "description_short": "{\"xml:lang\":\"en\"}",
+      "ean": null,
+      "producer_code": "5901477128905",
+      "category_id": "105267",
+      "producer_id": null,
+      "unit_id": "4800399769571371698",
+      "vat": "0.00",
+      "url": "https://b2b.geko.pl/en/switch-for-mig250",
+      "createdAt": "2025-05-11T16:03:53.446Z",
+      "updatedAt": "2025-05-11T16:03:53.446Z"
+    },
+    {
+      "id": 102223,
+      "code": "C00103",
+      "name": "Welding wire spool for MIG250",
+      "description_long": "{\"xml:lang\":\"en\"}",
+      "description_short": "{\"xml:lang\":\"en\"}",
+      "ean": null,
+      "producer_code": "5901477128912",
+      "category_id": "105267",
+      "producer_id": null,
+      "unit_id": "4800399769571371698",
+      "vat": "0.00",
+      "url": "https://b2b.geko.pl/en/welding-wire-spool-for-mig250",
+      "createdAt": "2025-05-11T16:03:53.577Z",
+      "updatedAt": "2025-05-11T16:03:53.577Z"
+    }
+  ],
+  "variants": [
+    {
+      "id": 97917,
+      "product_id": 102214,
+      "code": "C00049",
+      "weight": "90",
+      "gross_weight": "0",
+      "createdAt": "2025-05-11T16:03:53.709Z",
+      "updatedAt": "2025-05-11T16:03:53.709Z"
+    },
+    {
+      "id": 97918,
+      "product_id": 102215,
+      "code": "C00050",
+      "weight": "3250",
+      "gross_weight": "0",
+      "createdAt": "2025-05-11T16:03:53.843Z",
+      "updatedAt": "2025-05-11T16:03:53.843Z"
+    },
+    {
+      "id": 97919,
+      "product_id": 102216,
+      "code": "C00052",
+      "weight": "50",
+      "gross_weight": "0",
+      "createdAt": "2025-05-11T16:03:53.977Z",
+      "updatedAt": "2025-05-11T16:03:53.977Z"
+    },
+    {
+      "id": 97920,
+      "product_id": 102217,
+      "code": "C00053",
+      "weight": "600",
+      "gross_weight": "650",
+      "createdAt": "2025-05-11T16:03:54.119Z",
+      "updatedAt": "2025-05-11T16:03:54.119Z"
+    },
+    {
+      "id": 97921,
+      "product_id": 102218,
+      "code": "C00054",
+      "weight": "50",
+      "gross_weight": "0",
+      "createdAt": "2025-05-11T16:03:54.254Z",
+      "updatedAt": "2025-05-11T16:03:54.254Z"
+    },
+    {
+      "id": 97922,
+      "product_id": 102219,
+      "code": "C00056",
+      "weight": "2900",
+      "gross_weight": "3000",
+      "createdAt": "2025-05-11T16:03:54.381Z",
+      "updatedAt": "2025-05-11T16:03:54.381Z"
+    },
+    {
+      "id": 97923,
+      "product_id": 102220,
+      "code": "C00100",
+      "weight": "80",
+      "gross_weight": "100",
+      "createdAt": "2025-05-11T16:03:54.512Z",
+      "updatedAt": "2025-05-11T16:03:54.512Z"
+    },
+    {
+      "id": 97924,
+      "product_id": 102221,
+      "code": "C00101",
+      "weight": "80",
+      "gross_weight": "0",
+      "createdAt": "2025-05-11T16:03:54.640Z",
+      "updatedAt": "2025-05-11T16:03:54.640Z"
+    },
+    {
+      "id": 97925,
+      "product_id": 102222,
+      "code": "C00102",
+      "weight": "100",
+      "gross_weight": "130",
+      "createdAt": "2025-05-11T16:03:54.780Z",
+      "updatedAt": "2025-05-11T16:03:54.780Z"
+    },
+    {
+      "id": 97926,
+      "product_id": 102223,
+      "code": "C00103",
+      "weight": "300",
+      "gross_weight": "400",
+      "createdAt": "2025-05-11T16:03:54.910Z",
+      "updatedAt": "2025-05-11T16:03:54.910Z"
+    }
+  ],
+  "stocks": [
+    {
+      "id": 97907,
+      "variant_id": 97917,
+      "quantity": 0,
+      "available": false,
+      "createdAt": "2025-05-11T16:03:54.955Z",
+      "updatedAt": "2025-05-11T16:03:54.955Z"
+    },
+    {
+      "id": 97908,
+      "variant_id": 97918,
+      "quantity": 0,
+      "available": false,
+      "createdAt": "2025-05-11T16:03:54.955Z",
+      "updatedAt": "2025-05-11T16:03:54.955Z"
+    },
+    {
+      "id": 97909,
+      "variant_id": 97919,
+      "quantity": 0,
+      "available": false,
+      "createdAt": "2025-05-11T16:03:54.955Z",
+      "updatedAt": "2025-05-11T16:03:54.955Z"
+    },
+    {
+      "id": 97910,
+      "variant_id": 97920,
+      "quantity": 4,
+      "available": true,
+      "createdAt": "2025-05-11T16:03:54.955Z",
+      "updatedAt": "2025-05-11T16:03:54.955Z"
+    },
+    {
+      "id": 97911,
+      "variant_id": 97921,
+      "quantity": 0,
+      "available": false,
+      "createdAt": "2025-05-11T16:03:54.955Z",
+      "updatedAt": "2025-05-11T16:03:54.955Z"
+    },
+    {
+      "id": 97912,
+      "variant_id": 97922,
+      "quantity": 6,
+      "available": true,
+      "createdAt": "2025-05-11T16:03:54.955Z",
+      "updatedAt": "2025-05-11T16:03:54.955Z"
+    },
+    {
+      "id": 97913,
+      "variant_id": 97923,
+      "quantity": 0,
+      "available": false,
+      "createdAt": "2025-05-11T16:03:54.955Z",
+      "updatedAt": "2025-05-11T16:03:54.955Z"
+    },
+    {
+      "id": 97914,
+      "variant_id": 97924,
+      "quantity": 0,
+      "available": false,
+      "createdAt": "2025-05-11T16:03:54.955Z",
+      "updatedAt": "2025-05-11T16:03:54.955Z"
+    },
+    {
+      "id": 97915,
+      "variant_id": 97925,
+      "quantity": 0,
+      "available": false,
+      "createdAt": "2025-05-11T16:03:54.955Z",
+      "updatedAt": "2025-05-11T16:03:54.955Z"
+    },
+    {
+      "id": 97916,
+      "variant_id": 97926,
+      "quantity": 3,
+      "available": true,
+      "createdAt": "2025-05-11T16:03:54.955Z",
+      "updatedAt": "2025-05-11T16:03:54.955Z"
+    }
+  ],
+  "prices": [
+    {
+      "id": 97887,
+      "variant_id": 97917,
+      "gross_price": "2.18",
+      "net_price": "2.18",
+      "srp_gross": "2.62",
+      "srp_net": "2.62",
+      "createdAt": "2025-05-11T16:03:55.001Z",
+      "updatedAt": "2025-05-11T16:03:55.001Z"
+    },
+    {
+      "id": 97888,
+      "variant_id": 97918,
+      "gross_price": "6.71",
+      "net_price": "6.71",
+      "srp_gross": "8.05",
+      "srp_net": "8.05",
+      "createdAt": "2025-05-11T16:03:55.001Z",
+      "updatedAt": "2025-05-11T16:03:55.001Z"
+    },
+    {
+      "id": 97889,
+      "variant_id": 97919,
+      "gross_price": "1.44",
+      "net_price": "1.44",
+      "srp_gross": "1.73",
+      "srp_net": "1.73",
+      "createdAt": "2025-05-11T16:03:55.001Z",
+      "updatedAt": "2025-05-11T16:03:55.001Z"
+    },
+    {
+      "id": 97890,
+      "variant_id": 97920,
+      "gross_price": "0.82",
+      "net_price": "0.82",
+      "srp_gross": "0.98",
+      "srp_net": "0.98",
+      "createdAt": "2025-05-11T16:03:55.001Z",
+      "updatedAt": "2025-05-11T16:03:55.001Z"
+    },
+    {
+      "id": 97891,
+      "variant_id": 97921,
+      "gross_price": "1.87",
+      "net_price": "1.87",
+      "srp_gross": "2.24",
+      "srp_net": "2.24",
+      "createdAt": "2025-05-11T16:03:55.001Z",
+      "updatedAt": "2025-05-11T16:03:55.001Z"
+    },
+    {
+      "id": 97892,
+      "variant_id": 97922,
+      "gross_price": "12.55",
+      "net_price": "12.55",
+      "srp_gross": "15.06",
+      "srp_net": "15.06",
+      "createdAt": "2025-05-11T16:03:55.001Z",
+      "updatedAt": "2025-05-11T16:03:55.001Z"
+    },
+    {
+      "id": 97893,
+      "variant_id": 97923,
+      "gross_price": "13.90",
+      "net_price": "13.90",
+      "srp_gross": "16.68",
+      "srp_net": "16.68",
+      "createdAt": "2025-05-11T16:03:55.001Z",
+      "updatedAt": "2025-05-11T16:03:55.001Z"
+    },
+    {
+      "id": 97894,
+      "variant_id": 97924,
+      "gross_price": "60.06",
+      "net_price": "60.06",
+      "srp_gross": "72.07",
+      "srp_net": "72.07",
+      "createdAt": "2025-05-11T16:03:55.001Z",
+      "updatedAt": "2025-05-11T16:03:55.001Z"
+    },
+    {
+      "id": 97895,
+      "variant_id": 97925,
+      "gross_price": "22.62",
+      "net_price": "22.62",
+      "srp_gross": "27.14",
+      "srp_net": "27.14",
+      "createdAt": "2025-05-11T16:03:55.001Z",
+      "updatedAt": "2025-05-11T16:03:55.001Z"
+    },
+    {
+      "id": 97896,
+      "variant_id": 97926,
+      "gross_price": "17.80",
+      "net_price": "17.80",
+      "srp_gross": "21.36",
+      "srp_net": "21.36",
+      "createdAt": "2025-05-11T16:03:55.001Z",
+      "updatedAt": "2025-05-11T16:03:55.001Z"
+    }
+  ],
+  "images": [
+    {
+      "id": 1,
+      "product_id": 102214,
+      "url": "\n                            ",
+      "createdAt": "2025-05-11T16:03:55.047Z",
+      "updatedAt": "2025-05-11T16:03:55.047Z"
+    },
+    {
+      "id": 2,
+      "product_id": 102216,
+      "url": "\n                            ",
+      "createdAt": "2025-05-11T16:03:55.047Z",
+      "updatedAt": "2025-05-11T16:03:55.047Z"
+    },
+    {
+      "id": 3,
+      "product_id": 102219,
+      "url": "\n                            ",
+      "createdAt": "2025-05-11T16:03:55.047Z",
+      "updatedAt": "2025-05-11T16:03:55.047Z"
+    }
+  ]
+}

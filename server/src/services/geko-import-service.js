@@ -9,8 +9,8 @@
 import logger from '../config/logger.js';
 import { Op } from 'sequelize';
 import fs from 'fs';
-import sequelize from '../config/sequelize.js';
-import { Category, Producer, Unit, Product, Variant, Stock, Price, Image, Document, ProductProperty } from '../models/index.js';
+import sequelize from '../config/database.js';
+import models from '../models/index.js';
 import GekoXmlParser from '../utils/geko-xml-parser.js';
 import { checkAndManageStorage } from '../scripts/storage-management.js';
 
@@ -29,6 +29,8 @@ class GekoImportService {
       batchSize: options.batchSize || 500,
       updateExisting: options.updateExisting || true,
       skipImages: options.skipImages || false,
+      useFindOrCreate: options.useFindOrCreate || false,
+      modelStatus: options.modelStatus || {},
       ...options
     };
     
@@ -62,20 +64,64 @@ class GekoImportService {
       logger.info(`Starting GEKO data import with ${this.options.batchSize} batch size`);
       
       // Import in the correct order to maintain relationships
-      await this._importCategories(parsedData.categories, transaction);
-      await this._importProducers(parsedData.producers, transaction);
-      await this._importUnits(parsedData.units, transaction);
-      await this._importProducts(parsedData.products, transaction);
-      await this._importVariants(parsedData.variants, transaction);
-      await this._importStocks(parsedData.stocks, transaction);
-      await this._importPrices(parsedData.prices, transaction);
+      if (parsedData.categories && parsedData.categories.length > 0) {
+        await this._importCategories(parsedData.categories, transaction);
+      }
       
-      if (!this.options.skipImages) {
+      if (parsedData.producers && parsedData.producers.length > 0) {
+        await this._importProducers(parsedData.producers, transaction);
+      }
+      
+      if (parsedData.units && parsedData.units.length > 0) {
+        await this._importUnits(parsedData.units, transaction);
+      }
+      
+      if (parsedData.products && parsedData.products.length > 0) {
+        await this._importProducts(parsedData.products, transaction);
+      }
+      
+      if (parsedData.variants && parsedData.variants.length > 0) {
+        await this._importVariants(parsedData.variants, transaction);
+      }
+      
+      if (parsedData.stocks && parsedData.stocks.length > 0) {
+        await this._importStocks(parsedData.stocks, transaction);
+      }
+      
+      if (parsedData.prices && parsedData.prices.length > 0) {
+        await this._importPrices(parsedData.prices, transaction);
+      }
+      
+      if (!this.options.skipImages && parsedData.images && parsedData.images.length > 0) {
         await this._importImages(parsedData.images, transaction);
       }
       
-      await this._importDocuments(parsedData.documents, transaction);
-      await this._importProductProperties(parsedData.productProperties, transaction);
+      // Only process these if they exist in the data and in the models
+      const canImportDocuments = 
+        this.models.Document && 
+        (!this.options.modelStatus.Document === false) && 
+        parsedData.documents && 
+        parsedData.documents.length > 0;
+      
+      if (canImportDocuments) {
+        await this._importDocuments(parsedData.documents, transaction);
+      } else if (parsedData.documents && parsedData.documents.length > 0) {
+        logger.warn(`Skipping ${parsedData.documents.length} documents because Document model is not available`);
+        this.stats.skipped.documents = parsedData.documents.length;
+      }
+      
+      const canImportProductProperties = 
+        this.models.ProductProperty && 
+        (!this.options.modelStatus.ProductProperty === false) && 
+        parsedData.productProperties && 
+        parsedData.productProperties.length > 0;
+      
+      if (canImportProductProperties) {
+        await this._importProductProperties(parsedData.productProperties, transaction);
+      } else if (parsedData.productProperties && parsedData.productProperties.length > 0) {
+        logger.warn(`Skipping ${parsedData.productProperties.length} product properties because ProductProperty model is not available`);
+        this.stats.skipped.productProperties = parsedData.productProperties.length;
+      }
       
       this.stats.endTime = new Date();
       this.stats.totalTime = (this.stats.endTime - this.stats.startTime) / 1000;
@@ -89,6 +135,136 @@ class GekoImportService {
   }
   
   /**
+   * Método utilitário para importar em lotes com findOrCreate ou bulkCreate
+   * @param {Array} items - Itens a importar
+   * @param {Object} model - Modelo Sequelize
+   * @param {Object} whereField - Campo para usar na cláusula where
+   * @param {Array} updateFields - Campos para atualizar se registro existir
+   * @param {Object} transaction - Transação do Sequelize
+   * @param {String} entityName - Nome da entidade para estatísticas
+   * @private
+   */
+  async _batchImport(items, model, whereField, updateFields, transaction, entityName) {
+    if (!items || items.length === 0) return;
+    
+    const useFindOrCreate = true; // Always use findOrCreate for better error handling
+    this.stats.created[entityName] = this.stats.created[entityName] || 0;
+    this.stats.updated[entityName] = this.stats.updated[entityName] || 0;
+    this.stats.errors[entityName] = this.stats.errors[entityName] || 0;
+    
+    // Log the import start
+    logger.info(`Importing ${items.length} ${entityName} in ${Math.ceil(items.length / this.options.batchSize)} batches`);
+    
+    // Processar em lotes
+    for (let i = 0; i < items.length; i += this.options.batchSize) {
+      const batch = items.slice(i, i + this.options.batchSize);
+      logger.info(`Imported ${entityName} batch ${i + 1} to ${Math.min(i + batch.length, items.length)} of ${items.length}`);
+      
+      if (useFindOrCreate) {
+        const batchPromises = [];
+        
+        // Create promises for each item but don't await them yet
+        for (const item of batch) {
+          if (!item[whereField]) {
+            logger.warn(`Skipping ${entityName} without ${whereField}`);
+            continue;
+          }
+          
+          // Create promise but don't await
+          const importPromise = (async () => {
+            try {
+              const whereClause = {};
+              whereClause[whereField] = item[whereField];
+              
+              const [entity, created] = await model.findOrCreate({
+                where: whereClause,
+                defaults: item,
+                transaction
+              });
+              
+              if (created) {
+                this.stats.created[entityName]++;
+              } else if (this.options.updateExisting) {
+                // Criar objeto de atualização apenas com os campos permitidos
+                const updateData = {};
+                updateFields.forEach(field => {
+                  if (item[field] !== undefined) {
+                    updateData[field] = item[field];
+                  }
+                });
+                
+                // Atualizar timestamp
+                updateData.updated_at = new Date();
+                
+                await entity.update(updateData, { transaction });
+                this.stats.updated[entityName]++;
+              }
+              
+              // Para categorias, produtores, etc., manter o mapa de consulta
+              if (entityName === 'categories' && item.id) {
+                this.lookupMaps.categories.set(item.id, entity.id);
+              } else if (entityName === 'producers' && item.name) {
+                this.lookupMaps.producers.set(item.name, entity.id);
+              } else if (entityName === 'units' && item.id) {
+                this.lookupMaps.units.set(item.id, entity.id);
+              } else if (entityName === 'products' && item.code) {
+                this.lookupMaps.products.set(item.code, entity.id);
+              } else if (entityName === 'variants' && item.code) {
+                this.lookupMaps.variants.set(item.code, entity.id);
+              }
+              
+              return { success: true, entity };
+            } catch (error) {
+              logger.error(`Error importing ${entityName} with ${whereField}=${item[whereField]}: ${error.message}`);
+              this.stats.errors[entityName]++;
+              return { success: false, error };
+            }
+          })();
+          
+          batchPromises.push(importPromise);
+        }
+        
+        // Now resolve all promises in the batch
+        await Promise.allSettled(batchPromises);
+      } else {
+        // This code path is no longer used but kept for reference
+        try {
+          const result = await model.bulkCreate(batch, {
+            updateOnDuplicate: updateFields,
+            transaction
+          });
+          
+          result.forEach(entity => {
+            if (entity._isNewRecord) {
+              this.stats.created[entityName]++;
+            } else {
+              this.stats.updated[entityName]++;
+            }
+            
+            if (entityName === 'categories' && entity.id) {
+              this.lookupMaps.categories.set(entity.id, entity.id);
+            } else if (entityName === 'producers' && entity.name) {
+              this.lookupMaps.producers.set(entity.name, entity.id);
+            } else if (entityName === 'units' && entity.id) {
+              this.lookupMaps.units.set(entity.id, entity.id);
+            } else if (entityName === 'products' && entity.code) {
+              this.lookupMaps.products.set(entity.code, entity.id);
+            } else if (entityName === 'variants' && entity.code) {
+              this.lookupMaps.variants.set(entity.code, entity.id);
+            }
+          });
+        } catch (error) {
+          logger.error(`Error batch importing ${entityName}: ${error.message}`);
+          this.stats.errors[entityName] = (this.stats.errors[entityName] || 0) + batch.length;
+        }
+      }
+    }
+    
+    // Log import completion
+    logger.info(`${entityName} import completed: ${this.stats.created[entityName] || 0} created, ${this.stats.updated[entityName] || 0} updated, ${this.stats.errors[entityName] || 0} errors`);
+  }
+  
+  /**
    * Import categories in batches
    * @private
    */
@@ -98,48 +274,21 @@ class GekoImportService {
       return;
     }
     
-    logger.info(`Importing ${categories.length} categories`);
-    this.stats.created.categories = 0;
-    this.stats.updated.categories = 0;
-    
-    // Process in batches
-    for (let i = 0; i < categories.length; i += this.options.batchSize) {
-      const batch = categories.slice(i, i + this.options.batchSize);
-      const batchPromises = batch.map(async (category) => {
-        try {
-          // Check if category exists
-          const [categoryModel, created] = await this.models.Category.findOrCreate({
-            where: { 
-              id: category.id 
-            },
-            defaults: {
-              ...category
-            },
-            transaction
-          });
-          
-          // Update if exists and update option is enabled
-          if (!created && this.options.updateExisting) {
-            await categoryModel.update(category, { transaction });
-            this.stats.updated.categories++;
-          } else if (created) {
-            this.stats.created.categories++;
-          }
-          
-          // Store in lookup map
-          this.lookupMaps.categories.set(category.id, categoryModel.id);
-          
-        } catch (error) {
-          logger.error(`Error importing category ${category.id}: ${error.message}`);
-          this.stats.errors.categories = (this.stats.errors.categories || 0) + 1;
-        }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Imported categories batch ${i + 1} to ${i + batch.length} of ${categories.length}`);
+    // Check if Category model exists
+    if (!this.models.Category) {
+      logger.warn('Category model not found in models object, skipping categories import');
+      return;
     }
     
-    logger.info(`Categories import completed: ${this.stats.created.categories} created, ${this.stats.updated.categories} updated`);
+    logger.info(`Importing ${categories.length} categories`);
+    await this._batchImport(
+      categories,
+      this.models.Category,
+      'id',
+      ['name', 'path', 'parent_id', 'idosell_path', 'updated_at'],
+      transaction,
+      'categories'
+    );
   }
   
   /**
@@ -152,48 +301,21 @@ class GekoImportService {
       return;
     }
     
-    logger.info(`Importing ${producers.length} producers`);
-    this.stats.created.producers = 0;
-    this.stats.updated.producers = 0;
-    
-    // Process in batches
-    for (let i = 0; i < producers.length; i += this.options.batchSize) {
-      const batch = producers.slice(i, i + this.options.batchSize);
-      const batchPromises = batch.map(async (producer) => {
-        try {
-          // Find by name since it's more reliable than ID
-          const [producerModel, created] = await this.models.Producer.findOrCreate({
-            where: { 
-              name: producer.name 
-            },
-            defaults: {
-              ...producer
-            },
-            transaction
-          });
-          
-          // Update if exists and update option is enabled
-          if (!created && this.options.updateExisting) {
-            await producerModel.update(producer, { transaction });
-            this.stats.updated.producers++;
-          } else if (created) {
-            this.stats.created.producers++;
-          }
-          
-          // Store in lookup map
-          this.lookupMaps.producers.set(producer.name, producerModel.id);
-          
-        } catch (error) {
-          logger.error(`Error importing producer ${producer.name}: ${error.message}`);
-          this.stats.errors.producers = (this.stats.errors.producers || 0) + 1;
-        }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Imported producers batch ${i + 1} to ${i + batch.length} of ${producers.length}`);
+    // Check if Producer model exists
+    if (!this.models.Producer) {
+      logger.warn('Producer model not found in models object, skipping producers import');
+      return;
     }
     
-    logger.info(`Producers import completed: ${this.stats.created.producers} created, ${this.stats.updated.producers} updated`);
+    logger.info(`Importing ${producers.length} producers`);
+    await this._batchImport(
+      producers,
+      this.models.Producer,
+      'name',
+      ['description', 'website', 'updated_at'],
+      transaction,
+      'producers'
+    );
   }
   
   /**
@@ -206,51 +328,21 @@ class GekoImportService {
       return;
     }
     
-    logger.info(`Importing ${units.length} units`);
-    this.stats.created.units = 0;
-    this.stats.updated.units = 0;
-    
-    // Process in batches
-    for (let i = 0; i < units.length; i += this.options.batchSize) {
-      const batch = units.slice(i, i + this.options.batchSize);
-      const batchPromises = batch.map(async (unit) => {
-        try {
-          // Find by ID or name
-          const [unitModel, created] = await this.models.Unit.findOrCreate({
-            where: { 
-              [Op.or]: [
-                { id: unit.id },
-                { name: unit.name }
-              ]
-            },
-            defaults: {
-              ...unit
-            },
-            transaction
-          });
-          
-          // Update if exists and update option is enabled
-          if (!created && this.options.updateExisting) {
-            await unitModel.update(unit, { transaction });
-            this.stats.updated.units++;
-          } else if (created) {
-            this.stats.created.units++;
-          }
-          
-          // Store in lookup map
-          this.lookupMaps.units.set(unit.id, unitModel.id);
-          
-        } catch (error) {
-          logger.error(`Error importing unit ${unit.id || unit.name}: ${error.message}`);
-          this.stats.errors.units = (this.stats.errors.units || 0) + 1;
-        }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Imported units batch ${i + 1} to ${i + batch.length} of ${units.length}`);
+    // Check if Unit model exists
+    if (!this.models.Unit) {
+      logger.warn('Unit model not found in models object, skipping units import');
+      return;
     }
     
-    logger.info(`Units import completed: ${this.stats.created.units} created, ${this.stats.updated.units} updated`);
+    logger.info(`Importing ${units.length} units`);
+    await this._batchImport(
+      units,
+      this.models.Unit,
+      'id',
+      ['name', 'moq', 'updated_at'],
+      transaction,
+      'units'
+    );
   }
   
   /**
@@ -263,64 +355,51 @@ class GekoImportService {
       return;
     }
     
-    logger.info(`Importing ${products.length} products`);
-    this.stats.created.products = 0;
-    this.stats.updated.products = 0;
-    
-    // Process in batches
-    for (let i = 0; i < products.length; i += this.options.batchSize) {
-      const batch = products.slice(i, i + this.options.batchSize);
-      const batchPromises = batch.map(async (product) => {
-        try {
-          // Resolve foreign keys
-          const productData = { ...product };
-          
-          // Handle category relationship
-          if (this.lookupMaps.categories.has(product.category_id)) {
-            productData.category_id = this.lookupMaps.categories.get(product.category_id);
-          }
-          
-          // Handle producer relationship
-          if (this.lookupMaps.producers.has(product.producer_id)) {
-            productData.producer_id = this.lookupMaps.producers.get(product.producer_id);
-          }
-          
-          // Handle unit relationship
-          if (this.lookupMaps.units.has(product.unit_id)) {
-            productData.unit_id = this.lookupMaps.units.get(product.unit_id);
-          }
-          
-          // Find or create the product
-          const [productModel, created] = await this.models.Product.findOrCreate({
-            where: { 
-              code: product.code 
-            },
-            defaults: productData,
-            transaction
-          });
-          
-          // Update if exists and update option is enabled
-          if (!created && this.options.updateExisting) {
-            await productModel.update(productData, { transaction });
-            this.stats.updated.products++;
-          } else if (created) {
-            this.stats.created.products++;
-          }
-          
-          // Store in lookup map
-          this.lookupMaps.products.set(product.code, productModel.id);
-          
-        } catch (error) {
-          logger.error(`Error importing product ${product.code}: ${error.message}`);
-          this.stats.errors.products = (this.stats.errors.products || 0) + 1;
-        }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Imported products batch ${i + 1} to ${i + batch.length} of ${products.length}`);
+    // Check if Product model exists
+    if (!this.models.Product) {
+      logger.warn('Product model not found in models object, skipping products import');
+      return;
     }
     
-    logger.info(`Products import completed: ${this.stats.created.products} created, ${this.stats.updated.products} updated`);
+    logger.info(`Importing ${products.length} products`);
+    
+    // Preparar produtos com IDs de relacionamento corretos
+    const preparedProducts = products.map(product => {
+      // Clonar produto para não modificar o original
+      const preparedProduct = { ...product };
+      
+      // Verificar e atualizar o ID da categoria
+      if (product.category_id && this.lookupMaps.categories.has(product.category_id)) {
+        preparedProduct.category_id = this.lookupMaps.categories.get(product.category_id);
+      }
+      
+      // Verificar e atualizar o ID do produtor
+      if (product.producer_id && this.lookupMaps.producers.has(product.producer_id)) {
+        preparedProduct.producer_id = this.lookupMaps.producers.get(product.producer_id);
+      } else if (product.producer_name && this.lookupMaps.producers.has(product.producer_name)) {
+        preparedProduct.producer_id = this.lookupMaps.producers.get(product.producer_name);
+      }
+      
+      // Verificar e atualizar o ID da unidade
+      if (product.unit_id && this.lookupMaps.units.has(product.unit_id)) {
+        preparedProduct.unit_id = this.lookupMaps.units.get(product.unit_id);
+      }
+      
+      return preparedProduct;
+    });
+    
+    await this._batchImport(
+      preparedProducts,
+      this.models.Product,
+      'code',
+      [
+        'name', 'code_on_card', 'ean', 'producer_code', 'description_short', 
+        'description_long', 'description_html', 'vat', 'url', 'delivery_date',
+        'category_id', 'producer_id', 'unit_id', 'status', 'discontinued', 'updated_at'
+      ],
+      transaction,
+      'products'
+    );
   }
   
   /**
@@ -333,58 +412,43 @@ class GekoImportService {
       return;
     }
     
-    logger.info(`Importing ${variants.length} variants`);
-    this.stats.created.variants = 0;
-    this.stats.updated.variants = 0;
-    
-    // Process in batches
-    for (let i = 0; i < variants.length; i += this.options.batchSize) {
-      const batch = variants.slice(i, i + this.options.batchSize);
-      const batchPromises = batch.map(async (variant) => {
-        try {
-          // Get product_id from code using lookup map
-          const productCode = variant.code.split('-')[0];
-          const variantData = { ...variant };
-          
-          if (this.lookupMaps.products.has(productCode)) {
-            variantData.product_id = this.lookupMaps.products.get(productCode);
-          } else {
-            // Skip if product doesn't exist
-            this.stats.skipped.variants = (this.stats.skipped.variants || 0) + 1;
-            return;
-          }
-          
-          // Find or create the variant
-          const [variantModel, created] = await this.models.Variant.findOrCreate({
-            where: { 
-              code: variant.code 
-            },
-            defaults: variantData,
-            transaction
-          });
-          
-          // Update if exists and update option is enabled
-          if (!created && this.options.updateExisting) {
-            await variantModel.update(variantData, { transaction });
-            this.stats.updated.variants++;
-          } else if (created) {
-            this.stats.created.variants++;
-          }
-          
-          // Store in lookup map
-          this.lookupMaps.variants.set(variant.code, variantModel.id);
-          
-        } catch (error) {
-          logger.error(`Error importing variant ${variant.code}: ${error.message}`);
-          this.stats.errors.variants = (this.stats.errors.variants || 0) + 1;
-        }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Imported variants batch ${i + 1} to ${i + batch.length} of ${variants.length}`);
+    // Check if Variant model exists
+    if (!this.models.Variant) {
+      logger.warn('Variant model not found in models object, skipping variants import');
+      return;
     }
     
-    logger.info(`Variants import completed: ${this.stats.created.variants} created, ${this.stats.updated.variants} updated, ${this.stats.skipped.variants || 0} skipped`);
+    logger.info(`Importing ${variants.length} variants`);
+    
+    // Preparar variantes com product_id correto
+    const preparedVariants = variants.map(variant => {
+      // Clonar variante para não modificar o original
+      const preparedVariant = { ...variant };
+      
+      // Identificar o product_id correto
+      if (variant.product_code && this.lookupMaps.products.has(variant.product_code)) {
+        preparedVariant.product_id = this.lookupMaps.products.get(variant.product_code);
+      }
+      
+      return preparedVariant;
+    });
+    
+    // Filtrar só variantes com product_id válido
+    const validVariants = preparedVariants.filter(v => v.product_id);
+    
+    if (validVariants.length < variants.length) {
+      logger.warn(`Skipping ${variants.length - validVariants.length} variants without valid product reference`);
+      this.stats.skipped.variants = (this.stats.skipped.variants || 0) + (variants.length - validVariants.length);
+    }
+    
+    await this._batchImport(
+      validVariants,
+      this.models.Variant,
+      'code',
+      ['product_id', 'name', 'weight', 'gross_weight', 'size', 'color', 'status', 'updated_at'],
+      transaction,
+      'variants'
+    );
   }
   
   /**
@@ -397,54 +461,43 @@ class GekoImportService {
       return;
     }
     
-    logger.info(`Importing ${stocks.length} stocks`);
-    this.stats.created.stocks = 0;
-    this.stats.updated.stocks = 0;
-    
-    // Process in batches
-    for (let i = 0; i < stocks.length; i += this.options.batchSize) {
-      const batch = stocks.slice(i, i + this.options.batchSize);
-      const batchPromises = batch.map(async (stock) => {
-        try {
-          // Get variant_id from code using lookup map
-          const stockData = { ...stock };
-          
-          if (this.lookupMaps.variants.has(stock.variant_code)) {
-            stockData.variant_id = this.lookupMaps.variants.get(stock.variant_code);
-          } else {
-            // Skip if variant doesn't exist
-            this.stats.skipped.stocks = (this.stats.skipped.stocks || 0) + 1;
-            return;
-          }
-          
-          // Find or create the stock
-          const [stockModel, created] = await this.models.Stock.findOrCreate({
-            where: { 
-              variant_id: stockData.variant_id 
-            },
-            defaults: stockData,
-            transaction
-          });
-          
-          // Update if exists and update option is enabled
-          if (!created && this.options.updateExisting) {
-            await stockModel.update(stockData, { transaction });
-            this.stats.updated.stocks++;
-          } else if (created) {
-            this.stats.created.stocks++;
-          }
-          
-        } catch (error) {
-          logger.error(`Error importing stock for variant ${stock.variant_code}: ${error.message}`);
-          this.stats.errors.stocks = (this.stats.errors.stocks || 0) + 1;
-        }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Imported stocks batch ${i + 1} to ${i + batch.length} of ${stocks.length}`);
+    // Check if Stock model exists
+    if (!this.models.Stock) {
+      logger.warn('Stock model not found in models object, skipping stocks import');
+      return;
     }
     
-    logger.info(`Stocks import completed: ${this.stats.created.stocks} created, ${this.stats.updated.stocks} updated, ${this.stats.skipped.stocks || 0} skipped`);
+    logger.info(`Importing ${stocks.length} stocks`);
+    
+    // Preparar estoques com variant_id correto
+    const preparedStocks = stocks.map(stock => {
+      // Clonar estoque para não modificar o original
+      const preparedStock = { ...stock };
+      
+      // Identificar o variant_id correto
+      if (stock.variant_code && this.lookupMaps.variants.has(stock.variant_code)) {
+        preparedStock.variant_id = this.lookupMaps.variants.get(stock.variant_code);
+      }
+      
+      return preparedStock;
+    });
+    
+    // Filtrar só estoques com variant_id válido
+    const validStocks = preparedStocks.filter(s => s.variant_id);
+    
+    if (validStocks.length < stocks.length) {
+      logger.warn(`Skipping ${stocks.length - validStocks.length} stocks without valid variant reference`);
+      this.stats.skipped.stocks = (this.stats.skipped.stocks || 0) + (stocks.length - validStocks.length);
+    }
+    
+    await this._batchImport(
+      validStocks,
+      this.models.Stock,
+      'variant_id',
+      ['quantity', 'available', 'min_order_quantity', 'updated_at'],
+      transaction,
+      'stocks'
+    );
   }
   
   /**
@@ -457,55 +510,55 @@ class GekoImportService {
       return;
     }
     
-    logger.info(`Importing ${prices.length} prices`);
-    this.stats.created.prices = 0;
-    this.stats.updated.prices = 0;
-    
-    // Process in batches
-    for (let i = 0; i < prices.length; i += this.options.batchSize) {
-      const batch = prices.slice(i, i + this.options.batchSize);
-      const batchPromises = batch.map(async (price) => {
-        try {
-          // Get variant_id from code using lookup map
-          const priceData = { ...price };
-          
-          if (this.lookupMaps.variants.has(price.variant_code)) {
-            priceData.variant_id = this.lookupMaps.variants.get(price.variant_code);
-          } else {
-            // Skip if variant doesn't exist
-            this.stats.skipped.prices = (this.stats.skipped.prices || 0) + 1;
-            return;
-          }
-          
-          // Find or create the price
-          const [priceModel, created] = await this.models.Price.findOrCreate({
-            where: { 
-              variant_id: priceData.variant_id,
-              price_type: priceData.price_type
-            },
-            defaults: priceData,
-            transaction
-          });
-          
-          // Update if exists and update option is enabled
-          if (!created && this.options.updateExisting) {
-            await priceModel.update(priceData, { transaction });
-            this.stats.updated.prices++;
-          } else if (created) {
-            this.stats.created.prices++;
-          }
-          
-        } catch (error) {
-          logger.error(`Error importing price for variant ${price.variant_code}: ${error.message}`);
-          this.stats.errors.prices = (this.stats.errors.prices || 0) + 1;
-        }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Imported prices batch ${i + 1} to ${i + batch.length} of ${prices.length}`);
+    // Check if Price model exists
+    if (!this.models.Price) {
+      logger.warn('Price model not found in models object, skipping prices import');
+      return;
     }
     
-    logger.info(`Prices import completed: ${this.stats.created.prices} created, ${this.stats.updated.prices} updated, ${this.stats.skipped.prices || 0} skipped`);
+    logger.info(`Importing ${prices.length} prices`);
+    
+    // Preparar preços com variant_id correto
+    const preparedPrices = prices.map(price => {
+      // Clonar preço para não modificar o original
+      const preparedPrice = { ...price };
+      
+      // Identificar o variant_id correto
+      if (price.variant_code && this.lookupMaps.variants.has(price.variant_code)) {
+        preparedPrice.variant_id = this.lookupMaps.variants.get(price.variant_code);
+      }
+      
+      return preparedPrice;
+    });
+    
+    // Filtrar só preços com variant_id válido
+    const validPrices = preparedPrices.filter(p => p.variant_id);
+    
+    if (validPrices.length < prices.length) {
+      logger.warn(`Skipping ${prices.length - validPrices.length} prices without valid variant reference`);
+      this.stats.skipped.prices = (this.stats.skipped.prices || 0) + (prices.length - validPrices.length);
+    }
+    
+    // Agrupar preços por variant_id, tipo e moeda (unique constraint)
+    const pricesByKey = new Map();
+    
+    validPrices.forEach(price => {
+      const key = `${price.variant_id}-${price.price_type || 'retail'}-${price.currency || 'EUR'}`;
+      pricesByKey.set(key, price);
+    });
+    
+    const uniquePrices = Array.from(pricesByKey.values());
+    
+    logger.info(`Condensed ${validPrices.length} prices to ${uniquePrices.length} unique price entries`);
+    
+    await this._batchImport(
+      uniquePrices,
+      this.models.Price,
+      'variant_id',
+      ['gross_price', 'net_price', 'price_type', 'currency', 'min_quantity', 'is_active', 'updated_at'],
+      transaction,
+      'prices'
+    );
   }
   
   /**
@@ -518,55 +571,44 @@ class GekoImportService {
       return;
     }
     
-    logger.info(`Importing ${images.length} images`);
-    this.stats.created.images = 0;
-    this.stats.updated.images = 0;
-    
-    // Process in batches
-    for (let i = 0; i < images.length; i += this.options.batchSize) {
-      const batch = images.slice(i, i + this.options.batchSize);
-      const batchPromises = batch.map(async (image) => {
-        try {
-          // Get product_id using lookup map
-          const imageData = { ...image };
-          
-          if (!imageData.product_id && this.lookupMaps.products.has(image.product_code)) {
-            imageData.product_id = this.lookupMaps.products.get(image.product_code);
-          } else if (!imageData.product_id) {
-            // Skip if product doesn't exist
-            this.stats.skipped.images = (this.stats.skipped.images || 0) + 1;
-            return;
-          }
-          
-          // Find or create the image
-          const [imageModel, created] = await this.models.Image.findOrCreate({
-            where: { 
-              product_id: imageData.product_id,
-              url: imageData.url
-            },
-            defaults: imageData,
-            transaction
-          });
-          
-          // Update if exists and update option is enabled
-          if (!created && this.options.updateExisting) {
-            await imageModel.update(imageData, { transaction });
-            this.stats.updated.images++;
-          } else if (created) {
-            this.stats.created.images++;
-          }
-          
-        } catch (error) {
-          logger.error(`Error importing image ${image.url}: ${error.message}`);
-          this.stats.errors.images = (this.stats.errors.images || 0) + 1;
-        }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Imported images batch ${i + 1} to ${i + batch.length} of ${images.length}`);
+    // Check if Image model exists
+    if (!this.models.Image) {
+      logger.warn('Image model not found in models object, skipping images import');
+      return;
     }
     
-    logger.info(`Images import completed: ${this.stats.created.images} created, ${this.stats.updated.images} updated, ${this.stats.skipped.images || 0} skipped`);
+    logger.info(`Importing ${images.length} images`);
+    
+    // Preparar imagens com product_id correto
+    const preparedImages = images.map(image => {
+      // Clonar imagem para não modificar o original
+      const preparedImage = { ...image };
+      
+      // Identificar o product_id correto
+      if (image.product_code && this.lookupMaps.products.has(image.product_code)) {
+        preparedImage.product_id = this.lookupMaps.products.get(image.product_code);
+      }
+      
+      return preparedImage;
+    });
+    
+    // Filtrar só imagens com product_id válido
+    const validImages = preparedImages.filter(i => i.product_id);
+    
+    if (validImages.length < images.length) {
+      logger.warn(`Skipping ${images.length - validImages.length} images without valid product reference`);
+      this.stats.skipped.images = (this.stats.skipped.images || 0) + (images.length - validImages.length);
+    }
+    
+    // Para imagens, buscamos pela combinação product_id e url
+    await this._batchImport(
+      validImages,
+      this.models.Image,
+      'url',
+      ['product_id', 'is_main', 'order', 'updated_at'],
+      transaction,
+      'images'
+    );
   }
   
   /**
@@ -579,55 +621,44 @@ class GekoImportService {
       return;
     }
     
-    logger.info(`Importing ${documents.length} documents`);
-    this.stats.created.documents = 0;
-    this.stats.updated.documents = 0;
-    
-    // Process in batches
-    for (let i = 0; i < documents.length; i += this.options.batchSize) {
-      const batch = documents.slice(i, i + this.options.batchSize);
-      const batchPromises = batch.map(async (document) => {
-        try {
-          // Get product_id using lookup map
-          const documentData = { ...document };
-          
-          if (!documentData.product_id && this.lookupMaps.products.has(document.product_code)) {
-            documentData.product_id = this.lookupMaps.products.get(document.product_code);
-          } else if (!documentData.product_id) {
-            // Skip if product doesn't exist
-            this.stats.skipped.documents = (this.stats.skipped.documents || 0) + 1;
-            return;
-          }
-          
-          // Find or create the document
-          const [documentModel, created] = await this.models.Document.findOrCreate({
-            where: { 
-              product_id: documentData.product_id,
-              url: documentData.url
-            },
-            defaults: documentData,
-            transaction
-          });
-          
-          // Update if exists and update option is enabled
-          if (!created && this.options.updateExisting) {
-            await documentModel.update(documentData, { transaction });
-            this.stats.updated.documents++;
-          } else if (created) {
-            this.stats.created.documents++;
-          }
-          
-        } catch (error) {
-          logger.error(`Error importing document ${document.url}: ${error.message}`);
-          this.stats.errors.documents = (this.stats.errors.documents || 0) + 1;
-        }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Imported documents batch ${i + 1} to ${i + batch.length} of ${documents.length}`);
+    // Check if Document model exists
+    if (!this.models.Document) {
+      logger.warn('Document model not found in models object, skipping documents import');
+      this.stats.skipped.documents = documents.length;
+      return;
     }
     
-    logger.info(`Documents import completed: ${this.stats.created.documents} created, ${this.stats.updated.documents} updated, ${this.stats.skipped.documents || 0} skipped`);
+    logger.info(`Importing ${documents.length} documents`);
+    
+    // Preparar documentos com product_id correto
+    const preparedDocuments = documents.map(document => {
+      // Clonar documento para não modificar o original
+      const preparedDocument = { ...document };
+      
+      // Identificar o product_id correto
+      if (document.product_code && this.lookupMaps.products.has(document.product_code)) {
+        preparedDocument.product_id = this.lookupMaps.products.get(document.product_code);
+      }
+      
+      return preparedDocument;
+    });
+    
+    // Filtrar só documentos com product_id válido
+    const validDocuments = preparedDocuments.filter(d => d.product_id);
+    
+    if (validDocuments.length < documents.length) {
+      logger.warn(`Skipping ${documents.length - validDocuments.length} documents without valid product reference`);
+      this.stats.skipped.documents = (this.stats.skipped.documents || 0) + (documents.length - validDocuments.length);
+    }
+    
+    await this._batchImport(
+      validDocuments,
+      this.models.Document,
+      'url',
+      ['product_id', 'name', 'type', 'title', 'language', 'updated_at'],
+      transaction,
+      'documents'
+    );
   }
   
   /**
@@ -640,55 +671,45 @@ class GekoImportService {
       return;
     }
     
-    logger.info(`Importing ${productProperties.length} product properties`);
-    this.stats.created.productProperties = 0;
-    this.stats.updated.productProperties = 0;
-    
-    // Process in batches
-    for (let i = 0; i < productProperties.length; i += this.options.batchSize) {
-      const batch = productProperties.slice(i, i + this.options.batchSize);
-      const batchPromises = batch.map(async (property) => {
-        try {
-          // Get product_id using lookup map
-          const propertyData = { ...property };
-          
-          if (!propertyData.product_id && this.lookupMaps.products.has(property.product_code)) {
-            propertyData.product_id = this.lookupMaps.products.get(property.product_code);
-          } else if (!propertyData.product_id) {
-            // Skip if product doesn't exist
-            this.stats.skipped.productProperties = (this.stats.skipped.productProperties || 0) + 1;
-            return;
-          }
-          
-          // Find or create the property
-          const [propertyModel, created] = await this.models.ProductProperty.findOrCreate({
-            where: { 
-              product_id: propertyData.product_id,
-              name: propertyData.name
-            },
-            defaults: propertyData,
-            transaction
-          });
-          
-          // Update if exists and update option is enabled
-          if (!created && this.options.updateExisting) {
-            await propertyModel.update(propertyData, { transaction });
-            this.stats.updated.productProperties++;
-          } else if (created) {
-            this.stats.created.productProperties++;
-          }
-          
-        } catch (error) {
-          logger.error(`Error importing product property ${property.name}: ${error.message}`);
-          this.stats.errors.productProperties = (this.stats.errors.productProperties || 0) + 1;
-        }
-      });
-      
-      await Promise.all(batchPromises);
-      logger.info(`Imported product properties batch ${i + 1} to ${i + batch.length} of ${productProperties.length}`);
+    // Check if ProductProperty model exists
+    if (!this.models.ProductProperty) {
+      logger.warn('ProductProperty model not found in models object, skipping product properties import');
+      this.stats.skipped.productProperties = productProperties.length;
+      return;
     }
     
-    logger.info(`Product properties import completed: ${this.stats.created.productProperties} created, ${this.stats.updated.productProperties} updated, ${this.stats.skipped.productProperties || 0} skipped`);
+    logger.info(`Importing ${productProperties.length} product properties`);
+    
+    // Preparar propriedades com product_id correto
+    const preparedProperties = productProperties.map(property => {
+      // Clonar propriedade para não modificar o original
+      const preparedProperty = { ...property };
+      
+      // Identificar o product_id correto
+      if (property.product_code && this.lookupMaps.products.has(property.product_code)) {
+        preparedProperty.product_id = this.lookupMaps.products.get(property.product_code);
+      }
+      
+      return preparedProperty;
+    });
+    
+    // Filtrar só propriedades com product_id válido
+    const validProperties = preparedProperties.filter(p => p.product_id);
+    
+    if (validProperties.length < productProperties.length) {
+      logger.warn(`Skipping ${productProperties.length - validProperties.length} product properties without valid product reference`);
+      this.stats.skipped.productProperties = (this.stats.skipped.productProperties || 0) + (productProperties.length - validProperties.length);
+    }
+    
+    // Para propriedades, use a combinação product_id e name como chave única
+    await this._batchImport(
+      validProperties,
+      this.models.ProductProperty,
+      'name',
+      ['product_id', 'value', 'group', 'language', 'order', 'is_filterable', 'is_public', 'updated_at'],
+      transaction,
+      'productProperties'
+    );
   }
   
   /**
@@ -976,7 +997,7 @@ class GekoImportService {
         logger.info(`Importing ${transformedData.categories.size} categories`);
         for (const category of transformedData.categories.values()) {
           try {
-            await Category.upsert(category, { transaction });
+            await models.Category.upsert(category, { transaction });
             processedEntities++;
             updateProgress();
           } catch (error) {
@@ -993,7 +1014,7 @@ class GekoImportService {
         logger.info(`Importing ${transformedData.producers.size} producers`);
         for (const producer of transformedData.producers.values()) {
           try {
-            await Producer.upsert(producer, { transaction });
+            await models.Producer.upsert(producer, { transaction });
             processedEntities++;
             updateProgress();
           } catch (error) {
@@ -1010,7 +1031,7 @@ class GekoImportService {
         logger.info(`Importing ${transformedData.units.size} units`);
         for (const unit of transformedData.units.values()) {
           try {
-            await Unit.upsert(unit, { transaction });
+            await models.Unit.upsert(unit, { transaction });
             processedEntities++;
             updateProgress();
           } catch (error) {
@@ -1028,7 +1049,7 @@ class GekoImportService {
         for (let i = 0; i < transformedData.products.length; i += BATCH_SIZE) {
           const batch = transformedData.products.slice(i, i + BATCH_SIZE);
           try {
-            const createdProducts = await Product.bulkCreate(batch, { 
+            const createdProducts = await models.Product.bulkCreate(batch, { 
               transaction,
               updateOnDuplicate: ['name', 'description', 'ean', 'producer_code', 'category_id', 'producer_id', 'unit_id', 'updated_at']
             });
@@ -1065,7 +1086,7 @@ class GekoImportService {
           for (let i = 0; i < transformedData.variants.length; i += BATCH_SIZE) {
             const batch = transformedData.variants.slice(i, i + BATCH_SIZE);
             try {
-              await Variant.bulkCreate(batch, { 
+              await models.Variant.bulkCreate(batch, { 
                 transaction,
                 updateOnDuplicate: ['product_id', 'weight', 'gross_weight', 'updated_at']
               });
@@ -1089,7 +1110,7 @@ class GekoImportService {
           for (let i = 0; i < transformedData.stocks.length; i += BATCH_SIZE) {
             const batch = transformedData.stocks.slice(i, i + BATCH_SIZE);
             try {
-              await Stock.bulkCreate(batch, { 
+              await models.Stock.bulkCreate(batch, { 
                 transaction,
                 updateOnDuplicate: ['quantity', 'available', 'min_order_quantity', 'updated_at']
               });
@@ -1113,7 +1134,7 @@ class GekoImportService {
           for (let i = 0; i < transformedData.prices.length; i += BATCH_SIZE) {
             const batch = transformedData.prices.slice(i, i + BATCH_SIZE);
             try {
-              await Price.bulkCreate(batch, { 
+              await models.Price.bulkCreate(batch, { 
                 transaction,
                 updateOnDuplicate: ['amount', 'currency', 'type', 'updated_at']
               });
@@ -1137,7 +1158,7 @@ class GekoImportService {
           for (let i = 0; i < transformedData.images.length; i += BATCH_SIZE) {
             const batch = transformedData.images.slice(i, i + BATCH_SIZE);
             try {
-              await Image.bulkCreate(batch, { 
+              await models.Image.bulkCreate(batch, { 
                 transaction,
                 updateOnDuplicate: ['url', 'is_main', 'order', 'updated_at']
               });
@@ -1161,7 +1182,7 @@ class GekoImportService {
           for (let i = 0; i < transformedData.documents.length; i += BATCH_SIZE) {
             const batch = transformedData.documents.slice(i, i + BATCH_SIZE);
             try {
-              await Document.bulkCreate(batch, { 
+              await models.Document.bulkCreate(batch, { 
                 transaction,
                 updateOnDuplicate: ['url', 'type', 'title', 'language', 'updated_at']
               });
@@ -1185,7 +1206,7 @@ class GekoImportService {
           for (let i = 0; i < transformedData.productProperties.length; i += BATCH_SIZE) {
             const batch = transformedData.productProperties.slice(i, i + BATCH_SIZE);
             try {
-              await ProductProperty.bulkCreate(batch, { 
+              await models.ProductProperty.bulkCreate(batch, { 
                 transaction,
                 updateOnDuplicate: ['name', 'value', 'group', 'language', 'order', 'is_filterable', 'is_public', 'updated_at']
               });

@@ -21,11 +21,12 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Custom hook for managing cart operations
- * @returns {Object} Cart utility functions and state
+ * Custom hook for cart functionality
+ * @returns {Object} Cart methods and data
  */
 export const useCart = () => {
   const dispatch = useDispatch();
+  const { items, loading, error } = useSelector(state => state.cart);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   
   // Get localStorage guest cart ID or create a new one
@@ -96,137 +97,119 @@ export const useCart = () => {
     }
   }, [serverCartLoaded, serverCart, dispatch]);
   
-  // Add item to cart
-  const addToCart = useCallback((product, quantity = 1, variant = null) => {
-    const payload = {
+  /**
+   * Check if a product is in the cart
+   * @param {string|number} productId - Product ID to check
+   * @returns {boolean} True if product is in cart
+   */
+  const isInCart = (productId) => {
+    return items.some(item => item.id === productId);
+  };
+  
+  /**
+   * Get the quantity of a product in the cart
+   * @param {string|number} productId - Product ID to check
+   * @returns {number} Quantity in cart (0 if not in cart)
+   */
+  const getItemQuantity = (productId) => {
+    const item = items.find(item => item.id === productId);
+    return item ? item.quantity : 0;
+  };
+  
+  /**
+   * Add a product to the cart
+   * @param {Object} product - Product to add
+   * @param {number} quantity - Quantity to add (default: 1)
+   */
+  const addToCart = (product, quantity = 1) => {
+    if (!product) return;
+    
+    dispatch(addItem({
       id: product.id,
       name: product.name,
-      price: variant ? variant.price : product.price,
-      image: product.image || (product.Images && product.Images.length > 0 ? product.Images[0].url : ''),
-      quantity,
-      variant: variant ? {
-        id: variant.id,
-        code: variant.code,
-        name: variant.name || '',
-      } : null
-    };
-    
-    // Update local cart first (for immediate UI feedback)
-    dispatch(addItem(payload));
-    
-    // If logged in, sync with server
-    if (isAuthenticated) {
-      addServerCartItem({
-        variant_id: variant ? variant.id : product.id,
-        quantity,
-        custom_data: { product_id: product.id, product_name: product.name }
-      });
-    }
-  }, [dispatch, isAuthenticated, addServerCartItem]);
+      price: product.price || 
+        (product.Variants && product.Variants.length > 0 && 
+         product.Variants[0].Prices && product.Variants[0].Prices.length > 0)
+        ? product.Variants[0].Prices[0].amount
+        : 0,
+      image: (product.Images && product.Images.length > 0)
+        ? product.Images[0].url
+        : '/placeholder-product.png',
+      quantity: quantity,
+      stock: product.Variants && product.Variants.length > 0 && product.Variants[0].Stock
+        ? product.Variants[0].Stock.quantity
+        : 0,
+      producer: product.Producer ? product.Producer.name : null,
+      category: product.Category ? product.Category.name : null,
+      variantId: product.Variants && product.Variants.length > 0
+        ? product.Variants[0].id
+        : null
+    }));
+  };
   
-  // Remove item from cart
-  const removeFromCart = useCallback((productId, variant = null) => {
-    // Find the item to get its ID if it exists in server cart
-    const cartItem = cartItems.find(item => 
-      item.id === productId && 
-      (variant ? (item.variant?.id === variant.id) : !item.variant)
-    );
-    
-    // Update local cart
-    dispatch(removeItem({ id: productId, variant }));
-    
-    // If logged in and item exists in server cart, remove from server
-    if (isAuthenticated && cartItem && cartItem.serverId) {
-      removeServerCartItem(cartItem.serverId);
-    }
-  }, [dispatch, isAuthenticated, cartItems, removeServerCartItem]);
+  /**
+   * Remove a product from the cart
+   * @param {string|number} productId - Product ID to remove
+   */
+  const removeFromCart = (productId) => {
+    dispatch(removeItem(productId));
+  };
   
-  // Update item quantity
-  const updateQuantity = useCallback((productId, quantity, variant = null) => {
-    // Find the item to get its ID if it exists in server cart
-    const cartItem = cartItems.find(item => 
-      item.id === productId && 
-      (variant ? (item.variant?.id === variant.id) : !item.variant)
-    );
-    
-    // Update local cart
-    dispatch(updateItemQuantity({ id: productId, quantity, variant }));
-    
-    // If logged in and item exists in server cart, update on server
-    if (isAuthenticated && cartItem && cartItem.serverId) {
-      updateServerCartItem({ 
-        itemId: cartItem.serverId, 
-        quantity 
-      });
+  /**
+   * Update the quantity of a product in the cart
+   * @param {string|number} productId - Product ID to update
+   * @param {number} newQuantity - New quantity
+   */
+  const updateItemQuantity = (productId, newQuantity) => {
+    if (newQuantity < 1) {
+      removeFromCart(productId);
+      return;
     }
-  }, [dispatch, isAuthenticated, cartItems, updateServerCartItem]);
+    
+    dispatch(updateItemQuantity({
+      id: productId,
+      quantity: newQuantity
+    }));
+  };
   
-  // Clear the entire cart
-  const emptyCart = useCallback(() => {
-    // Clear local cart
+  /**
+   * Clear all items from the cart
+   */
+  const emptyCart = () => {
     dispatch(clearCart());
-    
-    // If logged in, clear server cart
-    if (isAuthenticated) {
-      clearServerCart();
-    }
-  }, [dispatch, isAuthenticated, clearServerCart]);
+  };
   
-  // Sync local cart with server
-  const syncCart = useCallback(async () => {
-    if (isAuthenticated && cartItems.length > 0) {
-      // Format cart items for API
-      const formattedItems = cartItems.map(item => ({
-        variant_id: item.variant ? item.variant.id : item.id,
-        quantity: item.quantity,
-        price: item.price,
-        added_at: item.addedAt,
-        custom_data: { product_id: item.id, product_name: item.name, image: item.image }
-      }));
-      
-      // Sync with server
-      await syncServerCart({ 
-        items: formattedItems, 
-        guest_cart_id: getGuestCartId() 
-      }).unwrap();
-      
-      return true;
-    }
-    return false;
-  }, [isAuthenticated, cartItems, syncServerCart, getGuestCartId]);
+  /**
+   * Calculate total items in cart
+   * @returns {number} Total number of items
+   */
+  const getTotalItems = () => {
+    return items.reduce((total, item) => total + item.quantity, 0);
+  };
   
-  // Check if product is in cart
-  const isInCart = useCallback((productId, variant = null) => {
-    return cartItems.some(item => 
-      item.id === productId && 
-      (variant ? (item.variant?.id === variant.id) : !item.variant)
-    );
-  }, [cartItems]);
-  
-  // Get quantity of specific item in cart
-  const getItemQuantity = useCallback((productId, variant = null) => {
-    const item = cartItems.find(item => 
-      item.id === productId && 
-      (variant ? (item.variant?.id === variant.id) : !item.variant)
-    );
-    return item ? item.quantity : 0;
-  }, [cartItems]);
+  /**
+   * Calculate total price of items in cart
+   * @returns {number} Total price
+   */
+  const getTotalPrice = () => {
+    return items.reduce((total, item) => {
+      return total + (item.price * item.quantity);
+    }, 0);
+  };
   
   return {
-    // State
-    cartItems,
-    totalItems,
-    totalAmount,
-    isSyncing,
-    // Actions
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    emptyCart,
-    syncCart,
-    // Helpers
+    items,
+    loading,
+    error,
     isInCart,
     getItemQuantity,
+    addToCart,
+    removeFromCart,
+    updateItemQuantity,
+    emptyCart,
+    getTotalItems,
+    getTotalPrice,
+    isSyncing,
     getGuestCartId
   };
 }; 

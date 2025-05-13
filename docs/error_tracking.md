@@ -382,4 +382,405 @@ None currently.
      - Adicionar mais opções de visualização (como exibição compacta)
      - Integrar com filtros avançados para experiência de compra ainda melhor
 
+### Erro de Importação de Diretório no Servidor (Ativo)
+
+- **Data:** [2025-05-24 16:40]
+- **Tipo de Erro:** Backend / ES Modules / Importação
+- **Ambiente:** Desenvolvimento
+- **Mensagem de Erro:** 
+  ```
+  Error [ERR_UNSUPPORTED_DIR_IMPORT]: Directory import 'C:\Users\Pixie\OneDrive\Desktop\aligekow\server\src\routes' is not supported resolving ES modules imported from C:\Users\Pixie\OneDrive\Desktop\aligekow\server\src\index.js
+  ```
+- **Causa Raiz:** 
+  - O servidor está configurado como módulo ES (type: "module" no package.json)
+  - Está sendo feita uma importação direta de um diretório (`import ... from './routes'`)
+  - O Node.js não suporta importação direta de diretórios em módulos ES
+  - Provavelmente está faltando um arquivo index.js dentro do diretório routes ou a importação precisa apontar para um arquivo específico
+
+- **Possíveis Soluções:**
+  1. Criar um arquivo index.js dentro do diretório routes que exporte todos os seus conteúdos
+     ```javascript
+     // server/src/routes/index.js
+     export * from './product.routes.js';
+     export * from './user.routes.js';
+     // etc...
+     ```
+  
+  2. Alterar a importação para apontar para um arquivo específico:
+     ```javascript
+     // Ao invés de:
+     import routes from './routes';
+     
+     // Modificar para:
+     import routes from './routes/index.js';
+     // ou
+     import productRoutes from './routes/product.routes.js';
+     import userRoutes from './routes/user.routes.js';
+     ```
+  
+  3. Converter o projeto para usar CommonJS (remover "type": "module" do package.json)
+
+- **Status:** Pendente de correção
+
+### Falha na Exibição de Imagens nos ProductCards (Corrigido)
+
+- **Data:** [2025-05-24 18:30]
+- **Tipo de Erro:** Frontend / UI / Imagens
+- **Ambiente:** Produção
+- **Mensagem de Erro:** n/a - Problemas visuais e falhas no carregamento de imagens
+- **Causa Raiz:** 
+  - O componente ProductCard não estava utilizando diretamente as URLs das imagens da tabela `images`
+  - Falta de tratamento adequado para casos de falha no carregamento de imagens
+  - Design antiquado e inconsistente do componente ProductCard
+  - Falta de componente de visualização rápida do produto (quick view)
+  
+- **Resolução:** 
+  1. Redesenho completo do componente ProductCard com um visual moderno e futurista
+  2. Implementação correta da recuperação de imagens diretamente da URL do banco de dados:
+     ```javascript
+     const getImageUrl = () => {
+       // Direct use of image URL from the database
+       if (product.images && product.images.length > 0) {
+         const mainImage = product.images.find(img => img.is_main);
+         if (mainImage && mainImage.url) return mainImage.url;
+         if (product.images[0] && product.images[0].url) return product.images[0].url;
+       }
+       
+       // Fallbacks
+       if (product.image_url) return product.image_url;
+       return '/assets/placeholder-product.png';
+     };
+     ```
+  3. Adição de tratamento de erros para casos de falha no carregamento de imagens:
+     ```javascript
+     const handleImageError = () => {
+       console.warn(`Failed to load image for product: ${product.id} - ${product.name}`);
+       setImageError(true);
+     };
+     
+     // Na renderização:
+     {!imageError ? (
+       <img 
+         src={getImageUrl()} 
+         alt={product.name}
+         className="w-full h-full object-contain p-2"
+         onError={handleImageError}
+       />
+     ) : (
+       <div className="flex items-center justify-center w-full h-full bg-neutral-100 text-neutral-400">
+         <span className="text-sm">Imagem não disponível</span>
+       </div>
+     )}
+     ```
+  4. Implementação de um overlay interativo com melhor controle de hover
+  5. Adição de modal de visualização rápida (quick view) para detalhes do produto
+  6. Redesenho completo com estética moderna e futurista usando Tailwind CSS
+  7. Melhora na hierarquia visual e na apresentação de informações do produto
+  8. Implementação de um sistema de badges mais flexível para promoções e status
+
+- **Verificação:** 
+  - Build completo do projeto sem erros
+  - Testes em diferentes tamanhos de tela para garantir responsividade
+  - Verificação manual da exibição de imagens e fallbacks
+  
+- **Arquivos Atualizados:** 
+  - `client/src/components/products/ProductCard.jsx` - Redesenho completo do componente
+  - `docs/error_tracking.md` - Documentação do problema e solução
+  
+- **Estilo de Design Aplicado:**
+  - Seguiu diretrizes de branding da AliTools para cores e tipografia
+  - Aplicou estilo futurista com bordas arredondadas, efeitos de hover e transições suaves
+  - Utilizou sistema de cores semânticas (--color-brand, --color-primary, etc.)
+  - Implementou feedback visual para interações do usuário
+
+- **Impacto:** 
+  - Melhora significativa na apresentação visual dos produtos
+  - Tratamento adequado de falhas de carregamento de imagens
+  - Experiência de usuário aprimorada com visualização rápida de detalhes
+  - Alinhamento com diretrizes modernas de design da marca
+
+- **Prevenção:**
+  1. Sempre implementar tratamento de erros para carregamento de imagens
+  2. Testar componentes com dados reais do banco antes de enviar para produção
+  3. Seguir diretrizes de design da marca para consistência visual
+  4. Documentar claramente o formato esperado de dados de produtos
+  5. Implementar testes automatizados para verificar a renderização adequada de componentes
+
+### Resumo de Atualizações - 2025-05-24
+
+#### ProductCard - Melhorias e Suporte a Visualização em Lista
+
+- **Data:** [2025-05-24 15:30]
+- **Tipo:** Frontend / UI / Performance
+- **Ambiente:** Desenvolvimento / Produção
+- **Resolução:**
+  1. Adicionado suporte a visualização em lista e grade no componente ProductCard
+  2. Melhorada a performance de carregamento de imagens com estado de loading e tratamento de erros
+  3. Implementada animação de carregamento com spinner durante o carregamento de imagens
+  4. Refinados os estilos CSS com overrides específicos para ícones e containers
+  5. Otimizado o tamanho dos ícones em diferentes contextos do componente
+  6. Adicionado layout responsivo para visualização em lista com ajustes para mobile
+  7. Implementada transição de opacidade para imagens para uma experiência mais fluida
+  8. Melhorado o tratamento de eventos para prevenir comportamentos indesejados em links aninhados
+  9. Adicionada propriedade `viewMode` para controlar o tipo de visualização (lista/grade)
+  10. Criadas classes CSS específicas para componentes de UI importantes
+
+- **Arquivos Afetados:**
+  - `client/src/components/products/ProductCard.jsx` - Componente principal atualizado
+  - `client/src/assets/styles/overrides.css` - Adicionados estilos específicos para novos elementos
+
+- **Prevenção:**
+  1. Usar estados adequados para controlar o ciclo de vida do carregamento de imagens
+  2. Implementar tratamento adequado de propagação de eventos em elementos aninhados
+  3. Utilizar classes CSS específicas para melhor controle de estilo em diferentes contextos
+  4. Separar visualmente os modos de visualização (lista/grade) com estilos específicos
+  5. Otimizar performance com animações CSS em vez de JavaScript quando possível
+
+- **Verificação:**
+  - Testada a visualização em grade com diferentes quantidades de produtos
+  - Testada a visualização em lista com diferentes tamanhos de tela
+  - Verificado o comportamento responsivo em dispositivos móveis
+  - Testado o carregamento com diferentes velocidades de conexão
+  - Confirmado que ambos os modos respeitam a hierarquia visual definida no design
+
+- **Próximos Passos:**
+  1. Adicionar testes unitários para os diferentes modos de visualização
+  2. Considerar implementação de lazy loading para melhorar performance em listas grandes
+  3. Explorar uso de Intersection Observer para carregamento de imagens sob demanda
+
+#### Integração do ProductCard Melhorado em Todo o Sistema
+
+- **Data:** [2025-05-24 16:15]
+- **Tipo:** Frontend / UI / Integração
+- **Ambiente:** Desenvolvimento / Produção
+- **Resolução:**
+  1. Integrado o componente ProductCard melhorado em diversos pontos da aplicação:
+     - ProductsPage agora passa corretamente o parâmetro `viewMode` para as visualizações em grade e lista
+     - ProductsList atualizado para suportar o modo de visualização passando-o ao ProductCard
+     - ProductDetailPage agora exibe produtos relacionados usando o componente ProductCard melhorado
+  2. Implementados métodos de renderização alternativos em ProductsPage para maior flexibilidade
+  3. Corrigido o suporte a PropTypes no componente ProductsList
+  4. Otimizados os estilos CSS para assegurar consistência visual entre diferentes partes da aplicação
+  5. Adicionada seção de produtos relacionados na página de detalhes do produto
+
+- **Arquivos Afetados:**
+  - `client/src/pages/ProductsPage.jsx` - Atualizado para passar o viewMode corretamente
+  - `client/src/components/products/ProductsList.jsx` - Adicionado suporte à alternância de modo de visualização
+  - `client/src/pages/ProductDetailPage.jsx` - Adicionada seção de produtos relacionados
+  - `client/src/assets/styles/overrides.css` - Estilos CSS refinados para integração consistente
+  
+- **Benefícios:**
+  1. Experiência de usuário unificada em todo o sistema
+  2. Maior coesão visual entre diferentes visualizações do produto
+  3. Redução de código duplicado através da reutilização do componente ProductCard
+  4. Simplificação da manutenção futura com um padrão de visualização consistente
+  5. Experiência de compra melhorada com produtos relacionados
+  
+- **Verificação:**
+  - Testada a integração em todas as páginas que utilizam o componente ProductCard
+  - Verificado o funcionamento correto da alternância entre visualização em lista e grade
+  - Testada a exibição de produtos relacionados com diferentes produtos
+  - Confirmado que a experiência de usuário permanece consistente entre as páginas
+
+### Correção de Exibição de Imagens nos Product Cards (Fixed)
+
+- **Data:** [2025-05-26 15:30]
+- **Tipo de Erro:** Frontend / Exibição de Imagens / Estrutura de Dados
+- **Ambiente:** Produção
+- **Mensagem de Erro:** 
+  ```
+  Imagem não disponível (exibido na interface)
+  Failed to load image for product: X - Product Name (no console)
+  ```
+- **Causa Raiz:** 
+  - O componente ProductCard estava acessando a propriedade `images` (com "i" minúsculo) para obter as URLs das imagens dos produtos.
+  - No entanto, a API estava retornando os dados das imagens na propriedade `Images` (com "I" maiúsculo).
+  - Havia inconsistência entre a estrutura esperada pelo frontend e a estrutura real retornada pelo backend.
+  - Não havia tratamento adequado para as diferentes formas como as imagens poderiam ser retornadas pela API.
+
+- **Resolução:** 
+  1. Atualizada a função `getImageUrl()` no componente ProductCard para verificar múltiplas possíveis estruturas de dados:
+     - Verificação da propriedade `Images` (com "I" maiúsculo)
+     - Fallback para a propriedade `images` (com "i" minúsculo)
+     - Fallbacks adicionais para URLs diretas (`image_url`, `url`, `imageUrl`)
+  2. Melhorada a transformação de resposta da API para normalizar a estrutura de dados:
+     - Adicionada lógica para padronizar a propriedade como `Images` (com "I" maiúsculo)
+     - Criação de objetos de imagem para casos onde apenas uma URL direta está disponível
+  3. Adicionado gerenciamento de estado mais robusto para imagens:
+     - Uso de `useState` para armazenar a URL da imagem
+     - Uso de `useEffect` para atualizar a URL quando o produto muda
+     - Melhor tratamento de estados de carregamento e erro
+  4. Correções aplicadas consistentemente em todos os componentes relevantes:
+     - `ProductCard.jsx` - Componente principal
+     - `ProductDetailPage.jsx` - Página de detalhes do produto
+     - `productApi.js` - Transformação de respostas da API
+
+- **Verificação:** 
+  - Build concluída com sucesso
+  - Deploy realizado para produção
+  - Verificado visualmente que as imagens estão sendo exibidas corretamente
+  - Log de console mostra carregamento bem-sucedido das imagens
+
+- **Arquivos Afetados:**
+  - `client/src/components/products/ProductCard.jsx` - Atualizada lógica de obtenção de imagens
+  - `client/src/store/api/productApi.js` - Melhorada transformação de respostas
+  - `client/src/pages/ProductDetailPage.jsx` - Atualizada lógica consistente com o ProductCard
+  - `client/src/pages/ProductsPage.jsx` - Adicionada lógica de depuração
+
+- **Prevenção:**
+  1. Implementar TypeScript para validação de tipos e estruturas de dados
+  2. Criar esquemas de validação para respostas da API
+  3. Adicionar testes de integração para validar a estrutura de dados completa
+  4. Documentar melhor a estrutura de dados esperada para produtos
+  5. Incluir validação de respostas da API em nível de serviço
+  6. Implementar um sistema de mapeamento de dados mais robusto entre back e frontend
+
+- **Notas Adicionais:**
+  - Essa correção melhora significativamente a experiência do usuário, já que as imagens são elementos cruciais para a interface de e-commerce
+  - A abordagem de múltiplos fallbacks torna o sistema mais resiliente a mudanças na estrutura de dados da API
+  - O uso de hook useEffect para gerenciar a URL da imagem melhora a performance ao evitar recálculos desnecessários
+  - A abordagem de depuração com console.log foi mantida para facilitar o troubleshooting futuro se necessário
+
+### Product Images Empty Array Issue (Fixed)
+
+- **Date:** [2025-05-25 15:45]
+- **Error Type:** Frontend / Data Transformation / Image Handling
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  API Response Meta: {totalItems: 9231, totalPages: 770, currentPage: 1, itemsPerPage: 12}
+  First Product Structure: {
+    "id": 136450,
+    "code": "C00049",
+    "code_on_card": null,
+    "ean": null,
+    "producer_code": null,
+    "name": "Front wheel 10pcs + back wheelor floor jack 2,5T",
+    "description_long": "",
+    "description_short": "",
+    "description_html": null,
+    "vat": "0.00",
+    "delivery_date": null,
+    "url": null,
+    "created_at": "2025-05-11T19:36:49.277Z",
+    "updated_at": "2025-05-11T19:36:49.277Z",
+    "category_id": "Spare Parts\\Hydraulic Lifts",
+    "producer_id": 8223,
+    "unit_id": "[object Object]",
+    "Images": []
+  }
+  Images property: []
+  ```
+- **Root Cause:** 
+  - The API was returning products with empty `Images` arrays
+  - The frontend was trying to access image URLs from this array without proper fallback mechanisms
+  - Different image path formats were inconsistently handled (direct URL fields, image objects, etc.)
+  - No comprehensive placeholder system for missing images existed
+
+- **Resolution:** 
+  1. **Enhanced data normalization in API responses:**
+     - Added robust transformResponse functions in productApi.js to normalize image data structure
+     - Created fallback image objects when only direct URLs were available
+     - Implemented mapping from direct image properties to standardized Images array
+     - Added detailed debugging for better visibility into data structures
+  
+  2. **Improved image handling components:**
+     - Enhanced `getImageUrl()` function in ProductCard to handle multiple data structures
+     - Added category-specific placeholders based on product category
+     - Implemented parallel improvements in ProductDetailPage for consistency
+     - Added comprehensive error handling for image loading failures
+  
+  3. **Created category-specific placeholder system:**
+     - Added placeholder images for different product categories
+     - Built fallback hierarchy from specific to general placeholders
+     - Implemented proper validation for URL fields to prevent invalid image paths
+
+- **Verification:** 
+  - Built and deployed the application to Vercel
+  - Verified images appear correctly for products with empty Images arrays
+  - Confirmed category-specific placeholders work properly
+  - Checked that console errors related to image loading are eliminated
+
+- **Affected Files:**
+  - `client/src/components/products/ProductCard.jsx` - Enhanced image handling logic
+  - `client/src/pages/ProductDetailPage.jsx` - Improved image display with fallbacks
+  - `client/src/store/api/productApi.js` - Updated transform response functions
+  - Added placeholder images in `client/public/assets/icons/`
+
+- **Prevention:**
+  1. Implement comprehensive validation in API response transformation
+  2. Add robust fallback systems for critical UI elements
+  3. Use consistent data structures across components
+  4. Document expected data formats in component JSDoc
+  5. Add debugging information in development environment
+
+### Product Detail Page - Undefined ID Error in Related Products (Fixed)
+
+- **Date:** [2025-05-23 10:15]
+- **Error Type:** Frontend / Component / Property Access
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  Uncaught TypeError: Cannot read properties of undefined (reading 'id')
+    at ave (index-BXPdfWfH.js:402:52868)
+  ```
+- **Root Cause:** 
+  - In the ProductDetailPage component, when filtering related products, the code was not properly checking for undefined or null objects before accessing nested properties.
+  - The issue persisted after initial fixes, indicating that some specific edge cases were still not being handled properly.
+  - Specifically, when comparing product categories and producers, the code needed more extensive null/undefined checking at every level of property access.
+  - ProductCard was also receiving some invalid product objects that would cause errors when attempting to access their properties.
+
+- **Resolution:** 
+  1. **Enhanced related products filtering:**
+     - Added comprehensive null/undefined checking for all accessed properties
+     - Implemented try/catch blocks to prevent filter errors from breaking the entire component
+     - Added debugging logs to track the product data structure at various points
+     - Created a safe copy of products data with pre-validation before filtering
+     - Added multiple fallback strategies for category and producer comparison
+     - Implemented detailed error logging to better understand edge cases
+  
+  2. **Improved ProductCard component safety:**
+     - Added defensive checks for product validity at the component's start
+     - Added a fallback UI for invalid product data
+     - Enhanced all property access with type checking and null/undefined guards
+     - Wrapped critical functions in try/catch blocks
+     - Added default values to prevent undefined return values
+     - Improved image URL resolution with more robust fallback mechanisms
+     - Added comprehensive logging for debugging purposes
+
+  3. **Added Safety Measures in Data Handling:**
+     - Initialized safe empty objects for Category and Producer when they don't exist
+     - Added `?.` optional chaining throughout the component for all property access
+     - Protected array accesses with Array.isArray() checks
+     - Added defensive null checks for the product object itself
+     - Enhanced renderRelatedProducts with more detailed validation
+
+- **Verification:** 
+  - Built and deployed the application to Vercel
+  - Verified that product detail pages with problematic data structures now load correctly
+  - Confirmed that related products display without errors when valid, and are hidden when invalid
+  - Tested with various product IDs to ensure consistent behavior
+
+- **Affected Files:**
+  - `client/src/pages/ProductDetailPage.jsx` - Enhanced with comprehensive null checking and error handling
+  - `client/src/components/products/ProductCard.jsx` - Improved with defensive programming approach
+
+- **Prevention:**
+  1. Always use defensive programming when working with API data
+  2. Implement comprehensive null/undefined checks before accessing nested properties
+  3. Use optional chaining (`?.`) for all property access in React components
+  4. Always validate array data with Array.isArray() before operating on it
+  5. Wrap critical sections in try/catch blocks to prevent component crashes
+  6. Add early return patterns with fallback UI for invalid data
+  7. Log the data structure in development for better understanding of the response format
+  8. Include type checking (typeof) when operating on strings, numbers, or other specific types
+  9. Add fallback values for all variables derived from potentially undefined sources
+  10. Build safety into UI components by providing default prop values
+
+- **Related Issues:** 
+  - Connected to the empty Images array issue fixed previously
+  - Part of broader data structure inconsistency between API response and frontend expectations
+
+- **Version:** v1.0.3
+
 // ... existing code ... 

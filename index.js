@@ -23,35 +23,35 @@ console.log('Database URL exists:', !!process.env.NEON_DB_URL || !!process.env.P
 const setupDatabase = async () => {
   let sequelize = null;
   const dbUrl = process.env.NEON_DB_URL || process.env.POSTGRES_URL || process.env.DATABASE_URL;
-  
+
   if (!dbUrl) {
     console.error('No database URL found in environment variables. Please set NEON_DB_URL, POSTGRES_URL, or DATABASE_URL');
     return null;
-  }
-  
+    }
+
   try {
     console.log('Initializing Sequelize connection to PostgreSQL...');
-    sequelize = new Sequelize(dbUrl, {
-      dialect: 'postgres',
+        sequelize = new Sequelize(dbUrl, {
+          dialect: 'postgres',
       dialectModule: await import('pg'),
-      logging: false,
+          logging: false,
       ssl: true,
-      dialectOptions: {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
-        }
-      },
-      pool: {
+          dialectOptions: {
+            ssl: {
+              require: true,
+              rejectUnauthorized: false
+            }
+          },
+          pool: {
         max: 10,
-        min: 0,
+            min: 0,
         idle: 20000,
-        acquire: 60000,
-      }
-    });
-    
+            acquire: 60000,
+          }
+        });
+
     // Test connection
-    await sequelize.authenticate();
+        await sequelize.authenticate();
     console.log('Successfully connected to the database');
     return sequelize;
   } catch (error) {
@@ -63,11 +63,51 @@ const setupDatabase = async () => {
 // Initialize Express
 const app = express();
 
-// Apply middleware
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
+// Configure CORS with a function for dynamic origins
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc)
+    if(!origin) return callback(null, true);
+    
+    // Check if the origin is allowed
+    const allowedOrigins = [
+      /^https?:\/\/localhost(:[0-9]+)?$/,
+      /^https?:\/\/.*\.vercel\.app$/,
+      /^https?:\/\/.*\.alitools\.pt$/,
+      /^https?:\/\/127\.0\.0\.1(:[0-9]+)?$/
+    ];
+    
+    // Check if origin matches any of our patterns
+    const allowed = allowedOrigins.some(pattern => pattern.test(origin));
+    
+    if (allowed) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked request from: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true // Allow cookies and credentials
+}));
 
+// Aplicando middleware helmet com configuração para permitir carregamento de scripts inline
+// e recursos externos, o que é necessário para o Three.js
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        "img-src": ["'self'", "data:", "blob:", "https:"],
+        "connect-src": ["'self'", "https:", "wss:", "blob:"],
+        "worker-src": ["'self'", "blob:"]
+      },
+    },
+  })
+);
+
+app.use(express.json());
+        
 // Define a database state object for lazy initialization
 const dbState = {
   connection: null,
@@ -92,13 +132,44 @@ const connectDb = async (req, res, next) => {
   next();
 };
 
-// Serve static client files
-app.use(express.static(join(__dirname, 'client/dist')));
+// Serve static files with proper MIME types
+app.use(express.static(join(__dirname, 'client/dist'), {
+  setHeaders: (res, path) => {
+    // Set appropriate MIME types
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+    } else if (path.endsWith('.glb') || path.endsWith('.gltf')) {
+      res.setHeader('Content-Type', 'model/gltf-binary');
+    } else if (path.endsWith('.wasm')) {
+      res.setHeader('Content-Type', 'application/wasm');
+    }
+    
+    // Set appropriate cache headers for different resource types
+    if (path.includes('/assets/') || 
+        path.match(/\.(js|css|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|otf|glb|gltf)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 // API Routes
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    time: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    staticAssetsPath: join(__dirname, 'client/dist'),
+    staticAssetsExists: true
+  });
+});
+
 app.get('/api/v1/products', connectDb, async (req, res) => {
   console.log('Processing request to /api/v1/products with params:', req.query);
-  
+        
   // If database connection failed
   if (!req.sequelize) {
     console.error('Database connection not available');
@@ -106,8 +177,8 @@ app.get('/api/v1/products', connectDb, async (req, res) => {
       success: false, 
       error: 'Database connection failed', 
       details: 'The database connection could not be established. Please check environment variables and ensure the PostgreSQL server is running.'
-    });
-  }
+        });
+      }
   
   try {
     // Get query parameters with defaults
@@ -123,10 +194,10 @@ app.get('/api/v1/products', connectDb, async (req, res) => {
       `SELECT COUNT(*) FROM products`,
       { type: req.sequelize.QueryTypes.SELECT }
     );
-    
+      
     // Extract count value properly (from the first row, first column)
     const totalItems = parseInt(countResult[0].count || '0');
-    
+      
     // Calculate total pages
     const totalPages = Math.ceil(totalItems / limit);
     
@@ -143,7 +214,7 @@ app.get('/api/v1/products', connectDb, async (req, res) => {
     
     // Ensure products is always an array
     const productsArray = Array.isArray(products) ? products : [products].filter(Boolean);
-    
+      
     // Return the response
     return res.json({
       success: true,
@@ -177,6 +248,6 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
+  });
 
 export default app;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BsArrowRight, BsTruck, BsShield, BsHeadset, BsTools } from 'react-icons/bs';
+import Hero3DLogo from '../components/ui/Hero3DLogo';
 
 const HomePage = () => {
   // Sample featured products (would come from an API in production)
@@ -73,90 +74,8 @@ const HomePage = () => {
 
   return (
     <div className="space-y-12" style={{ maxWidth: '100%', margin: '0 auto', padding: '0 1rem' }}>
-      {/* Hero Section */}
-      <section 
-        style={{ 
-          backgroundColor: '#1A1A1A', 
-          color: 'white', 
-          borderRadius: '0.75rem', 
-          overflow: 'hidden', 
-          position: 'relative', 
-          padding: '3rem 1rem',
-          marginTop: '1rem',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-        }}
-      >
-        <div style={{ 
-          position: 'absolute', 
-          inset: 0, 
-          background: 'linear-gradient(to right, rgba(26, 26, 26, 1), rgba(26, 26, 26, 0.7))', 
-          zIndex: 10 
-        }}></div>
-        
-        <div style={{ 
-          position: 'relative', 
-          zIndex: 20, 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
-          padding: '0 1rem' 
-        }}>
-          <div style={{ maxWidth: '32rem' }}>
-            <h1 style={{ 
-              fontSize: 'clamp(1.875rem, 4vw, 3.5rem)',
-              fontWeight: 'bold',
-              marginBottom: '0.75rem',
-              lineHeight: '1.2',
-              color: 'white'
-            }}>
-              Professional Tools for Your Business
-            </h1>
-            <p style={{ 
-              fontSize: 'clamp(1rem, 2vw, 1.25rem)',
-              color: '#e5e5e5',
-              marginBottom: '2rem'
-            }}>
-              Ali Tools provides wholesale premium quality tools with competitive prices for distributors and retailers.
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-              <Link 
-                to="/todas-categorias" 
-                style={{ 
-                  backgroundColor: '#FFCC00', 
-                  color: '#1A1A1A', 
-                  padding: '0.75rem 1.5rem', 
-                  borderRadius: '0.375rem', 
-                  fontWeight: '500', 
-                  transition: 'background-color 0.3s', 
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  textDecoration: 'none'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#E5B800'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#FFCC00'}
-              >
-                Browse Products <BsArrowRight style={{ marginLeft: '0.5rem' }} />
-              </Link>
-              <Link 
-                to="/auth/register" 
-                style={{ 
-                  backgroundColor: 'transparent', 
-                  border: '2px solid #FFCC00', 
-                  color: '#FFCC00', 
-                  padding: '0.75rem 1.5rem', 
-                  borderRadius: '0.375rem', 
-                  fontWeight: '500', 
-                  transition: 'background-color 0.3s', 
-                  textDecoration: 'none'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                Register Now
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Section - Using the new 3D Hero */}
+      <Hero3DLogo />
 
       {/* Value Propositions */}
       <section style={{ 
