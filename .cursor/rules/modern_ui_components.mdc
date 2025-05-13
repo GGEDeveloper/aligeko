@@ -1,0 +1,515 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Modern UI Components
+
+This rule documents the standard patterns for implementing modern UI components in the AliTools B2B E-commerce platform.
+
+## Overview
+
+This document covers the implementation patterns for modern, interactive UI components that provide a visually appealing and user-friendly experience. These components focus on:
+- Visual appeal through animations and effects
+- User feedback and interactivity
+- Consistent styling and behavior
+- Reusability across the application
+- Performance and accessibility
+
+## Key Components
+
+### HeroGeometric
+
+A hero section component with animated geometric shapes to create visual interest.
+
+```jsx
+// ✅ DO: Create reusable, configurable components
+import React from 'react';
+import { ElegantShape } from './ElegantShape';
+
+export const HeroGeometric = ({
+  title,
+  subtitle,
+  badge,
+  buttonText,
+  buttonLink,
+  backgroundColor = "linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)",
+  overlay = true,
+  shapes = [],
+  className
+}) => {
+  return (
+    <div className={cn("hero-container", className)} 
+      style={{ background: backgroundColor }}>
+      
+      {/* Render shapes or use defaults */}
+      {shapes.length > 0 
+        ? shapes.map((shape, index) => (
+            <ElegantShape key={index} {...shape} />
+          ))
+        : (
+          <>
+            <ElegantShape
+              type="circle"
+              size={150}
+              color="#FFCC00"
+              position={{ top: '10%', left: '5%' }}
+              animation={{ type: 'float', duration: 8 }}
+              opacity={0.5}
+            />
+            {/* Additional default shapes */}
+          </>
+        )
+      }
+      
+      {/* Content with proper semantic markup */}
+      <div className="content-container">
+        {badge && <span className="badge">{badge}</span>}
+        <h1>{title}</h1>
+        <p>{subtitle}</p>
+        
+        {buttonText && buttonLink && (
+          <a href={buttonLink} className="cta-button">
+            {buttonText}
+          </a>
+        )}
+      </div>
+      
+      {overlay && <div className="overlay" />}
+    </div>
+  );
+};
+
+// ❌ DON'T: Create inflexible components with hardcoded values
+const HardcodedHero = () => {
+  return (
+    <div style={{ background: 'black' }}>
+      <div style={{ position: 'absolute', top: '10%', left: '5%' }}>
+        {/* Hardcoded shape */}
+      </div>
+      <h1>Contact Us</h1>
+      <p>Get in touch with our team</p>
+      <a href="#form">Send Message</a>
+    </div>
+  );
+};
+```
+
+### ElegantShape
+
+A reusable component for creating animated decorative shapes.
+
+```jsx
+// ✅ DO: Create flexible components with multiple options
+import React from 'react';
+import { cn } from '../../utils/cn';
+
+export const ElegantShape = ({
+  type = 'circle',
+  size = 100,
+  color = '#FFCC00',
+  position = { top: '0', left: '0' },
+  animation = { type: 'float', duration: 8 },
+  opacity = 0.5,
+  className
+}) => {
+  // Generate animation style based on type
+  const getAnimationStyle = () => {
+    const { type, duration = 8, delay = 0 } = animation;
+    
+    const baseAnimation = {
+      animationDuration: `${duration}s`,
+      animationDelay: `${delay}s`,
+      animationIterationCount: 'infinite',
+      animationTimingFunction: 'ease-in-out',
+    };
+    
+    // Map animation type to CSS animation
+    const animationMap = {
+      float: 'float',
+      pulse: 'pulse',
+      rotate: 'rotate',
+      custom: animation.name || 'float'
+    };
+    
+    return {
+      ...baseAnimation,
+      animationName: animationMap[type] || 'float'
+    };
+  };
+  
+  // Generate shape style based on type
+  const getShapeStyle = () => {
+    // Base styles...
+    // Shape-specific styles based on type...
+  };
+  
+  return (
+    <div 
+      className={cn('elegant-shape', className)}
+      style={getShapeStyle()}
+    />
+  );
+};
+
+// ❌ DON'T: Create separate components for each shape type
+const Circle = ({ size, color }) => (
+  <div style={{ 
+    width: size, 
+    height: size,
+    borderRadius: '50%', 
+    backgroundColor: color 
+  }} />
+);
+
+const Square = ({ size, color }) => (
+  <div style={{ 
+    width: size, 
+    height: size,
+    backgroundColor: color 
+  }} />
+);
+```
+
+### ContactForm
+
+A modern form component with built-in validation and visual feedback.
+
+```jsx
+// ✅ DO: Implement robust validation and feedback
+import React, { useState } from 'react';
+
+const ContactForm = ({ onSubmit, className }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+  
+  // Validation logic
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+    
+    // More validation rules...
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      await onSubmit(formData);
+      setSubmitStatus('success');
+      // Reset form
+    } catch (error) {
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className={cn("glass-effect", className)}>
+      {/* Form fields with error states */}
+      <div className="form-group">
+        <label htmlFor="name">Name</label>
+        <input
+          id="name"
+          type="text"
+          value={formData.name}
+          onChange={(e) => setFormData({...formData, name: e.target.value})}
+          className={errors.name ? "input-error" : ""}
+        />
+        {errors.name && <span className="error-message">{errors.name}</span>}
+      </div>
+      
+      {/* Other form fields */}
+      
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Sending...' : 'Send Message'}
+      </button>
+      
+      {submitStatus === 'success' && (
+        <div className="success-message">Message sent successfully!</div>
+      )}
+      
+      {submitStatus === 'error' && (
+        <div className="error-message">Failed to send message. Please try again.</div>
+      )}
+    </form>
+  );
+};
+
+// ❌ DON'T: Create forms without validation or feedback
+const SimpleForm = () => (
+  <form>
+    <input type="text" placeholder="Name" />
+    <input type="email" placeholder="Email" />
+    <textarea placeholder="Message"></textarea>
+    <button type="submit">Send</button>
+  </form>
+);
+```
+
+## Glassmorphism Effect Pattern
+
+Implement consistent glassmorphism effects using:
+
+```css
+/* ✅ DO: Use a consistent glass effect pattern */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ DO: Create variations with CSS variables */
+.glass-effect-dark {
+  --glass-bg-opacity: 0.05;
+  --glass-border-opacity: 0.1;
+  --glass-blur: 12px;
+  
+  background: rgba(0, 0, 0, var(--glass-bg-opacity));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity));
+}
+
+/* ❌ DON'T: Use inconsistent glassmorphism effects */
+.card1 {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+.card2 {
+  background: rgba(240, 240, 240, 0.3);
+  backdrop-filter: blur(15px);
+}
+```
+
+## Animation Patterns
+
+Define reusable animations:
+
+```css
+/* ✅ DO: Create reusable keyframe animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ✅ DO: Use utility classes for animations */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.animate-rotate {
+  animation: rotate 10s linear infinite;
+}
+
+/* ❌ DON'T: Use inline animation styles */
+/* div style={{ animation: 'custom-float 5s ease-in-out infinite' }} */
+```
+
+## Form Validation Pattern
+
+Use consistent validation approach:
+
+```jsx
+// ✅ DO: Create reusable validation functions
+const validators = {
+  required: (value, fieldName) => 
+    !value.trim() ? `${fieldName} is required` : '',
+  
+  email: (value) => 
+    !/\S+@\S+\.\S+/.test(value) ? 'Please enter a valid email' : '',
+  
+  minLength: (value, min) => 
+    value.length < min ? `Must be at least ${min} characters` : '',
+  
+  phone: (value) => 
+    !/^\+?[0-9]{10,15}$/.test(value) ? 'Please enter a valid phone number' : ''
+};
+
+// Usage in component
+const validateField = (name, value) => {
+  switch (name) {
+    case 'name':
+      return validators.required(value, 'Name');
+    case 'email':
+      return validators.required(value, 'Email') || validators.email(value);
+    case 'phone':
+      return validators.phone(value);
+    case 'message':
+      return validators.required(value, 'Message') || 
+             validators.minLength(value, 10);
+    default:
+      return '';
+  }
+};
+
+// ❌ DON'T: Repeat validation logic in every component
+// if (!email) {
+//   errors.email = 'Email is required';
+// } else if (!/\S+@\S+\.\S+/.test(email)) {
+//   errors.email = 'Email is invalid';
+// }
+```
+
+## Utility Functions
+
+Implement helpful utilities:
+
+```jsx
+// ✅ DO: Use a className utility for merging classes
+// utils/cn.js
+export function cn(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
+// Usage
+<div className={cn(
+  'base-class',
+  isActive && 'active',
+  isDisabled && 'disabled',
+  className
+)} />
+
+// ✅ DO: Create animation utility functions
+// utils/motion.js
+export const animations = {
+  fadeIn: {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 }
+  },
+  slideUp: {
+    hidden: { y: 50, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  },
+  // More animation variants...
+};
+
+export const transition = {
+  duration: 0.5,
+  ease: [0.43, 0.13, 0.23, 0.96]
+};
+```
+
+## Accessibility Best Practices
+
+Ensure components are accessible:
+
+```jsx
+// ✅ DO: Include proper ARIA attributes and keyboard support
+<button
+  aria-label="Submit form"
+  aria-disabled={isSubmitting}
+  disabled={isSubmitting}
+  className={cn('submit-button', isSubmitting && 'submitting')}
+>
+  {isSubmitting ? 'Sending...' : 'Send Message'}
+</button>
+
+// ✅ DO: Provide accessible error messages
+<div className="form-group">
+  <label htmlFor="email">Email</label>
+  <input
+    id="email"
+    type="email"
+    aria-invalid={!!errors.email}
+    aria-describedby={errors.email ? "email-error" : undefined}
+  />
+  {errors.email && (
+    <span id="email-error" role="alert" className="error-message">
+      {errors.email}
+    </span>
+  )}
+</div>
+```
+
+## Testing Strategy
+
+When testing modern UI components:
+
+1. **Visual Testing**: Verify animations and effects work across browsers
+2. **Responsive Testing**: Check behavior across different screen sizes
+3. **Performance Testing**: Ensure animations don't cause jank or lag
+4. **Accessibility Testing**: Check keyboard navigation and screen reader compatibility
+5. **Form Validation**: Test all validation rules and error states
+6. **Animation Behavior**: Test animation timing and behavior on different devices
+
+## Related Rules
+
+- [ui_components.mdc](mdc:.cursor/rules/ui_components.mdc) - General UI component patterns
+- [forms.mdc](mdc:.cursor/rules/forms.mdc) - Form implementation patterns
+- [accessibility.mdc](mdc:.cursor/rules/accessibility.mdc) - Accessibility guidelines
+
+## External References
+
+- [CSS Tricks: A Complete Guide to Backdrop Filter](https://css-tricks.com/almanac/properties/b/backdrop-filter/)
+- [MDN: Using CSS Animations](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Animations/Using_CSS_animations)
+- [Web.dev: Form Validation](https://web.dev/learn/forms/validation/)
+
+---
+
+*Last updated: 2024-06-16*

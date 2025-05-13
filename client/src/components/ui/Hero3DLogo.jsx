@@ -18,194 +18,229 @@ const Hero2DFallback = () => {
       // Cria uma oscilação suave entre 0 e 1 para o brilho
       const newIntensity = (Math.sin(elapsed / 1000) + 1) / 2;
       setGlowIntensity(newIntensity);
+      
       frame = requestAnimationFrame(animate);
     };
     
-    animate();
+    frame = requestAnimationFrame(animate);
     
-    // Limpeza na desmontagem
     return () => {
-      if (frame) cancelAnimationFrame(frame);
+      cancelAnimationFrame(frame);
     };
   }, []);
   
-  // Calcula os valores de CSS para o efeito de brilho
-  const glowRadius = Math.floor(20 + glowIntensity * 15);
-  const glowOpacity = 0.5 + glowIntensity * 0.3;
+  // Calcula o valor do box-shadow com base na intensidade do brilho
+  const glowSize = Math.floor(10 + glowIntensity * 15);
+  const glowOpacity = 0.4 + glowIntensity * 0.6;
   
   return (
-    <section style={{ 
-      backgroundColor: '#1A1A1A', 
-      color: 'white', 
-      borderRadius: '0.75rem', 
-      overflow: 'hidden', 
-      position: 'relative', 
-      padding: '3rem 1rem',
-      marginTop: '1rem',
+    <div style={{
+      width: '100%',
       height: '500px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      background: 'linear-gradient(135deg, #0A0A0A 0%, #222222 100%)',
+      overflow: 'hidden',
+      position: 'relative',
+      borderBottom: '4px solid #FFCC00'
     }}>
-      {/* Logo com efeito de brilho animado */}
+      {/* Elementos decorativos de fundo */}
       <div style={{
         position: 'absolute',
-        right: '5%',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        width: '300px',
-        height: '300px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
+        backgroundImage: 'radial-gradient(circle, rgba(255, 204, 0, 0.05) 1px, transparent 1px)',
+        backgroundSize: '30px 30px',
+        backgroundPosition: '0 0',
         zIndex: 1
+      }} />
+      
+      {/* Logo flutuante com animação de brilho */}
+      <div style={{
+        position: 'absolute',
+        left: '15%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 2,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        animation: 'float 6s ease-in-out infinite'
       }}>
-        <div style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          borderRadius: '50%',
-          background: `radial-gradient(circle, rgba(255, 204, 0, ${glowOpacity}) 0%, rgba(255, 204, 0, 0) 70%)`,
-          filter: `blur(${glowRadius}px)`,
-          opacity: 0.8,
-          transition: 'all 0.3s ease'
-        }} />
         <img 
           src={logoImage} 
-          alt="Ali Tools Logo" 
+          alt="AliTools Logo" 
           style={{
-            width: '200px',
-            height: '200px',
+            width: '220px',
+            height: '220px',
             objectFit: 'contain',
-            position: 'relative',
-            zIndex: 2,
-            animation: 'float 6s ease-in-out infinite'
+            filter: `drop-shadow(0 0 ${glowSize}px rgba(255, 204, 0, ${glowOpacity}))`,
+            transition: 'filter 0.2s ease'
           }}
         />
       </div>
       
-      {/* Partículas decorativas simuladas */}
-      {Array.from({ length: 20 }).map((_, index) => (
-        <div 
-          key={index}
-          style={{
-            position: 'absolute',
-            width: Math.random() * 8 + 2 + 'px',
-            height: Math.random() * 8 + 2 + 'px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(255, 204, 0, 0.4)',
-            left: Math.random() * 100 + '%',
-            top: Math.random() * 100 + '%',
-            opacity: Math.random() * 0.5 + 0.2,
-            animation: `particle-float ${Math.random() * 10 + 10}s ease-in-out infinite`,
-            animationDelay: `${Math.random() * 5}s`
-          }}
-        />
-      ))}
-      
-      {/* Conteúdo de texto */}
-      <div style={{ 
-        maxWidth: '32rem',
-        backgroundColor: 'rgba(26, 26, 26, 0.7)',
+      {/* Conteúdo/texto */}
+      <div style={{
+        position: 'absolute',
+        right: '10%',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        maxWidth: '500px',
+        zIndex: 3,
+        textAlign: 'left',
         padding: '2rem',
-        borderRadius: '0.75rem',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        position: 'relative',
-        zIndex: 10
+        borderRadius: '12px',
+        background: 'rgba(0, 0, 0, 0.75)', // Dark overlay for text contrast
+        backdropFilter: 'blur(8px)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
       }}>
-        <h1 style={{ 
-          fontSize: 'clamp(1.875rem, 4vw, 3.5rem)',
+        <h1 style={{
+          fontSize: '2.5rem',
           fontWeight: 'bold',
-          marginBottom: '0.75rem',
-          lineHeight: '1.2',
-          color: 'white'
+          marginBottom: '1rem',
+          background: 'linear-gradient(90deg, #FFCC00, #FFAA00)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
         }}>
-          Ferramentas Profissionais para o Seu Negócio
+          Ferramentas Profissionais
         </h1>
-        <p style={{ 
-          fontSize: 'clamp(1rem, 2vw, 1.25rem)',
-          color: '#e5e5e5',
-          marginBottom: '2rem'
+        
+        <p style={{
+          fontSize: '1.1rem',
+          lineHeight: '1.6',
+          marginBottom: '1.5rem',
+          color: '#FFFFFF', // Changed to white for better contrast
+          maxWidth: '90%',
+          textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)'
         }}>
-          A Ali Tools fornece ferramentas de qualidade premium com preços competitivos para distribuidores e revendedores.
+          As melhores ferramentas para profissionais exigentes. 
+          Qualidade, durabilidade e eficiência para o seu trabalho.
         </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-          <Link 
-            to="/products" 
-            style={{ 
-              backgroundColor: '#FFCC00', 
-              color: '#1A1A1A', 
-              padding: '0.75rem 1.5rem', 
-              borderRadius: '0.375rem', 
-              fontWeight: '500', 
-              transition: 'background-color 0.3s', 
-              display: 'inline-flex',
-              alignItems: 'center',
-              textDecoration: 'none'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#E5B800'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#FFCC00'}
-          >
-            Ver Produtos <BsArrowRight style={{ marginLeft: '0.5rem' }} />
-          </Link>
-          <Link 
-            to="/auth/register" 
-            style={{ 
-              backgroundColor: 'transparent', 
-              border: '2px solid #FFCC00', 
-              color: '#FFCC00', 
-              padding: '0.75rem 1.5rem', 
-              borderRadius: '0.375rem', 
-              fontWeight: '500', 
-              transition: 'background-color 0.3s', 
-              textDecoration: 'none'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-          >
-            Registrar Agora
-          </Link>
-        </div>
+        
+        <Link 
+          to="/products" 
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            padding: '0.75rem 1.5rem',
+            backgroundColor: '#FFCC00',
+            color: '#000000',
+            borderRadius: '8px',
+            fontWeight: 'bold',
+            textDecoration: 'none',
+            boxShadow: '0 4px 12px rgba(255, 204, 0, 0.3)',
+            transition: 'all 0.3s ease',
+            border: '2px solid #FFCC00'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.backgroundColor = '#000000';
+            e.currentTarget.style.color = '#FFCC00';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 15px rgba(255, 204, 0, 0.4)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.backgroundColor = '#FFCC00';
+            e.currentTarget.style.color = '#000000';
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 204, 0, 0.3)';
+          }}
+        >
+          Ver Produtos
+          <BsArrowRight style={{ marginLeft: '0.5rem' }} />
+        </Link>
       </div>
       
-      {/* CSS para animações */}
+      {/* Partículas decorativas */}
+      <div className="particles" style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 2
+      }} />
+      
+      {/* Estilos para a animação flutuante */}
       <style>
         {`
           @keyframes float {
-            0%, 100% {
-              transform: translateY(0);
+            0% {
+              transform: translate(-50%, -50%);
             }
             50% {
-              transform: translateY(-15px);
+              transform: translate(-50%, -60%);
+            }
+            100% {
+              transform: translate(-50%, -50%);
             }
           }
           
-          @keyframes particle-float {
-            0%, 100% {
+          .particles::before,
+          .particles::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 204, 0, 0.3);
+            animation-duration: 10s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+          }
+          
+          .particles::before {
+            top: 20%;
+            left: 30%;
+            animation-name: particle1;
+          }
+          
+          .particles::after {
+            bottom: 30%;
+            right: 25%;
+            animation-name: particle2;
+          }
+          
+          @keyframes particle1 {
+            0% {
               transform: translate(0, 0);
             }
             25% {
-              transform: translate(20px, 10px);
+              transform: translate(100px, 50px);
             }
             50% {
-              transform: translate(10px, 20px);
+              transform: translate(0, 100px);
             }
             75% {
-              transform: translate(-10px, 10px);
+              transform: translate(-100px, 50px);
+            }
+            100% {
+              transform: translate(0, 0);
+            }
+          }
+          
+          @keyframes particle2 {
+            0% {
+              transform: translate(0, 0);
+            }
+            25% {
+              transform: translate(-70px, -30px);
+            }
+            50% {
+              transform: translate(0, -60px);
+            }
+            75% {
+              transform: translate(70px, -30px);
+            }
+            100% {
+              transform: translate(0, 0);
             }
           }
         `}
       </style>
-    </section>
+    </div>
   );
 };
 
-// O componente principal agora apenas retorna o fallback seguro
-// Removemos completamente a dependência do Three.js para eliminar o erro
+// Componente Hero3DLogo que agora apenas exibe o fallback 2D mais seguro e estável
 const Hero3DLogo = () => {
-  // Aqui poderíamos até tentar carregar a versão 3D de forma dinâmica com React.lazy
-  // mas por segurança, estamos usando apenas o fallback 2D confiável
   return <Hero2DFallback />;
 };
 

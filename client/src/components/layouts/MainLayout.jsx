@@ -1,29 +1,60 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Outlet } from 'react-router-dom';
-import Header from '../ui/Header';
-import Footer from '../ui/Footer';
+import ShrinkingHeader from '../ui/ShrinkingHeader';
+import FooterSection from '../ui/FooterSection';
+import { TubelightNavbar } from '../ui/TubelightNavbar';
+import { BsHouseDoor, BsBriefcase, BsFileText, BsChatDots, BsQuestionCircle } from 'react-icons/bs';
 
 /**
- * Main layout wrapper component for AliTools B2B e-commerce platform
- * Includes header, main content area, and footer
+ * Main layout component that wraps the main content of the application
+ * with a consistent header, navigation, and footer.
+ * 
+ * @param {Object} props - The props passed to the component
+ * @param {boolean} props.isAdmin - Whether the layout should display admin controls
  */
-const MainLayout = () => {
+const MainLayout = ({ isAdmin = false }) => {
+  // Define navigation items for the tubelight navbar
+  const navItems = [
+    { name: 'Home', url: '/', icon: BsHouseDoor },
+    { name: 'Produtos', url: '/products', icon: BsBriefcase },
+    { name: 'Sobre', url: '/sobre-nos', icon: BsFileText },
+    { name: 'Contato', url: '/contato', icon: BsChatDots },
+    { name: 'Ajuda', url: '/ajuda', icon: BsQuestionCircle },
+  ];
+
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-100">
-      {/* Header with fixed positioning */}
-      <Header />
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      minHeight: '100vh'
+    }}>
+      {/* Estrutura com Header que contém o TubelightNavbar */}
+      <div>
+        {/* Shrinking header com scroll animation */}
+        <ShrinkingHeader isAdmin={isAdmin} />
+        
+        {/* TubelightNavbar inserido no header */}
+        <TubelightNavbar items={navItems} inHeader={true} />
+      </div>
       
-      {/* Main content area with proper spacing */}
-      <main className="flex-grow relative z-10">
-        <div className="container mx-auto px-4 py-6 md:py-8">
-          <Outlet />
-        </div>
+      {/* Main content */}
+      <main style={{ 
+        flex: '1',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#F8F8F8'
+      }}>
+        <Outlet />
       </main>
       
-      {/* Footer */}
-      <Footer />
+      <FooterSection />
     </div>
   );
+};
+
+MainLayout.propTypes = {
+  isAdmin: PropTypes.bool
 };
 
 export default MainLayout; 
