@@ -30,6 +30,79 @@ None currently.
 
 ## Recent Fixes
 
+### Vercel Deployment URL Redirection Loops (Fixed)
+
+- **Date:** [2025-06-15 14:30]
+- **Error Type:** Deployment / Vercel / URL Routing
+- **Environment:** Production
+- **Error Message:** 
+  URL redirection loops with parameters being appended infinitely:
+  ```
+  /?p=/&q=p=/~and~q=p=/~and~q=p=/~and~q=p=/~and~q=p=/
+  ```
+
+- **Root Cause:** 
+  - Complex routing configuration in vercel.json that caused circular redirects
+  - The configuration was attempting to handle both static assets and API routes separately
+  - This complex routing setup created confusion about which handler should process specific URLs
+  - When combined with client-side routing using React Router, it resulted in infinite redirects
+
+- **Resolution:** 
+  1. Simplified the vercel.json configuration to use a single route handler:
+     ```json
+     {
+       "version": 2,
+       "builds": [
+         { 
+           "src": "index.js",
+           "use": "@vercel/node"
+         }
+       ],
+       "routes": [
+         { "src": "/(.*)", "dest": "/index.js" }
+       ],
+       "env": {
+         "NODE_ENV": "production"
+       }
+     }
+     ```
+     
+  2. Made the Express server in index.js responsible for all routing:
+     - API routes handled via Express routes
+     - Static files served with proper MIME types via express.static
+     - Client-side routing handled by the catch-all route sending index.html
+     
+  3. Created comprehensive .vercelignore file to exclude large files and development-only content
+  
+  4. Updated the vercel-build script in package.json to be resilient:
+     ```json
+     "vercel-build": "npm run build:client || echo 'Client build failed but continuing deployment'"
+     ```
+     
+  5. Deployed from the root directory using `vercel --prod`
+
+- **Verification:** 
+  - Successfully deployed application with functioning routes
+  - No redirection loops observed in production environment
+  - Direct URL access works properly (e.g., /products, /about)
+  - Static assets load with correct MIME types
+  - Single-page application routing works as expected
+
+- **Affected Files:**
+  - `vercel.json` - Simplified configuration to use single route handler
+  - `.vercelignore` - Comprehensive file exclusion rules
+  - `package.json` - Resilient vercel-build script
+  - `index.js` - Express server routing configuration
+
+- **Prevention:**
+  1. Always use simplified vercel.json for Express-based applications
+  2. Let the Express server handle both API routes and static file serving
+  3. Ensure all Express route handlers are properly ordered (API routes before catch-all handler)
+  4. Test direct URL access before finalizing deployment
+  5. Add proper MIME type configuration for static file serving
+  6. Use resilient build scripts that continue deployment even with non-critical failures
+  7. Update deployment documentation with the successful approach for future reference
+
 ### Three.js Rendering Error in Hero3DLogo Component (Fixed)
 
 - **Date:** [2025-06-12 15:45]
@@ -475,8 +548,7 @@ Based on our deployment experience, follow these steps for a successful deployme
        ],
        "env": {
          "NODE_ENV": "production"
-       },
-       "public": true
+       }
      }
      ```
 

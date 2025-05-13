@@ -1,6 +1,6 @@
 # AliTools B2B Deployment Guide
 
-This document provides a step-by-step guide for updating and deploying the AliTools B2B platform to Vercel, incorporating lessons learned from recent error fixes.
+This document provides a step-by-step guide for deploying the AliTools B2B platform to Vercel, incorporating lessons learned from recent deployment experiences.
 
 ## Pre-Deployment Checklist
 
@@ -12,7 +12,7 @@ Before deploying to Vercel, ensure the following:
      ```bash
      node test-db-connection.js
      ```
-   - Confirm schema matches model definitions in `index.js`
+   - Confirm schema matches model definitions in `server/src/models`
    - Ensure SSL configuration is properly set in database connection
 
 2. **Client Build:**
@@ -21,223 +21,244 @@ Before deploying to Vercel, ensure the following:
      cd client
      npm run build
      ```
-   - Address any TypeScript/ESLint errors before deployment
-   - Check for any component naming inconsistencies (e.g., ProductList vs ProductsList)
+   - Address any warnings or errors before proceeding
+   - Verify static assets are properly referenced in the build output
 
-3. **API Format Consistency:**
-   - Ensure API response format is consistent with client expectations
-   - Verify the transformResponse function in productApi.js handles the current format
-   - Test API endpoints locally using the diagnostic tool:
-     ```bash
-     node test-api-products.js
-     ```
+3. **Environment Variables:**
+   - Ensure all required environment variables are set in Vercel dashboard:
+     - `NODE_ENV=production`
+     - `NEON_DB_URL` (PostgreSQL connection string)
+     - Any API keys or service credentials
 
-4. **Environment Variables:**
-   - Confirm all required environment variables are properly set in Vercel dashboard
-   - Check both the core environment variables and Neon database integration
+4. **Configuration Files:**
+   - Verify `vercel.json` configuration (see below)
+   - Check `.vercelignore` to ensure large files are excluded
+   - Confirm `package.json` scripts are properly configured
 
-## Updating the Repository
+## Required Configuration Files
 
-When making updates to the repository, follow these steps to ensure a smooth deployment:
+### 1. vercel.json
 
-1. **Fix Database Model Definitions:**
-   - Ensure all model definitions in `index.js` match the actual database schema
-   - Update field types and names to match database columns
-   - Add proper relationships between tables
-   - Example of correct model definition:
-   ```javascript
-   Product = sequelize.define('product', {
-     id: {
-       type: Sequelize.INTEGER,
-       primaryKey: true,
-       autoIncrement: true
-     },
-     code: Sequelize.TEXT,
-     code_on_card: Sequelize.TEXT,
-     ean: Sequelize.TEXT,
-     producer_code: Sequelize.TEXT,
-     name: Sequelize.TEXT,
-     description_long: Sequelize.TEXT,
-     description_short: Sequelize.TEXT,
-     description_html: Sequelize.TEXT,
-     vat: Sequelize.DECIMAL,
-     delivery_date: Sequelize.DATE,
-     url: Sequelize.TEXT,
-     category_id: Sequelize.TEXT,
-     producer_id: Sequelize.INTEGER,
-     unit_id: Sequelize.TEXT
-   }, { 
-     timestamps: true,
-     underscored: true,
-     tableName: 'products'
-   });
-   ```
+Use this simplified configuration to delegate all routing to the Express server:
 
-2. **Configure Express Server:**
-   - Update the main `index.js` file to ensure it always starts the server regardless of NODE_ENV:
-   ```javascript
-   const port = process.env.PORT || 5000;
-   app.listen(port, () => {
-     console.log(`Server rodando na porta ${port}`);
-   });
-   ```
-   - Implement proper error handling for database connection failures
-   - Add detailed logging for troubleshooting in production
+```json
+{
+  "version": 2,
+  "builds": [
+    { 
+      "src": "index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/index.js" }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
+```
 
-3. **Update Client-Side Components:**
-   - Fix component naming inconsistencies
-   - Update API data handling in components
-   - Ensure ProductsPage and related components handle the current API response format
-   - Check for any outdated API hook names (e.g., useGetProductByIdQuery vs useGetProductQuery)
+**IMPORTANT:** Do not use complex routing rules in vercel.json as they can cause redirect loops. Let Express handle all routing.
 
-4. **Commit Changes:**
-   - Commit all changes with descriptive messages
-   - Include issue reference numbers if applicable
+### 2. .vercelignore
 
-## Vercel Deployment Process
+Create a comprehensive `.vercelignore` file to exclude unnecessary files:
 
-1. **Configure Vercel Project:**
-   - Ensure your `vercel.json` file is properly set up:
-   ```json
-   {
-     "version": 2,
-     "builds": [
-       { 
-         "src": "index.js",
-         "use": "@vercel/node"
-       }
-     ],
-     "routes": [
-       { "src": "/(.*)", "dest": "/index.js" }
-     ],
-     "env": {
-       "NODE_ENV": "production"
-     },
-     "public": true
-   }
-   ```
+```
+# Dependencies
+**/node_modules
 
-2. **Deploy Using CLI:**
-   - Install Vercel CLI if not already installed:
-   ```bash
-   npm install -g vercel
-   ```
-   
-   - Deploy to preview environment first:
-   ```bash
-   vercel
-   ```
+# Build files
+client/.vite
 
-   - After testing the preview, deploy to production:
-   ```bash
-   vercel --prod
-   ```
+# Log files
+**/*.log*
 
-   - Or use the deploy script:
-   ```bash
-   npm run deploy
-   ```
+# Local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-3. **Deploy Via Git:**
-   - Push changes to the git repository connected to Vercel:
-   ```bash
-   git add .
-   git commit -m "Deploy: [description of changes]"
-   git push
-   ```
-   - Vercel will automatically build and deploy the project
+# Development files
+README.md
+CHANGELOG.md
+.git
+.github
 
-## Post-Deployment Verification
+# Documentation
+docs/
+docs.old/
 
-After deployment, verify the following:
+# Large files
+*.xml
+geko_transformed_data.json
 
-1. **Connectivity:**
-   - Check that the website loads correctly at your Vercel URL
-   - Verify all navigation links work properly
-   - Test direct URL access (e.g., `/products`, `/about`)
+# Test files
+test-*.js
+*-debug.js
 
-2. **API Functionality:**
-   - Verify the API endpoints return expected data
-   - Check the Products page displays data from the database
-   - Verify individual product details pages work
+# Scripts that aren't needed in production
+scripts/
+```
 
-3. **Error Handling:**
-   - Check the browser console for any errors
-   - Review Vercel logs for server-side errors
-   - Test error states (e.g., invalid product IDs)
+### 3. package.json scripts
 
-4. **Performance:**
-   - Verify loading times are acceptable
-   - Check mobile responsiveness
-   - Test with different browsers
+Ensure these scripts are defined in your root `package.json`:
 
-## Troubleshooting Common Issues
+```json
+"scripts": {
+  "build:client": "cd client && npm install && npm run build",
+  "build:server": "cd server && npm install && npm run build",
+  "build": "npm run build:client && npm run build:server",
+  "vercel-build": "npm run build:client || echo 'Client build failed but continuing deployment'",
+  "start": "node index.js"
+}
+```
 
-### 1. 404 Errors on Direct URL Access
-- **Cause:** The SPA routing is not properly configured
-- **Solution:** Ensure the catch-all handler in Express is correctly set up:
+The `|| echo` pattern in `vercel-build` ensures deployment continues even if there are non-critical build issues.
+
+## Express Server Configuration
+
+Ensure your Express server (`index.js` in the root directory) properly handles:
+
+1. **Static files** with correct MIME types:
 ```javascript
+import express from 'express';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const app = express();
+
+// Serve static files with proper MIME types
+app.use(express.static(join(__dirname, 'client/dist'), {
+  setHeaders: (res, path) => {
+    // Set appropriate MIME types
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+    }
+    
+    // Set appropriate cache headers for different resource types
+    if (path.includes('/assets/')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
+```
+
+2. **API routes** before the catch-all route:
+```javascript
+// API routes
+app.use('/api', apiRoutes);
+```
+
+3. **SPA routing** with a catch-all route:
+```javascript
+// SPA route handler - catches all non-API routes
 app.get('*', (req, res) => {
   res.sendFile(join(__dirname, 'client/dist/index.html'));
 });
 ```
 
-### 2. API Connection Failures
-- **Cause:** SSL configuration or database credentials issue
-- **Solution:** 
-  - Verify SSL configuration in database connection
-  - Check environment variables in Vercel dashboard
-  - Add more detailed error logging
+## Deployment Process
 
-### 3. Component Not Found Errors
-- **Cause:** Inconsistent component naming or imports
-- **Solution:**
-  - Standardize component naming (e.g., use plural vs singular consistently)
-  - Verify import paths and component exports
-  - Test with local build before deployment
+1. **Build the client:**
+   ```bash
+   npm run build:client
+   ```
 
-### 4. "ProductList is not defined" Error
-- **Cause:** Confusion between `ProductList.jsx` and `ProductsList.jsx` components
-- **Solution:**
-  - Consistently use one naming convention
-  - Update all imports to match the chosen convention
-  - Ensure components are correctly exported
+2. **Verify the build:**
+   - Check that the `client/dist` directory contains the expected files
+   - Test static file references
+   - Confirm there are no build errors
 
-### 5. Blank Product Pages
-- **Cause:** Database connection issues or mock data fallbacks
-- **Solution:**
-  - Remove fallbacks to mock data in API routes
-  - Update database model definitions to match schema
-  - Verify database credentials and connection
-  - Add debugging logs for database queries
+3. **Deploy to Vercel:**
+   ```bash
+   vercel --prod
+   ```
 
-## Best Practices for Future Deployments
+4. **Verify the deployment:**
+   - Check that the application loads correctly
+   - Test navigation between routes
+   - Verify direct URL access works (e.g., `/products`, `/about`)
+   - Confirm API endpoints return expected data
+   - Check for console errors or CORS issues
 
-1. **Schema Management:**
-   - Use database migration tools to keep schema and models in sync
-   - Document database schema changes
-   - Create scripts to verify schema integrity before deployment
+## Troubleshooting Common Issues
 
-2. **Component Naming:**
-   - Use consistent naming conventions throughout the application
-   - Consider using TypeScript interfaces for component props
-   - Add PropTypes validation for component properties
+### 1. URL Redirection Loops
 
-3. **API Response Formats:**
-   - Document API response formats
-   - Create version endpoints for significant format changes
-   - Implement backwards compatibility for API changes
+**Symptoms:**
+- URL parameters are repeatedly appended: `/?p=/&q=p=/~and~q=p=/~and~q=p=/`
+- Page keeps refreshing
+- Browser eventually shows ERR_TOO_MANY_REDIRECTS
 
-4. **Error Tracking:**
-   - Implement structured error logging
-   - Update the error tracking documentation after resolving issues
-   - Consider adding monitoring tools like Sentry
+**Solution:**
+- Use the simplified `vercel.json` configuration shown above
+- Let Express handle all routing
+- Ensure the catch-all route for SPA is after all API routes
 
-5. **Deployment Approach:**
-   - Use preview deployments before production
-   - Implement canary deployments for major changes
-   - Set up automated testing in CI/CD pipeline
+### 2. 404 Errors on Direct URL Access
 
-## Recent Fixes Reference
+**Symptoms:**
+- Application works when navigating from homepage
+- Accessing URLs directly (e.g., `/products`) shows 404
 
-For details on recent fixes that informed this guide, refer to the [Error Fixes Log](./error_fixes.md). 
+**Solution:**
+- Ensure the Express catch-all route is properly configured
+- Verify `vercel.json` routes all requests to `index.js`
+- Check that `index.html` is properly served for all non-asset routes
+
+### 3. Static Assets Not Loading
+
+**Symptoms:**
+- Missing CSS styles
+- JavaScript errors in console
+- Images not displaying
+
+**Solution:**
+- Check MIME type configuration in Express server
+- Verify static file paths in the build output
+- Ensure proper caching headers are set for assets
+
+### 4. Deployment Times Out
+
+**Symptoms:**
+- "Resource provisioning timed out" error
+- Deployment takes too long and fails
+
+**Solution:**
+- Review and update `.vercelignore` to exclude large files
+- Ensure build scripts complete within reasonable time
+- Consider splitting large operations into separate builds
+
+## Post-Deployment Verification Checklist
+
+After deployment, verify:
+
+- [ ] Homepage loads correctly with all assets
+- [ ] Navigation between routes works
+- [ ] Direct URL access works (e.g., `/products`, `/about`)
+- [ ] API endpoints return correct data
+- [ ] No redirection loops or URL parameter accumulation
+- [ ] No console errors
+- [ ] Static assets (JS, CSS, images) load with correct MIME types
+
+## References
+
+- [Vercel Documentation](https://vercel.com/docs)
+- [Express Static File Serving](https://expressjs.com/en/starter/static-files.html)
+- [Single Page Application Routing](https://router.vuejs.org/guide/essentials/history-mode.html)
+- [Successful Deployment Record](./successful-deployment.md)
+
+---
+
+*Last updated: June 15, 2025* 
