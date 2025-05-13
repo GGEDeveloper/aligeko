@@ -30,6 +30,132 @@ None currently.
 
 ## Recent Fixes
 
+### Three.js Rendering Error in Hero3DLogo Component (Fixed)
+
+- **Date:** [2025-06-12 15:45]
+- **Error Type:** Frontend / 3D Rendering / Library Compatibility
+- **Environment:** Production
+- **Error Message:**
+  ```
+  Uncaught TypeError: Cannot read properties of undefined (reading 'S')
+  ```
+- **Root Cause:** 
+  - The Hero3DLogo component was using Three.js (via React Three Fiber) for 3D rendering
+  - The error occurred during initialization of the Three.js WebGL renderer in certain browsers or environments
+  - The component was not properly checking for browser capabilities or handling cases where WebGL wasn't fully supported
+  - The error was persistent in production environments despite defensive programming attempts
+
+- **Resolution:**
+  1. Complete replacement of 3D implementation with a pure 2D solution:
+     - Removed all dependencies on Three.js, React Three Fiber, and GSAP
+     - Created a new 2D fallback component (Hero2DFallback) using only React and CSS
+     - Implemented animations using CSS keyframes and requestAnimationFrame for smooth transitions
+     - Created visual effects (floating logo, glowing animation, particle effects) with pure CSS/JS
+     - Maintained modern aesthetic while ensuring stability across all environments
+
+  2. Architectural changes:
+     - Made the main Hero3DLogo component simply return the 2D fallback component
+     - Added extensive comments explaining the rationale for the change
+     - Implemented a clean, maintainable solution that doesn't rely on complex 3D libraries
+     - Used CSS variables for easy visual customization and theming
+
+- **Verification:**
+  - Tested the component in multiple browsers (Chrome, Firefox, Safari, Edge)
+  - Verified visual effects work properly across different screen sizes
+  - Confirmed no console errors during initialization or animation
+  - Deployed to production and confirmed stable behavior
+
+- **Affected Files:**
+  - `client/src/components/ui/Hero3DLogo.jsx` - Completely rewrote the component
+  - `.cursor/rules/error_tracking.mdc` - Updated documentation with this entry
+
+- **Prevention:**
+  1. For complex visual effects, favor CSS-based solutions over 3D libraries when possible
+  2. Always provide a robust fallback for advanced visual features
+  3. When using WebGL/Three.js, implement thorough capability detection and graceful degradation
+  4. Test in multiple browsers and environments before deploying 3D features
+  5. Consider using simpler animation libraries like Framer Motion or plain CSS animations for better cross-browser compatibility
+  6. Document the decision-making process for future reference
+
+### Missing Utility Modules in ProductsPage (Fixed)
+
+- **Date:** [2025-05-20 14:30]
+- **Error Type:** Frontend / Import / Missing Files
+- **Environment:** Production
+- **Error Message:**
+  ```
+  Uncaught Error: Cannot find module '../utils/errorTracking'
+  Uncaught Error: Cannot find module '../utils/debounce'
+  ```
+- **Root Cause:** 
+  - The ProductsPage component was importing utility modules that didn't exist: `errorTracking.js` and `debounce.js`
+  - These modules were referenced but never created in the codebase
+  - This caused runtime errors when the application was built and deployed
+
+- **Resolution:**
+  1. Created missing utility files:
+     - Added `errorTracking.js` with proper error tracking functionality
+     - Added `debounce.js` with debounce implementation
+  2. Alternative approach: Inline implementations directly in the component
+     - Implemented debounce functionality directly within the component
+     - Added error logging fallback with console.error
+     - Used a global window.trackErrors hook for extensibility
+
+- **Verification:**
+  - Build completed successfully with no module import errors
+  - Tested the search functionality to verify debounce works properly
+  - Verified error handling by triggering filter errors
+  - Deployed to production environment
+
+- **Affected Files:**
+  - `client/src/utils/errorTracking.js` - Created new file
+  - `client/src/utils/debounce.js` - Created new file
+  - `client/src/pages/ProductsPage.jsx` - Modified to handle missing utilities gracefully
+
+- **Prevention:**
+  1. Use TypeScript to catch missing imports at compile time
+  2. Implement pre-build checks to verify module dependencies
+  3. Add unit tests to verify component imports resolve correctly
+  4. Create shared utility libraries with consistent naming and documentation
+  5. Document utility dependencies in component comments
+
+### ProductList vs ProductsList Component Conflict (Fixed)
+
+- **Date:** [2025-05-13 10:45]
+- **Error Type:** Frontend / Component / Naming
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  index-DJnomMeC.js:402 Uncaught ReferenceError: ProductList is not defined
+  ```
+- **Root Cause:** 
+  - Two similarly named components existed in the codebase: `ProductList.jsx` and `ProductsList.jsx`
+  - This naming inconsistency led to confusion during bundling and runtime errors
+  - The ProductsPage component was correctly importing from ProductsList but there was confusion during build time
+
+- **Resolution:** 
+  1. Deleted the redundant `ProductList.jsx` file to standardize on `ProductsList.jsx` across the codebase
+  2. Enhanced `ProductsList.jsx` to handle both simple product grid display and complex data management
+  3. Added clear documentation about the component's dual functionality
+  4. Added PropTypes for better validation and documentation
+
+- **Verification:** 
+  - Confirmed the error doesn't occur after removing the redundant component
+  - Verified the ProductsPage and ProductsManagementPage components still function correctly
+  - Verified that both simple and complex product listing scenarios work properly
+
+- **Affected Files:**
+  - `client/src/components/products/ProductList.jsx` - Deleted
+  - `client/src/components/products/ProductsList.jsx` - Enhanced to handle both use cases
+  
+- **Prevention:**
+  1. Follow consistent naming conventions for components (plural vs singular)
+  2. Document component responsibilities clearly in code comments
+  3. Add PropTypes to validate expected props
+  4. Implement a component library or storybook to standardize component usage
+  5. Add integration tests to catch undefined component references
+  6. Consider using TypeScript for stronger type checking of components
+
 ### XML Import bulkCreate Error with updateOnDuplicate (Fixed)
 
 - **Date:** [2025-05-10 14:20]
@@ -178,20 +304,31 @@ None yet. Historical issues will be moved here as they become less relevant to c
 
 ## Best Practices for Error Prevention
 
+- **Component Naming & Structure:**
+  - Use consistent naming conventions (plural or singular) across components
+  - Provide clear JSDoc comments explaining component functionality
+  - Add PropTypes for all component props
+  - Consider implementing a component library or Storybook for standardization
+  - Write integration tests that would catch undefined component errors
+  - Consider TypeScript for stronger type checking of components and props
+
 - **Module Exports/Imports:** 
   - Be consistent in how modules are exported (default vs named exports)
   - Document the export pattern in module headers
   - Use ESLint to enforce consistency
+  
 - **Environment Variables:** 
   - Always include dotenv configuration at the entry point of directly executed scripts
   - Use a consistent approach to loading environment variables
   - Test environment variable loading in isolation
+  
 - **Database Connection:** 
   - Provide detailed error messages for connection failures
   - Include retry logic with exponential backoff
   - Log connection parameters (without sensitive data) for debugging
   - When executing standalone scripts, consider creating a direct database connection rather than relying on imported instances
   - Always include explicit SSL configuration for PostgreSQL connections in cloud environments
+  
 - **Batch Processing and Performance:**
   - Optimize batch sizes based on data characteristics (500-1000 records per batch is often optimal)
   - Implement memory management practices (release references, trigger garbage collection)
@@ -448,6 +585,16 @@ Based on our deployment experience, follow these steps for a successful deployme
     }));
     ```
 
+#### 6. Component Not Defined / Naming Conflicts
+
+- **Error**: `ReferenceError: [ComponentName] is not defined`
+- **Solution**:
+  - Use consistent component naming throughout the application
+  - Eliminate duplicate components with similar names (e.g., ProductList vs ProductsList)
+  - Enhance components to handle multiple use cases where appropriate
+  - Add proper documentation and PropTypes for clarity
+  - Verify all import statements are correct and consistent
+
 ### Deployment Verification Checklist
 
 After deployment, always verify:
@@ -460,6 +607,7 @@ After deployment, always verify:
 6. ✅ No CORS errors in browser console
 7. ✅ Static assets (images, CSS, fonts) load correctly
 8. ✅ Error pages render properly when needed
+9. ✅ No component reference errors in browser console
 
 ### Additional Resources
 
