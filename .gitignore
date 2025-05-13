@@ -51,7 +51,8 @@ desktop.ini
 
 # Vercel
 .vercel
-.vercelignore
+*/.vercel
+**/.vercel
 
 # Cursor specific (contains API keys)
 .cursor/mcp.json
