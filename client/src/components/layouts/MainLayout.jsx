@@ -9,6 +9,7 @@ import { BsHouseDoor, BsBriefcase, BsFileText, BsChatDots, BsQuestionCircle } fr
 /**
  * Main layout component that wraps the main content of the application
  * with a consistent header, navigation, and footer.
+ * Updated to ensure footer is always displayed.
  * 
  * @param {Object} props - The props passed to the component
  * @param {boolean} props.isAdmin - Whether the layout should display admin controls
@@ -48,6 +49,7 @@ const MainLayout = ({ isAdmin = false }) => {
         <Outlet />
       </main>
       
+      {/* Footer always included */}
       <FooterSection />
     </div>
   );

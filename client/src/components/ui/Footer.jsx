@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
-import { BsFacebook, BsInstagram, BsTwitter, BsLinkedin, BsEnvelope, BsTelephone, BsGeoAlt } from 'react-icons/bs';
+import { BsFacebook, BsInstagram, BsTwitter, BsLinkedin, BsEnvelope, BsTelephone, BsGeoAlt, BsMoonFill, BsSunFill } from 'react-icons/bs';
 
 /**
  * Footer component that follows the AliTools design system
+ * Includes theme toggle with night mode as default
  * 
  * @param {Object} props - Component props
  * @param {boolean} props.simplified - Whether to show a simplified version of the footer
@@ -16,16 +17,30 @@ const Footer = ({
   className = '',
   ...props
 }) => {
+  // Set night mode as default
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const currentYear = new Date().getFullYear();
+  
+  const toggleTheme = () => {
+    // In a real implementation, this would update a global theme context
+    // or dispatch a Redux action to update the app's theme
+    setIsDarkMode(!isDarkMode);
+    
+    // Example of how this would work with a global theme
+    // document.documentElement.classList.toggle('dark-theme');
+    console.log(`Theme switched to ${!isDarkMode ? 'dark' : 'light'} mode`);
+  };
   
   // Simplified version for checkout or specific pages
   if (simplified) {
     return (
       <footer style={{
-        backgroundColor: 'white',
-        borderTop: '1px solid #e5e5e5',
+        backgroundColor: isDarkMode ? '#121212' : 'white',
+        borderTop: `1px solid ${isDarkMode ? '#333' : '#e5e5e5'}`,
         padding: '1rem 0',
-        fontSize: '0.875rem'
+        fontSize: '0.875rem',
+        color: isDarkMode ? '#e0e0e0' : '#666',
+        transition: 'background-color 0.3s ease, color 0.3s ease'
       }}>
         <div style={{
           maxWidth: '1280px',
@@ -38,11 +53,35 @@ const Footer = ({
           gap: '1rem'
         }}>
           <div>
-            <Logo variant="primary" size="small" />
+            <Logo variant={isDarkMode ? "light" : "primary"} size="small" />
           </div>
-          <div style={{ color: '#666' }}>
+          <div>
             &copy; {currentYear} AliTools. Todos os direitos reservados.
           </div>
+          <button
+            onClick={toggleTheme}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'none',
+              border: 'none',
+              color: isDarkMode ? '#FFCC00' : '#1A1A1A',
+              fontSize: '1.25rem',
+              cursor: 'pointer',
+              padding: '0.5rem',
+              borderRadius: '50%',
+              transition: 'color 0.3s ease, background-color 0.3s ease'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = isDarkMode ? 'rgba(255, 204, 0, 0.1)' : 'rgba(26, 26, 26, 0.05)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
+          >
+            {isDarkMode ? <BsSunFill /> : <BsMoonFill />}
+          </button>
         </div>
       </footer>
     );
@@ -51,10 +90,12 @@ const Footer = ({
   // Full footer for main pages
   return (
     <footer style={{
-      backgroundColor: 'white',
-      borderTop: '1px solid #e5e5e5',
+      backgroundColor: isDarkMode ? '#121212' : 'white',
+      borderTop: `1px solid ${isDarkMode ? '#333' : '#e5e5e5'}`,
       paddingTop: '3rem',
-      paddingBottom: '1rem'
+      paddingBottom: '1rem',
+      color: isDarkMode ? '#e0e0e0' : '#666',
+      transition: 'background-color 0.3s ease, color 0.3s ease'
     }}>
       {/* Main Footer */}
       <div style={{
@@ -71,11 +112,10 @@ const Footer = ({
           {/* Brand & About */}
           <div>
             <div style={{ marginBottom: '2rem' }}>
-              <Logo variant="primary" size="medium" />
+              <Logo variant={isDarkMode ? "light" : "primary"} size="medium" />
             </div>
             <p style={{
               fontSize: '0.875rem',
-              color: '#666',
               marginBottom: '1.5rem',
               lineHeight: '1.5'
             }}>
@@ -90,7 +130,7 @@ const Footer = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  backgroundColor: '#1A1A1A',
+                  backgroundColor: isDarkMode ? '#2A2A2A' : '#1A1A1A',
                   color: 'white',
                   width: '2rem',
                   height: '2rem',
@@ -101,7 +141,7 @@ const Footer = ({
                   transition: 'background-color 0.2s ease'
                 }}
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#FFCC00'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = isDarkMode ? '#2A2A2A' : '#1A1A1A'}
               >
                 <BsFacebook />
               </a>
@@ -110,7 +150,7 @@ const Footer = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  backgroundColor: '#1A1A1A',
+                  backgroundColor: isDarkMode ? '#2A2A2A' : '#1A1A1A',
                   color: 'white',
                   width: '2rem',
                   height: '2rem',
@@ -121,7 +161,7 @@ const Footer = ({
                   transition: 'background-color 0.2s ease'
                 }}
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#FFCC00'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = isDarkMode ? '#2A2A2A' : '#1A1A1A'}
               >
                 <BsInstagram />
               </a>
@@ -130,7 +170,7 @@ const Footer = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  backgroundColor: '#1A1A1A',
+                  backgroundColor: isDarkMode ? '#2A2A2A' : '#1A1A1A',
                   color: 'white',
                   width: '2rem',
                   height: '2rem',
@@ -141,7 +181,7 @@ const Footer = ({
                   transition: 'background-color 0.2s ease'
                 }}
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#FFCC00'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = isDarkMode ? '#2A2A2A' : '#1A1A1A'}
               >
                 <BsTwitter />
               </a>
@@ -150,7 +190,7 @@ const Footer = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  backgroundColor: '#1A1A1A',
+                  backgroundColor: isDarkMode ? '#2A2A2A' : '#1A1A1A',
                   color: 'white',
                   width: '2rem',
                   height: '2rem',
@@ -161,10 +201,32 @@ const Footer = ({
                   transition: 'background-color 0.2s ease'
                 }}
                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#FFCC00'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = isDarkMode ? '#2A2A2A' : '#1A1A1A'}
               >
                 <BsLinkedin />
               </a>
+              
+              {/* Theme toggle button */}
+              <button
+                onClick={toggleTheme}
+                style={{
+                  backgroundColor: isDarkMode ? '#2A2A2A' : '#1A1A1A',
+                  color: 'white',
+                  width: '2rem',
+                  height: '2rem',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s ease'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#FFCC00'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = isDarkMode ? '#2A2A2A' : '#1A1A1A'}
+              >
+                {isDarkMode ? <BsSunFill /> : <BsMoonFill />}
+              </button>
             </div>
           </div>
           
@@ -174,7 +236,7 @@ const Footer = ({
               fontSize: '1.125rem',
               fontWeight: '600',
               marginBottom: '1.25rem',
-              color: '#1A1A1A'
+              color: isDarkMode ? '#FFFFFF' : '#1A1A1A'
             }}>
               Links Rápidos
             </h3>
@@ -190,14 +252,14 @@ const Footer = ({
                 <Link
                   to="/sobre-nos"
                   style={{
-                    color: '#666',
+                    color: isDarkMode ? '#CCCCCC' : '#666',
                     textDecoration: 'none',
                     fontSize: '0.875rem',
                     display: 'inline-block',
                     transition: 'color 0.2s ease'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+                  onMouseOut={(e) => e.currentTarget.style.color = isDarkMode ? '#CCCCCC' : '#666'}
                 >
                   Sobre Nós
                 </Link>
@@ -206,14 +268,14 @@ const Footer = ({
                 <Link
                   to="/todas-categorias"
                   style={{
-                    color: '#666',
+                    color: isDarkMode ? '#CCCCCC' : '#666',
                     textDecoration: 'none',
                     fontSize: '0.875rem',
                     display: 'inline-block',
                     transition: 'color 0.2s ease'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+                  onMouseOut={(e) => e.currentTarget.style.color = isDarkMode ? '#CCCCCC' : '#666'}
                 >
                   Catálogo de Produtos
                 </Link>
@@ -222,14 +284,14 @@ const Footer = ({
                 <Link
                   to="/contactos"
                   style={{
-                    color: '#666',
+                    color: isDarkMode ? '#CCCCCC' : '#666',
                     textDecoration: 'none',
                     fontSize: '0.875rem',
                     display: 'inline-block',
                     transition: 'color 0.2s ease'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+                  onMouseOut={(e) => e.currentTarget.style.color = isDarkMode ? '#CCCCCC' : '#666'}
                 >
                   Contactos
                 </Link>
@@ -238,14 +300,14 @@ const Footer = ({
                 <Link
                   to="/ajuda"
                   style={{
-                    color: '#666',
+                    color: isDarkMode ? '#CCCCCC' : '#666',
                     textDecoration: 'none',
                     fontSize: '0.875rem',
                     display: 'inline-block',
                     transition: 'color 0.2s ease'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+                  onMouseOut={(e) => e.currentTarget.style.color = isDarkMode ? '#CCCCCC' : '#666'}
                 >
                   Ajuda e FAQ
                 </Link>
@@ -254,14 +316,14 @@ const Footer = ({
                 <Link
                   to="/termos-condicoes"
                   style={{
-                    color: '#666',
+                    color: isDarkMode ? '#CCCCCC' : '#666',
                     textDecoration: 'none',
                     fontSize: '0.875rem',
                     display: 'inline-block',
                     transition: 'color 0.2s ease'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+                  onMouseOut={(e) => e.currentTarget.style.color = isDarkMode ? '#CCCCCC' : '#666'}
                 >
                   Termos e Condições
                 </Link>
@@ -270,117 +332,16 @@ const Footer = ({
                 <Link
                   to="/politica-privacidade"
                   style={{
-                    color: '#666',
+                    color: isDarkMode ? '#CCCCCC' : '#666',
                     textDecoration: 'none',
                     fontSize: '0.875rem',
                     display: 'inline-block',
                     transition: 'color 0.2s ease'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+                  onMouseOut={(e) => e.currentTarget.style.color = isDarkMode ? '#CCCCCC' : '#666'}
                 >
                   Política de Privacidade
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          {/* Categories */}
-          <div>
-            <h3 style={{
-              fontSize: '1.125rem',
-              fontWeight: '600',
-              marginBottom: '1.25rem',
-              color: '#1A1A1A'
-            }}>
-              Categorias
-            </h3>
-            <ul style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.75rem'
-            }}>
-              <li>
-                <Link
-                  to="/categorias/ferramentas-manuais"
-                  style={{
-                    color: '#666',
-                    textDecoration: 'none',
-                    fontSize: '0.875rem',
-                    display: 'inline-block',
-                    transition: 'color 0.2s ease'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
-                >
-                  Ferramentas Manuais
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/categorias/ferramentas-electricas"
-                  style={{
-                    color: '#666',
-                    textDecoration: 'none',
-                    fontSize: '0.875rem',
-                    display: 'inline-block',
-                    transition: 'color 0.2s ease'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
-                >
-                  Ferramentas Elétricas
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/categorias/abrasivos"
-                  style={{
-                    color: '#666',
-                    textDecoration: 'none',
-                    fontSize: '0.875rem',
-                    display: 'inline-block',
-                    transition: 'color 0.2s ease'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
-                >
-                  Abrasivos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/categorias/jardim"
-                  style={{
-                    color: '#666',
-                    textDecoration: 'none',
-                    fontSize: '0.875rem',
-                    display: 'inline-block',
-                    transition: 'color 0.2s ease'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
-                >
-                  Jardim
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/categorias/protecao"
-                  style={{
-                    color: '#666',
-                    textDecoration: 'none',
-                    fontSize: '0.875rem',
-                    display: 'inline-block',
-                    transition: 'color 0.2s ease'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-                  onMouseOut={(e) => e.currentTarget.style.color = '#666'}
-                >
-                  Proteção
                 </Link>
               </li>
             </ul>
@@ -392,7 +353,7 @@ const Footer = ({
               fontSize: '1.125rem',
               fontWeight: '600',
               marginBottom: '1.25rem',
-              color: '#1A1A1A'
+              color: isDarkMode ? '#FFFFFF' : '#1A1A1A'
             }}>
               Contacte-nos
             </h3>
@@ -408,8 +369,7 @@ const Footer = ({
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: '0.75rem',
-                fontSize: '0.875rem',
-                color: '#666'
+                fontSize: '0.875rem'
               }}>
                 <div style={{
                   color: '#FFCC00',
@@ -426,8 +386,7 @@ const Footer = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
-                fontSize: '0.875rem',
-                color: '#666'
+                fontSize: '0.875rem'
               }}>
                 <div style={{
                   color: '#FFCC00'
@@ -442,8 +401,7 @@ const Footer = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
-                fontSize: '0.875rem',
-                color: '#666'
+                fontSize: '0.875rem'
               }}>
                 <div style={{
                   color: '#FFCC00'
@@ -455,8 +413,7 @@ const Footer = ({
                 </div>
               </li>
               <li style={{
-                fontSize: '0.875rem',
-                color: '#666'
+                fontSize: '0.875rem'
               }}>
                 <strong>Horário:</strong><br />
                 Segunda a Sexta: 9:00-12:30, 14:00-18:30
@@ -468,7 +425,7 @@ const Footer = ({
       
       {/* Copyright Bar */}
       <div style={{
-        borderTop: '1px solid #e5e5e5',
+        borderTop: `1px solid ${isDarkMode ? '#333' : '#e5e5e5'}`,
         paddingTop: '1.5rem',
         marginTop: '1.5rem'
       }}>
@@ -481,8 +438,7 @@ const Footer = ({
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
-          fontSize: '0.875rem',
-          color: '#666'
+          fontSize: '0.875rem'
         }}>
           <div>
             &copy; {currentYear} AliTools. Todos os direitos reservados.
@@ -494,36 +450,36 @@ const Footer = ({
             <Link
               to="/termos-condicoes"
               style={{
-                color: '#666',
+                color: isDarkMode ? '#CCCCCC' : '#666',
                 textDecoration: 'none',
                 transition: 'color 0.2s ease'
               }}
               onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-              onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+              onMouseOut={(e) => e.currentTarget.style.color = isDarkMode ? '#CCCCCC' : '#666'}
             >
               Termos
             </Link>
             <Link
               to="/politica-privacidade"
               style={{
-                color: '#666',
+                color: isDarkMode ? '#CCCCCC' : '#666',
                 textDecoration: 'none',
                 transition: 'color 0.2s ease'
               }}
               onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-              onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+              onMouseOut={(e) => e.currentTarget.style.color = isDarkMode ? '#CCCCCC' : '#666'}
             >
               Privacidade
             </Link>
             <Link
               to="/cookies"
               style={{
-                color: '#666',
+                color: isDarkMode ? '#CCCCCC' : '#666',
                 textDecoration: 'none',
                 transition: 'color 0.2s ease'
               }}
               onMouseOver={(e) => e.currentTarget.style.color = '#FFCC00'}
-              onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+              onMouseOut={(e) => e.currentTarget.style.color = isDarkMode ? '#CCCCCC' : '#666'}
             >
               Cookies
             </Link>

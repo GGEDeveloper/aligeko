@@ -1,3 +1,18 @@
 {
-  "outputDirectory": "dist"
+  "version": 2,
+  "builds": [
+    { "src": "**", "use": "@vercel/static" }
+  ],
+  "rewrites": [
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "s-maxage=0" }
+      ]
+    }
+  ]
 } 

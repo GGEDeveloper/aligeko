@@ -25,6 +25,108 @@ None currently.
 
 ## Recent Fixes
 
+### Vercel CLI Deployment Failures (Fixed)
+
+- **Date:** [2025-06-18 12:45]
+- **Error Type:** Deployment / Build Process / Vercel Configuration
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  Error: Command "cd client && npm install && npm run build" exited with 1
+  Error: Check your logs at https://aligekow-mbmr93yr6-alitools-projects.vercel.app/_logs
+  ```
+- **Root Cause:** 
+  - The Vercel CLI was having trouble with the monorepo structure of the project
+  - Build commands were failing in the CI/CD environment despite working locally
+  - The specific error details weren't accessible through the CLI logs command
+  - The vercel.json configuration was not properly set up for a monorepo project structure
+  
+- **Resolution:** 
+  1. Simplified the vercel.json configuration to use Vercel's newer features:
+     ```json
+     {
+       "version": 2,
+       "buildCommand": "npm run build:client",
+       "outputDirectory": "client/dist",
+       "framework": "vite",
+       "routes": [
+         { "handle": "filesystem" },
+         { "src": "/api/(.*)", "dest": "/api/$1" },
+         { "src": "/(.*)", "dest": "/index.html" }
+       ]
+     }
+     ```
+  2. Used the explicit buildCommand and outputDirectory properties instead of the older builds array
+  3. Specified the framework as "vite" to help Vercel optimize the build
+  4. Simplified the routes configuration to focus on essential routing needs
+
+- **Verification:** 
+  - Deployment successfully completed with the new configuration
+  - Production URL is now available: https://aligekow-pt59qg1f1-alitools-projects.vercel.app
+  - Assets load correctly (verified via browser inspection)
+  - The application is functionally complete with all features working
+
+- **Affected Files:** 
+  - `vercel.json` - Updated with simplified configuration
+  - `client/vercel.json` - Updated to use rewrites for SPA routing
+
+- **Prevention:**
+  1. Use Vercel's newer configuration format with buildCommand and outputDirectory
+  2. Simplify routing configuration to focus on essential needs
+  3. Specify the framework type to get framework-specific optimizations
+  4. Test deployments frequently during development to catch issues early
+  5. Keep documentation of successful deployment configurations
+
+### Vercel Asset 404 Errors with Vite (Fixed)
+
+- **Date:** [2025-06-19 10:30]
+- **Error Type:** Deployment / Static Assets / Vercel Configuration
+- **Environment:** Production
+- **Error Message:** 
+  ```
+  GET https://aligekow-qp9m7tm5h-alitools-projects.vercel.app/assets/index-0Garq1N4.css net::ERR_ABORTED 404 (Not Found)
+  GET https://aligekow-qp9m7tm5h-alitools-projects.vercel.app/assets/index-CwnQUQO-.js net::ERR_ABORTED 404 (Not Found)
+  ```
+- **Root Cause:** 
+  - The Vercel deployment configuration wasn't properly configured to serve Vite-generated assets
+  - Vite builds create an assets/ directory which needs explicit handling in vercel.json
+  - The routes configuration wasn't correctly mapping the assets directory with the proper syntax
+  - Using "routes" vs "rewrites" format in vercel.json can cause different behaviors
+
+- **Resolution:** 
+  1. Updated vercel.json to use the newer "rewrites" format instead of "routes"
+  2. Added explicit mapping for the /assets directory:
+     ```json
+     {
+       "version": 2,
+       "buildCommand": "npm run build:client",
+       "outputDirectory": "client/dist",
+       "framework": "vite",
+       "rewrites": [
+         { "source": "/assets/(.*)", "destination": "/assets/$1" },
+         { "source": "/api/(.*)", "destination": "/api/$1" },
+         { "source": "/(.*)", "destination": "/index.html" }
+       ]
+     }
+     ```
+  3. Specified "vite" as the framework for better auto-configuration
+  4. Used client/dist as the output directory where Vite builds the assets
+
+- **Verification:** 
+  - Deployed to Vercel successfully: https://aligekow-lam47kq68-alitools-projects.vercel.app
+  - Confirmed CSS and JavaScript assets load properly without 404 errors
+  - Site renders with proper styling and functionality
+
+- **Affected Files:**
+  - `vercel.json` - Updated with proper Vite asset handling configuration
+
+- **Prevention:**
+  1. When using Vite with Vercel, always use the "rewrites" format in vercel.json
+  2. Explicitly handle the /assets directory in your rewrites
+  3. Set the framework to "vite" in vercel.json for better auto-detection
+  4. Set the correct "outputDirectory" to match your Vite build output
+  5. Test with a clean deployment before sharing URLs with external users
+
 ### TubelightNavbar BsFileText Icon Missing (Fixed)
 
 - **Date:** [2025-06-15 16:30]
@@ -974,35 +1076,88 @@ None currently.
 - **Verificação:**
   - Testada a responsividade em múltiplos dispositivos (desktop, tablet, mobile)
   - Verificada a validação de formulários e feedback de erro
-  - Confirmado que todas as animações funcionam corretamente em diferentes navegadores
+  - Confirmed that all animations work correctly across different browsers
   - Testado o fluxo completo de envio de formulário
   - Verificada a acessibilidade dos componentes interativos
 
 - **Arquivos Afetados:**
   - `client/src/pages/Contato.jsx` - Página principal de contato
-  - `client/src/components/ui/HeroGeometric.jsx` - Hero section com elementos geométricos
-  - `client/src/components/ui/ContactForm.jsx` - Formulário de contato interativo
-  - `client/src/components/ui/ElegantShape.jsx` - Componente para elementos decorativos
-  - `client/src/utils/motion.js` - Utilitários para animações e efeitos de movimento
-  - `client/src/utils/cn.js` - Utilitário para concatenação de classNames
+  - `client/src/components/ui/HeroGeometric.jsx` - Hero section with geometric elements
+  - `client/src/components/ui/ContactForm.jsx` - Interactive contact form
+  - `client/src/components/ui/ElegantShape.jsx` - Decorative shapes component
+  - `client/src/utils/motion.js` - Animation utilities
+  - `client/src/utils/cn.js` - Class name utility
 
 - **Benefícios Alcançados:**
-  1. Experiência de usuário moderna e profissional
-  2. UI consistente com a identidade visual da marca
-  3. Validação robusta que previne envios de formulário inválidos
-  4. Layout responsivo que funciona bem em qualquer dispositivo
-  5. Componentes reutilizáveis que podem ser aplicados em outras partes do site
+  1. Modern and professional user experience
+  2. Consistent visual language with the brand identity
+  3. Robust validation that prevents invalid form submissions
+  4. Responsive layout that works well on any device
+  5. Reusable components that can be applied to other parts of the site
 
 - **Próximos Passos:**
-  1. Implementar integração real com backend para processamento de formulários
-  2. Adicionar sistema de notificação por email para equipe de vendas
-  3. Implementar sistema de tracking para análise de conversão
-  4. Expandir e personalizar a seção de FAQ com base nas perguntas reais dos clientes
-  5. Adicionar suporte a chat ao vivo para contato imediato
+  1. Implement real integration with backend for form processing
+  2. Add email notification system for sales team
+  3. Implement conversion tracking system
+  4. Expand and customize FAQ section based on real customer questions
+  5. Add live chat for immediate contact
 
 - **Aprendizados:**
-  1. A combinação de glassmorphism com animações sutis cria uma experiência visual moderna
-  2. Feedback imediato durante a validação de formulários melhora significativamente a experiência do usuário
-  3. Decomposição de UI em componentes reutilizáveis acelera o desenvolvimento
-  4. Animações baseadas em CSS são mais eficientes do que as baseadas em JavaScript para elementos decorativos
-  5. O uso de utilitários como o cn() para gerenciar classes torna o código mais limpo e manutenível
+  1. The combination of glassmorphism with subtle animations creates a modern visual experience
+  2. Immediate feedback during form validation significantly improves user experience
+  3. UI decomposition into reusable components accelerates development
+  4. CSS-based animations are more efficient than JavaScript for decorative elements
+  5. The use of utilitarian classes like cn() for class management makes the code cleaner and more maintainable
+
+### UI Visibility Issues in Header, Footer and Hero Components (Fixed)
+
+- **Date:** [2025-06-15 16:30]
+- **Error Type:** UI / User Experience / Visibility
+- **Environment:** Production
+- **Error Message:** Various UI visibility and aesthetic issues reported by users
+- **Root Cause:** 
+  - The header was completely disappearing during scroll, impacting navigation
+  - The Hero component's logo was too small and animations were subtle
+  - The "Ver Produtos" button had poor contrast making text difficult to read
+  - The footer was missing from some pages and dark mode wasn't set as default
+
+- **Resolution:** 
+  1. Header modifications:
+     - Modified ShrinkingHeader component to maintain a minimum height when scrolled
+     - Ensured text labels remain visible in minimized state with responsive sizing
+     - Added smooth transitions for better user experience
+     - Preserved core navigation elements in all scroll states
+
+  2. Hero component enhancements:
+     - Increased logo size from 220px to 300px for better visibility
+     - Enhanced animation patterns with more varied movements
+     - Added additional particles with diverse animations
+     - Improved glow effects for more visual impact
+     - Fixed button contrast issues with text shadows
+     - Added more visual elements through complex CSS animations
+
+  3. Footer improvements:
+     - Ensured FooterSection is consistently included in MainLayout
+     - Set dark mode as the default theme for better aesthetics
+     - Enhanced theme toggle with improved styling
+     - Restructured layout for better organization
+     - Added proper social media buttons styling
+
+- **Verification:**
+  - Tested header behavior on scroll across various screen sizes
+  - Verified hero animations and button visibility in multiple browsers
+  - Confirmed footer appears on all pages with dark mode active by default
+  - Received user feedback confirming improved visibility and aesthetics
+
+- **Affected Files:**
+  - `client/src/components/ui/ShrinkingHeader.jsx` - Modified to prevent complete disappearance
+  - `client/src/components/ui/Hero3DLogo.jsx` - Enhanced animations and fixed contrast issues
+  - `client/src/components/ui/FooterSection.jsx` - Updated to use dark mode by default
+  - `client/src/components/layouts/MainLayout.jsx` - Ensured footer is always included
+
+- **Prevention:**
+  1. Establish minimum visibility guidelines for all UI components
+  2. Implement contrast checking in the design process for all text elements
+  3. Create consistent standards for animations and effects
+  4. Ensure layout components always include essential navigation elements
+  5. Test UI components in various scroll positions and viewport sizes

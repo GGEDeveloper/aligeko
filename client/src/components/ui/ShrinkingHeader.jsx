@@ -11,6 +11,7 @@ import { BsSearch, BsCart3, BsPersonCircle, BsList, BsX } from 'react-icons/bs';
 /**
  * ShrinkingHeader component for the AliTools B2B site
  * Includes navigation, logo, and user controls with shrinking effect on scroll
+ * Modified to ensure it never completely disappears
  */
 const ShrinkingHeader = ({ isAdmin = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -60,27 +61,29 @@ const ShrinkingHeader = ({ isAdmin = false }) => {
       backgroundColor: '#000000',
       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
       transition: 'all 0.3s ease-in-out',
-      willChange: 'transform' // This helps with GPU acceleration
+      willChange: 'transform', // This helps with GPU acceleration
+      minHeight: scrolled ? '65px' : '80px' // Increased minimum height to ensure visibility
     }}>
-      {/* Main Navigation - Shrinks when scrolled */}
+      {/* Main Navigation - Shrinks when scrolled but never disappears */}
       <div style={{ 
         background: 'linear-gradient(90deg, #000000 0%, #111111 100%)',
         maxWidth: '1280px', 
         margin: '0 auto', 
-        padding: scrolled ? '0.4rem 1.5rem' : '0.6rem 1.5rem',
+        padding: scrolled ? '0.75rem 1.5rem' : '1rem 1.5rem', // Increased padding
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         color: 'white',
         transition: 'all 0.3s ease-in-out',
-        willChange: 'padding'
+        willChange: 'padding',
+        minHeight: scrolled ? '55px' : '70px' // Increased min height
       }}>
-        {/* Logo - Gets smaller when scrolled */}
+        {/* Logo - Gets smaller when scrolled but always visible */}
         <div style={{ 
           display: 'flex', 
           alignItems: 'center',
           marginRight: '1rem',
-          transform: scrolled ? 'scale(0.85)' : 'scale(1)',
+          transform: scrolled ? 'scale(0.92)' : 'scale(1)', // Less scaling down
           transformOrigin: 'left center',
           transition: 'all 0.3s ease-in-out'
         }}>
@@ -89,24 +92,26 @@ const ShrinkingHeader = ({ isAdmin = false }) => {
           </Link>
         </div>
         
-        {/* Search Bar - Desktop */}
+        {/* Search Bar - Desktop - Always visible */}
         <div style={{ 
           flex: '1',
           maxWidth: '550px',
           margin: '0 0.75rem',
           display: 'flex',
-          position: 'relative'
+          position: 'relative',
+          opacity: scrolled ? '0.95' : '1', // Just reduce opacity instead of hiding
+          transition: 'all 0.3s ease'
         }}>
           <input 
             type="text" 
             placeholder="Procurar produtos..." 
             style={{
               width: '100%',
-              padding: scrolled ? '0.35rem 1rem' : '0.45rem 1rem',
+              padding: scrolled ? '0.45rem 1rem' : '0.5rem 1rem', // Less difference
               paddingRight: '3.5rem',
               border: 'none',
               borderRadius: '8px',
-              fontSize: '0.9rem',
+              fontSize: scrolled ? '0.85rem' : '0.9rem',
               backgroundColor: '#222222',
               color: 'white',
               boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.3)',
@@ -147,11 +152,11 @@ const ShrinkingHeader = ({ isAdmin = false }) => {
           </button>
         </div>
         
-        {/* Account and Cart */}
+        {/* Account and Cart - Always visible with minimum text elements */}
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: scrolled ? '0.75rem' : '1rem',
+          gap: scrolled ? '0.85rem' : '1rem',
           transition: 'all 0.3s ease-in-out'
         }}>
           <Link 
@@ -176,10 +181,15 @@ const ShrinkingHeader = ({ isAdmin = false }) => {
             }}
           >
             <BsCart3 style={{ fontSize: '1.65rem' }} />
+            {/* Always display cart label even when scrolled */}
             <span style={{ 
-              display: scrolled ? 'none' : 'inline',
-              fontSize: '0.9rem'
-            }}>Carrinho</span>
+              display: 'inline', // Always visible
+              fontSize: scrolled ? '0.85rem' : '0.9rem',
+              whiteSpace: 'nowrap',
+              opacity: scrolled ? '0.95' : '1' // Increased opacity when scrolled
+            }}>
+              Carrinho
+            </span>
           </Link>
           
           <Link 
@@ -204,13 +214,18 @@ const ShrinkingHeader = ({ isAdmin = false }) => {
             }}
           >
             <BsPersonCircle style={{ fontSize: '1.65rem' }} />
+            {/* Always display text even when scrolled */}
             <span style={{ 
-              display: scrolled ? 'none' : 'inline',
-              fontSize: '0.9rem'
-            }}>{accountInfo.text}</span>
+              display: 'inline', // Always visible
+              fontSize: scrolled ? '0.85rem' : '0.9rem',
+              whiteSpace: 'nowrap',
+              opacity: scrolled ? '0.95' : '1' // Increased opacity when scrolled
+            }}>
+              {accountInfo.text}
+            </span>
           </Link>
           
-          {/* Mobile Menu Trigger - Only visible on small screens */}
+          {/* Mobile Menu Trigger - Always visible on small screens */}
           <button 
             style={{
               display: 'none',
@@ -249,64 +264,11 @@ const ShrinkingHeader = ({ isAdmin = false }) => {
           overflowY: 'auto'
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {/* Mobile Search */}
-          <div style={{ 
-            display: 'flex',
-            position: 'relative',
-            marginBottom: '1rem'
-          }}>
-            <input 
-              type="text" 
-              placeholder="Procurar produtos..." 
-              style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
-                paddingRight: '3rem',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '0.95rem',
-                backgroundColor: '#1A1A1A',
-                color: 'white'
-              }}
-            />
-            <button 
-              type="submit"
-              style={{
-                position: 'absolute',
-                right: '4px',
-                top: '4px',
-                height: 'calc(100% - 8px)',
-                width: '2.8rem',
-                backgroundColor: '#FFCC00',
-                border: 'none',
-                borderRadius: '6px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <BsSearch style={{ color: '#1A1A1A', fontSize: '1.2rem' }} />
-            </button>
-          </div>
-          
-          {/* Mobile Nav Links */}
-          <Link 
-            to="/"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0.75rem 1rem',
-              borderRadius: '8px',
-              color: 'white',
-              textDecoration: 'none',
-              fontSize: '1rem',
-              fontWeight: 500
-            }}
-          >
-            Home
-          </Link>
-          
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem'
+        }}>
           <Link 
             to="/products"
             style={{
@@ -369,44 +331,6 @@ const ShrinkingHeader = ({ isAdmin = false }) => {
             }}
           >
             Ajuda
-          </Link>
-          
-          <hr style={{ borderColor: 'rgba(255, 255, 255, 0.1)', margin: '0.5rem 0' }} />
-          
-          <Link 
-            to="/carrinho"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.75rem 1rem',
-              borderRadius: '8px',
-              color: 'white',
-              textDecoration: 'none',
-              fontSize: '1rem',
-              fontWeight: 500
-            }}
-          >
-            <BsCart3 style={{ fontSize: '1.5rem' }} />
-            Carrinho
-          </Link>
-          
-          <Link 
-            to={accountInfo.link}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.75rem 1rem',
-              borderRadius: '8px',
-              color: 'white',
-              textDecoration: 'none',
-              fontSize: '1rem',
-              fontWeight: 500
-            }}
-          >
-            <BsPersonCircle style={{ fontSize: '1.5rem' }} />
-            {accountInfo.text}
           </Link>
         </div>
       </div>

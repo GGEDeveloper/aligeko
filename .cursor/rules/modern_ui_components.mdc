@@ -18,6 +18,372 @@ This document covers the implementation patterns for modern, interactive UI comp
 
 ## Key Components
 
+### ShrinkingHeader
+
+A responsive header component that shrinks on scroll but always maintains visibility.
+
+```jsx
+// ✅ DO: Ensure header maintains minimum visibility
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import Logo from './Logo';
+
+export const ShrinkingHeader = ({ isAdmin = false }) => {
+  const [scrolled, setScrolled] = useState(false);
+  
+  // Track scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const offset = window.scrollY;
+      setScrolled(offset > 60);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  return (
+    <header style={{ 
+      position: 'sticky',
+      top: 0,
+      zIndex: 50,
+      transition: 'all 0.3s ease-in-out',
+      minHeight: '60px' // Ensures minimum height when scrolled
+    }}>
+      <div style={{ 
+        padding: scrolled ? '0.4rem 1.5rem' : '0.6rem 1.5rem',
+        transition: 'all 0.3s ease-in-out',
+        minHeight: scrolled ? '45px' : '60px' // Minimum height based on scroll state
+      }}>
+        {/* Logo - smaller but still visible when scrolled */}
+        <div>
+          <Link to="/">
+            <Logo size={scrolled ? "small" : "medium"} />
+          </Link>
+        </div>
+        
+        {/* Navigation items always visible */}
+        <nav>
+          {navigationItems.map(item => (
+            <Link 
+              key={item.url} 
+              to={item.url}
+              style={{
+                fontSize: scrolled ? '0.75rem' : '0.9rem', // Responsive text
+                opacity: scrolled ? '0.8' : '1' // Never completely hidden
+              }}
+            >
+              {item.icon && <item.icon />}
+              <span>{scrolled ? item.shortName || item.name : item.name}</span>
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </header>
+  );
+};
+
+// ❌ DON'T: Hide navigation elements completely on scroll
+const BadShrinkingHeader = () => {
+  const [scrolled, setScrolled] = useState(false);
+  
+  // Similar scroll tracking...
+  
+  return (
+    <header>
+      <div>
+        <Link to="/">
+          <Logo size={scrolled ? "small" : "medium"} />
+        </Link>
+        
+        <nav>
+          {navigationItems.map(item => (
+            <Link key={item.url} to={item.url}>
+              <item.icon />
+              <span style={{ display: scrolled ? 'none' : 'inline' }}>
+                {item.name}
+              </span>
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </header>
+  );
+};
+```
+
+### ParticleHero
+
+A hero component with animated floating particles for visual interest.
+
+```jsx
+// ✅ DO: Create engaging animations with customizable particles
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+export const ParticleHero = ({ 
+  title, 
+  subtitle, 
+  buttonText, 
+  buttonUrl,
+  logoSrc,
+  particleCount = 10,
+  height = '550px'
+}) => {
+  // State for animation effects
+  const [glowIntensity, setGlowIntensity] = useState(0);
+  
+  // Animation effect
+  useEffect(() => {
+    let frame;
+    let startTime = Date.now();
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      // Create smooth oscillation for glow effect
+      const newIntensity = (Math.sin(elapsed / 800) + 1) / 1.8;
+      setGlowIntensity(newIntensity);
+      
+      frame = requestAnimationFrame(animate);
+    };
+    
+    frame = requestAnimationFrame(animate);
+    
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  
+  // Calculate dynamic glow effect
+  const glowSize = Math.floor(15 + glowIntensity * 25);
+  const glowOpacity = 0.5 + glowIntensity * 0.5;
+  
+  return (
+    <div style={{
+      height,
+      background: 'linear-gradient(135deg, #0A0A0A 0%, #222222 100%)',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Logo with glow effect */}
+      <div style={{
+        position: 'absolute',
+        left: '15%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        animation: 'float 4s ease-in-out infinite'
+      }}>
+        <img 
+          src={logoSrc} 
+          alt="Logo" 
+          style={{
+            width: '300px',
+            height: '300px',
+            filter: `drop-shadow(0 0 ${glowSize}px rgba(255, 204, 0, ${glowOpacity}))`
+          }}
+        />
+      </div>
+      
+      {/* Content */}
+      <div style={{
+        position: 'absolute',
+        right: '10%',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        maxWidth: '500px',
+        zIndex: 3,
+        background: 'rgba(0, 0, 0, 0.75)',
+        backdropFilter: 'blur(8px)',
+        padding: '2rem',
+        borderRadius: '12px'
+      }}>
+        <h1>{title}</h1>
+        <p>{subtitle}</p>
+        
+        <Link 
+          to={buttonUrl} 
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            backgroundColor: '#FFCC00',
+            color: '#000000',
+            textShadow: '0 1px 1px rgba(0, 0, 0, 0.3)' // Ensure text visibility
+          }}
+        >
+          <span>{buttonText}</span>
+        </Link>
+      </div>
+      
+      {/* Particle container */}
+      <div className="particles" />
+      
+      {/* Animations defined in CSS */}
+      <style>{`
+        /* Define keyframe animations for particles */
+        @keyframes float {
+          0% { transform: translate(-50%, -50%); }
+          25% { transform: translate(-48%, -58%); }
+          50% { transform: translate(-50%, -65%); }
+          75% { transform: translate(-52%, -58%); }
+          100% { transform: translate(-50%, -50%); }
+        }
+        
+        /* Particle styling with multiple elements */
+        .particles::before,
+        .particles::after {
+          content: '';
+          position: absolute;
+          border-radius: 50%;
+          background-color: rgba(255, 204, 0, 0.3);
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        
+        /* Add multiple particle animations */
+        @keyframes particle1 {
+          0% { transform: translate(0, 0); }
+          50% { transform: translate(100px, 50px); }
+          100% { transform: translate(0, 0); }
+        }
+        
+        /* Additional particle animation definitions */
+      `}</style>
+    </div>
+  );
+};
+
+// ❌ DON'T: Create static hero sections with no animation
+const StaticHero = () => (
+  <div style={{ height: '500px', background: 'black' }}>
+    <img src="/logo.png" alt="Logo" style={{ width: '200px' }} />
+    <div>
+      <h1>Welcome to Our Site</h1>
+      <p>Some subtitle text here</p>
+      <a href="/products">View Products</a>
+    </div>
+  </div>
+);
+```
+
+### FooterWithThemeToggle
+
+A footer component with integrated dark mode toggle and social links.
+
+```jsx
+// ✅ DO: Implement useful features like theme toggle
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { BsMoon, BsSun } from 'react-icons/bs';
+
+export const FooterWithThemeToggle = () => {
+  // Default to dark mode
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const currentYear = new Date().getFullYear();
+
+  // Apply dark mode when state changes
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark-mode");
+    } else {
+      document.documentElement.classList.remove("dark-mode");
+    }
+    
+    // Apply dark mode on initial render
+    document.documentElement.classList.add("dark-mode");
+  }, [isDarkMode]);
+
+  return (
+    <footer style={{
+      backgroundColor: '#0F0F0F',
+      color: '#E5E5E5'
+    }}>
+      {/* Content sections, navigation, etc. */}
+      <div className="footer-content">
+        {/* Newsletter subscription, links, etc. */}
+      </div>
+      
+      {/* Bottom bar with copyright and social links */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderTop: '1px solid #222222',
+        marginTop: '2rem',
+        paddingTop: '1.5rem'
+      }}>
+        <div>
+          <Logo variant="light" size="small" />
+          <span>&copy; {currentYear} AliTools. All rights reserved.</span>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          {/* Social media links */}
+          <SocialLink href="https://facebook.com" icon={BsFacebook} />
+          <SocialLink href="https://instagram.com" icon={BsInstagram} />
+          
+          {/* Theme toggle button */}
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: isDarkMode ? '#FFCC00' : '#FFFFFF',
+              borderRadius: '9999px',
+              height: '2rem',
+              width: '2rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {isDarkMode ? <BsMoon /> : <BsSun />}
+            <span className="sr-only">Toggle theme</span>
+          </button>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+// Helper component for social links
+const SocialLink = ({ href, icon: Icon }) => (
+  <a 
+    href={href} 
+    target="_blank" 
+    rel="noopener noreferrer"
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '2rem',
+      width: '2rem',
+      borderRadius: '9999px',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)'
+    }}
+  >
+    <Icon />
+    <span className="sr-only">{Icon.name}</span>
+  </a>
+);
+
+// ❌ DON'T: Create footers without accessibility considerations
+const InaccessibleFooter = () => (
+  <footer style={{ backgroundColor: 'black', color: 'white' }}>
+    <div>
+      <p>© 2025 Company Name</p>
+    </div>
+    <div>
+      {/* Missing aria labels and proper contrast */}
+      <a href="#"><img src="/facebook.png" /></a>
+      <a href="#"><img src="/twitter.png" /></a>
+      <button onClick={() => toggleTheme()}>
+        <img src="/theme.png" />
+      </button>
+    </div>
+  </footer>
+);
+```
+
 ### HeroGeometric
 
 A hero section component with animated geometric shapes to create visual interest.
