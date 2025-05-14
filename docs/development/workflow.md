@@ -134,6 +134,34 @@ Taskmaster configuration is managed through:
 - If AI commands fail in MCP, verify API keys in `.cursor/mcp.json`
 - If AI commands fail in CLI, verify API keys in `.env` file
 
+## Task Status Workflow
+
+Task statuses follow a specific lifecycle:
+
+1. **pending**: Initial status for newly created tasks
+2. **in-progress**: Work has actively started on the task
+3. **review**: Task implementation is complete but needs review
+4. **done**: Task is completely implemented, reviewed, and verified
+5. **blocked**: Task cannot proceed due to external dependencies
+6. **deferred**: Task is postponed to a future iteration
+7. **cancelled**: Task is no longer needed or relevant
+
+The recommended workflow for task status management:
+
+```
+pending → in-progress → review → done
+```
+
+Status can be updated using:
+```bash
+task-master set-status --id=<id> --status=<status>
+```
+
+Or with the MCP tool:
+```
+set_task_status (id: "<id>", status: "<status>")
+```
+
 ## Determining the Next Task
 
 The `next_task` / `task-master next` command:
@@ -143,6 +171,28 @@ The `next_task` / `task-master next` command:
 - Respects your project's dependency structure
 - Ensures tasks are completed in the appropriate sequence
 - Provides ready-to-use commands for common task actions
+
+## Integrating Tasks with Git Workflow
+
+To maintain alignment between Task Master and Git:
+
+1. **Branch Naming**:
+   - Name branches after task IDs: `feature/task-12-add-user-authentication`
+   - For subtasks: `feature/task-12.3-implement-password-reset`
+
+2. **Commit Messages**:
+   - Reference task IDs in commit messages: `feat(auth): Implement JWT authentication (Task #12)`
+   - For subtasks: `feat(auth): Add password reset functionality (Task #12.3)`
+
+3. **Pull Requests**:
+   - Include task ID in PR title: `[Task #12] Add user authentication`
+   - Include details from task description and implementation notes in PR body
+   - Link to task documentation if applicable
+
+4. **Task Completion**:
+   - Only mark tasks as `done` after code review and merge to main/development branch
+   - Use `review` status while PR is pending
+   - Update task details with PR/merge information
 
 ## Best Practices
 
@@ -155,6 +205,8 @@ The `next_task` / `task-master next` command:
 - Generate task files after significant changes to tasks.json
 - Review complexity reports before expanding multiple tasks
 - Document implementation decisions in subtask details
+- Keep task details updated with latest implementation notes
+- Use tasks as living documentation of the development process
 
 This workflow provides a general guideline. Adapt it based on specific project needs and team practices.
 

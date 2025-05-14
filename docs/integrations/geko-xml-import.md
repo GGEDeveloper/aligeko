@@ -154,7 +154,7 @@ XML elements map to database models as follows:
 Scheduled sync uses a cron-like job scheduler:
 
 ```javascript
-// Recommended implementation with error handling
+// Implement robust scheduling with error handling
 static scheduleSync(apiUrl, intervalMinutes = 30) {
   const cronExpression = `*/${intervalMinutes} * * * *`; // Every X minutes
   
@@ -184,7 +184,7 @@ static scheduleSync(apiUrl, intervalMinutes = 30) {
 In addition to scheduled API sync, implement manual file upload for XML data:
 
 ```javascript
-// Secure file upload processing
+// Validate and process uploads securely
 static async processUploadedXmlFile(filePath, options = {}) {
   try {
     // Track health
@@ -221,7 +221,7 @@ static async processUploadedXmlFile(filePath, options = {}) {
 When the XML schema from GEKO API changes:
 
 ```javascript
-// Flexible parsing with fallbacks
+// Use flexible parsing with reasonable defaults
 static _processCategory(product, transformedData) {
   // Handle different XML structures
   const categoryData = product.category || {};
@@ -249,18 +249,9 @@ static _processCategory(product, transformedData) {
 Handle partial success scenarios with robust error handling:
 
 ```javascript
-// Continue processing despite entity errors
+// Continue processing despite individual entity errors
 static async _insertDataToDatabase(data, transaction, tracking = null) {
-  const stats = { 
-    categories: 0,
-    producers: 0,
-    units: 0,
-    products: 0,
-    variants: 0,
-    stocks: 0,
-    prices: 0,
-    images: 0
-  };
+  const stats = { /* ... */ };
   
   // Insert categories
   if (data.categories && data.categories.length > 0) {
@@ -303,112 +294,82 @@ The following patterns have been established for optimizing XML import performan
 
 ### Batch Processing
 
-```javascript
-const BATCH_SIZE = 500; // Optimal for most operations
-
-for (let i = 0; i < transformedData.products.length; i += BATCH_SIZE) {
-  const batch = transformedData.products.slice(i, i + BATCH_SIZE);
-  await models.Product.bulkCreate(batch, { 
-    transaction,
-    returning: true // Get back the inserted records with IDs
-  });
-  console.log(`Imported batch ${i+1} to ${Math.min(i+BATCH_SIZE, transformedData.products.length)}`);
-}
-```
+- **Use large batch sizes for database operations**
+  ```javascript
+  const BATCH_SIZE = 500; // Optimal for most operations
+  
+  for (let i = 0; i < transformedData.products.length; i += BATCH_SIZE) {
+    const batch = transformedData.products.slice(i, i + BATCH_SIZE);
+    await models.Product.bulkCreate(batch, { 
+      transaction,
+      returning: true // Get back the inserted records with IDs
+    });
+    console.log(`Imported batch ${i+1} to ${Math.min(i+BATCH_SIZE, transformedData.products.length)}`);
+  }
+  ```
 
 ### Memory Management
 
-```javascript
-// Free memory after parsing
-xmlData = null;
-jsonData = null;
-global.gc && global.gc(); // Trigger garbage collection if available
+- **Release large data structures when no longer needed**
+  ```javascript
+  // Free memory after parsing
+  xmlData = null;
+  jsonData = null;
+  global.gc && global.gc(); // Trigger garbage collection if available
+  ```
 
-// Process large collections in chunks
-const CHUNK_SIZE = 1000;
-for (let i = 0; i < productsArray.length; i += CHUNK_SIZE) {
-  const chunk = productsArray.slice(i, i + CHUNK_SIZE);
-  // Process chunk...
-  chunk.length = 0; // Clear chunk after processing
-  global.gc && global.gc();
-}
-```
+- **Process large collections in chunks**
+  ```javascript
+  const CHUNK_SIZE = 1000;
+  for (let i = 0; i < productsArray.length; i += CHUNK_SIZE) {
+    const chunk = productsArray.slice(i, i + CHUNK_SIZE);
+    // Process chunk...
+    chunk.length = 0; // Clear chunk after processing
+    global.gc && global.gc();
+  }
+  ```
 
 ### Database Connection Optimization
 
-```javascript
-sequelize = new Sequelize(process.env.NEON_DB_URL, {
-  // ...other options
-  pool: {
-    max: 10,        // Increased for better concurrency
-    min: 0,
-    idle: 20000,    // Increased idle timeout (ms)
-    acquire: 120000 // Increased timeout for batch operations (ms)
+- **Configure connection pools appropriately**
+  ```javascript
+  sequelize = new Sequelize(process.env.NEON_DB_URL, {
+    // ...other options
+    pool: {
+      max: 10,        // Increased for better concurrency
+      min: 0,
+      idle: 20000,    // Increased idle timeout (ms)
+      acquire: 120000 // Increased timeout for batch operations (ms)
+    }
+  });
+  ```
+
+- **Use transactions with proper error handling**
+  ```javascript
+  const transaction = await sequelize.transaction();
+  try {
+    // Import operations
+    await transaction.commit();
+  } catch (error) {
+    // Log error details
+    console.error(`Import failed: ${error.message}`);
+    await transaction.rollback();
   }
-});
-
-// Transactions with proper error handling
-const transaction = await sequelize.transaction();
-try {
-  // Import operations
-  await transaction.commit();
-} catch (error) {
-  // Log error details
-  console.error(`Import failed: ${error.message}`);
-  await transaction.rollback();
-}
-```
-
-### Performance Monitoring
-
-```javascript
-// Detailed timing
-console.time('Operation name');
-// ... operation code
-console.timeEnd('Operation name');
-
-// Per-entity metrics
-console.log(`Imported ${transformedData.categories.length} categories`);
-console.log(`Imported ${transformedData.products.length} products`);
-console.log(`Imported ${transformedData.variants.length} variants`);
-```
+  ```
 
 ### Efficient Data Structures
 
-```javascript
-// Maps for quick lookups
-const productCodeToId = {};
-createdProducts.forEach(product => {
-  productCodeToId[product.code] = product.id;
-});
-
-// Sets for existing items
-const existingProducerNames = new Set();
-existingProducers.forEach(producer => existingProducerNames.add(producer.name));
-
-// Fast checking for duplicates
-if (!existingProducerNames.has(producerName)) {
-  // Insert new producer
-}
-```
-
-### Error Handling
-
-```javascript
-// Batch-level error handling
-try {
-  await models.Product.bulkCreate(productBulkData, { transaction });
-} catch (error) {
-  console.error(`Error importing product batch ${i+1}-${Math.min(i+BATCH_SIZE, products.length)}:`, error.message);
-  // Continue with next batch instead of failing entire import
-}
-
-// Detailed error reporting
-console.error('========================================');
-console.error(`XML IMPORT FAILED: ${error.message}`);
-console.error('========================================');
-console.error(error.stack);
-```
+- **Use Maps for quick lookups**
+  ```javascript
+  // Create map of product code to ID for faster lookups
+  const productCodeToId = {};
+  createdProducts.forEach(product => {
+    productCodeToId[product.code] = product.id;
+  });
+  
+  // Later, lookup is O(1) instead of O(n)
+  const productId = productCodeToId[variant.code];
+  ```
 
 ### Performance Results
 

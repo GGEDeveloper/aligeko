@@ -15,27 +15,24 @@ Task Master is a task management system designed for efficient project managemen
 
 - **MCP Tool:** `initialize_project`
 - **CLI Command:** `task-master init [options]`
-- **Description:** Sets up the basic Taskmaster file structure and configuration in the current directory for a new project.
+- **Description:** Set up the basic Taskmaster file structure and configuration in the current directory for a new project.
 - **Key Options:**
-  - Project name/description/version
-  - Skip installation flag
-  - Add shell aliases
-  - Use default settings without prompts
-- **Usage:** Run once at the beginning of a new project to create the Task Master directory structure and configuration files.
-- **Important:** After initialization, you must parse a PRD to generate tasks.
+  - `--name <name>`: Set the name for your project.
+  - `--description <text>`: Provide a brief description for your project.
+  - `--version <version>`: Set the initial version for your project, e.g., '0.1.0'.
+  - `-y, --yes`: Initialize Taskmaster quickly using default settings without interactive prompts.
+- **Important:** Once complete, you must parse a PRD to generate tasks. There will be no task files until then.
 
 ### Parse PRD
 
 - **MCP Tool:** `parse_prd`
 - **CLI Command:** `task-master parse-prd [file] [options]`
-- **Description:** Parses a Product Requirements Document or text file to automatically generate an initial set of tasks.
+- **Description:** Parse a Product Requirements Document (PRD) to automatically generate an initial set of tasks.
 - **Key Options:**
-  - Input file path
-  - Output file location
-  - Number of top-level tasks to generate
-  - Force overwrite of existing tasks
-- **Usage:** Bootstraps a project from an existing requirements document, generating structured tasks from text.
-- **Notes:** Task Master adheres to specified requirements in the PRD while filling gaps where the PRD isn't fully detailed.
+  - `[file]` or `-i, --input <file>`: Path to your PRD file.
+  - `-o, --output <file>`: Specify where to save the generated 'tasks.json' file.
+  - `-n, --num-tasks <number>`: Approximate number of top-level tasks to generate.
+  - `-f, --force`: Overwrite an existing 'tasks.json' without asking for confirmation.
 
 ## AI Model Configuration
 
@@ -43,13 +40,14 @@ Task Master is a task management system designed for efficient project managemen
 
 - **MCP Tool:** `models`
 - **CLI Command:** `task-master models [options]`
-- **Description:** View or configure AI model settings for different roles (main, research, fallback).
+- **Description:** View current AI model configuration or set specific models for different roles.
 - **Key Options:**
-  - Set specific models for different roles
-  - Configure custom Ollama or OpenRouter models
-  - List available models
-- **Usage:** Run without parameters to view current configuration or with parameters to update settings.
-- **Notes:** Configuration is stored in `.taskmasterconfig` in the project root. API keys should be set in `.env` or `.cursor/mcp.json`.
+  - `--set-main <model_id>`: Set the primary model for task generation/updates.
+  - `--set-research <model_id>`: Set the model for research-backed operations.
+  - `--set-fallback <model_id>`: Set the model to use if the primary fails.
+  - `--ollama`: Specify that the provided model ID is for Ollama.
+  - `--openrouter`: Specify that the provided model ID is for OpenRouter.
+  - `--setup`: Run interactive setup to configure models (CLI only).
 
 ## Task Listing & Viewing
 
@@ -57,31 +55,28 @@ Task Master is a task management system designed for efficient project managemen
 
 - **MCP Tool:** `get_tasks`
 - **CLI Command:** `task-master list [options]`
-- **Description:** Lists all tasks, optionally filtering by status and showing subtasks.
+- **Description:** List your tasks, optionally filtering by status and showing subtasks.
 - **Key Options:**
-  - Status filter (e.g., 'pending', 'done')
-  - Include subtasks flag
-  - Custom tasks file path
-- **Usage:** Get an overview of project status, often used at the start of a work session.
+  - `-s, --status <status>`: Show only tasks matching this status, e.g., 'pending' or 'done'.
+  - `--with-subtasks`: Include subtasks indented under their parent tasks.
+  - `-f, --file <file>`: Path to your 'tasks.json' file.
 
 ### Get Next Task
 
 - **MCP Tool:** `next_task`
 - **CLI Command:** `task-master next [options]`
-- **Description:** Shows the next available task to work on, based on status and completed dependencies.
+- **Description:** Show the next available task you can work on, based on status and completed dependencies.
 - **Key Options:**
-  - Custom tasks file path
-- **Usage:** Identify what to work on next according to the project plan and dependencies.
+  - `-f, --file <file>`: Path to your 'tasks.json' file.
 
 ### Get Task Details
 
 - **MCP Tool:** `get_task`
 - **CLI Command:** `task-master show [id] [options]`
-- **Description:** Displays detailed information for a specific task or subtask by ID.
+- **Description:** Display detailed information for a specific task or subtask by its ID.
 - **Key Options:**
-  - Task/subtask ID (e.g., '15' or '15.2')
-  - Custom tasks file path
-- **Usage:** Understand the full details, implementation notes, and test strategy for a specific task before starting work.
+  - `[id]` or `-i, --id <id>`: The ID of the task or subtask to view.
+  - `-f, --file <file>`: Path to your 'tasks.json' file.
 
 ## Task Creation & Modification
 
@@ -89,84 +84,71 @@ Task Master is a task management system designed for efficient project managemen
 
 - **MCP Tool:** `add_task`
 - **CLI Command:** `task-master add-task [options]`
-- **Description:** Adds a new task to the project by describing it; AI structures it appropriately.
+- **Description:** Add a new task by describing it; AI will structure it.
 - **Key Options:**
-  - Task description prompt
-  - Dependencies
-  - Priority level
-  - Research flag for more informed task creation
-- **Usage:** Quickly add newly identified tasks during development with AI-enhanced details.
-- **Important:** Makes AI calls and can take up to a minute to complete.
+  - `-p, --prompt <text>`: Describe the new task you want to create.
+  - `-d, --dependencies <ids>`: Specify IDs of tasks that must be completed before this one.
+  - `--priority <priority>`: Set the priority (high, medium, low).
+  - `-r, --research`: Enable research role for more informed task creation.
 
 ### Add Subtask
 
 - **MCP Tool:** `add_subtask`
 - **CLI Command:** `task-master add-subtask [options]`
-- **Description:** Adds a new subtask to a parent task, or converts an existing task into a subtask.
+- **Description:** Add a new subtask to a parent task, or convert an existing task into a subtask.
 - **Key Options:**
-  - Parent task ID
-  - Existing task ID (for conversion)
-  - Subtask title/description/details
-  - Dependencies
-  - Status
-- **Usage:** Break down tasks manually or reorganize existing tasks into hierarchical structures.
+  - `-p, --parent <id>`: The ID of the task that will be the parent.
+  - `-i, --task-id <id>`: Use to convert an existing top-level task into a subtask.
+  - `-t, --title <title>`: The title for the new subtask (required if not using task-id).
+  - `-d, --description <text>`: A brief description for the new subtask.
 
 ### Update Tasks
 
 - **MCP Tool:** `update`
 - **CLI Command:** `task-master update [options]`
-- **Description:** Updates multiple upcoming tasks based on new context or changes, starting from a specific task ID.
+- **Description:** Update multiple upcoming tasks based on new context or changes.
 - **Key Options:**
-  - Starting task ID
-  - Update description prompt
-  - Research flag for more informed updates
-- **Usage:** Handle significant implementation changes or pivots that affect multiple future tasks.
-- **Important:** Makes AI calls and can take up to a minute to complete.
+  - `--from <id>`: The ID of the first task to update.
+  - `-p, --prompt <text>`: Explain the change or new context to apply to the tasks.
+  - `-r, --research`: Enable research role for more informed updates.
 
 ### Update Task
 
 - **MCP Tool:** `update_task`
 - **CLI Command:** `task-master update-task [options]`
-- **Description:** Modifies a specific task or subtask, incorporating new information or changes.
+- **Description:** Modify a specific task by incorporating new information or changes.
 - **Key Options:**
-  - Task/subtask ID
-  - Update description prompt
-  - Research flag
-- **Usage:** Refine a specific task based on new understanding or feedback.
-- **Important:** Makes AI calls and can take up to a minute to complete.
+  - `-i, --id <id>`: The ID of the task to update.
+  - `-p, --prompt <text>`: Explain the specific changes to incorporate.
+  - `-r, --research`: Enable research role for more informed updates.
 
 ### Update Subtask
 
 - **MCP Tool:** `update_subtask`
 - **CLI Command:** `task-master update-subtask [options]`
-- **Description:** Appends timestamped notes or details to a specific subtask without overwriting existing content.
+- **Description:** Append timestamped notes or details to a specific subtask without overwriting existing content.
 - **Key Options:**
-  - Subtask ID
-  - Information to append
-  - Research flag
-- **Usage:** Add implementation notes, code snippets, or clarifications to a subtask during development.
-- **Important:** Before adding, review existing details to avoid redundancy. Makes AI calls and can take up to a minute to complete.
+  - `-i, --id <id>`: The ID of the subtask to add information to.
+  - `-p, --prompt <text>`: Provide the information to append to the subtask's details.
+  - `-r, --research`: Enable research role for more informed updates.
 
 ### Set Task Status
 
 - **MCP Tool:** `set_task_status`
 - **CLI Command:** `task-master set-status [options]`
-- **Description:** Updates the status of one or more tasks or subtasks.
+- **Description:** Update the status of one or more tasks or subtasks.
 - **Key Options:**
-  - Task/subtask ID(s)
-  - New status (e.g., 'done', 'pending', 'in-progress')
-- **Usage:** Mark progress as tasks move through the development cycle.
+  - `-i, --id <id>`: The ID(s) of the task(s) or subtask(s) to update.
+  - `-s, --status <status>`: The new status to set (e.g., 'done', 'pending', 'in-progress').
 
 ### Remove Task
 
 - **MCP Tool:** `remove_task`
 - **CLI Command:** `task-master remove-task [options]`
-- **Description:** Permanently removes a task or subtask from the tasks list.
+- **Description:** Permanently remove a task or subtask from the tasks list.
 - **Key Options:**
-  - Task/subtask ID
-  - Skip confirmation flag
-- **Usage:** Delete tasks that are no longer needed in the project.
-- **Notes:** Use with caution as this operation cannot be undone. Consider using status changes instead of deletion.
+  - `-i, --id <id>`: The ID of the task or subtask to remove.
+  - `-y, --yes`: Skip the confirmation prompt and immediately delete the task.
 
 ## Task Structure & Breakdown
 
@@ -174,49 +156,42 @@ Task Master is a task management system designed for efficient project managemen
 
 - **MCP Tool:** `expand_task`
 - **CLI Command:** `task-master expand [options]`
-- **Description:** Breaks down a complex task into smaller, manageable subtasks using AI.
+- **Description:** Break down a complex task into smaller, manageable subtasks.
 - **Key Options:**
-  - Task ID
-  - Number of subtasks to create
-  - Research flag for more informed generation
-  - Additional context
-  - Force replacement of existing subtasks
-- **Usage:** Generate a detailed implementation plan for a complex task before starting coding.
-- **Important:** Makes AI calls and can take up to a minute to complete.
+  - `-i, --id <id>`: The ID of the task to break down.
+  - `-n, --num <number>`: How many subtasks to create.
+  - `-r, --research`: Enable research role for more informed subtask generation.
+  - `-p, --prompt <text>`: Provide extra context for generating subtasks.
+  - `--force`: Clear existing subtasks before generating new ones.
 
 ### Expand All Tasks
 
 - **MCP Tool:** `expand_all`
 - **CLI Command:** `task-master expand --all [options]`
-- **Description:** Expands all eligible pending/in-progress tasks based on complexity analysis or defaults.
+- **Description:** Automatically expand all eligible pending/in-progress tasks.
 - **Key Options:**
-  - Number of subtasks per task
-  - Research flag
-  - Additional context
-  - Force replacement of existing subtasks
-- **Usage:** Break down multiple tasks at once after initial task generation or complexity analysis.
-- **Important:** Makes AI calls and can take up to a minute to complete.
+  - `-n, --num <number>`: How many subtasks to create per task.
+  - `-r, --research`: Enable research role for more informed subtask generation.
+  - `-p, --prompt <text>`: Provide extra context for generating subtasks.
+  - `--force`: Clear existing subtasks before generating new ones.
 
 ### Clear Subtasks
 
 - **MCP Tool:** `clear_subtasks`
 - **CLI Command:** `task-master clear-subtasks [options]`
-- **Description:** Removes all subtasks from specified parent tasks.
+- **Description:** Remove all subtasks from one or more specified parent tasks.
 - **Key Options:**
-  - Parent task ID(s)
-  - All tasks flag
-- **Usage:** Clear subtasks before regenerating with expand_task if a complete replacement is needed.
+  - `-i, --id <ids>`: The ID(s) of the parent task(s) whose subtasks to remove.
+  - `--all`: Remove subtasks from all parent tasks.
 
 ### Remove Subtask
 
 - **MCP Tool:** `remove_subtask`
 - **CLI Command:** `task-master remove-subtask [options]`
-- **Description:** Removes a subtask from its parent, optionally converting it to a standalone task.
+- **Description:** Remove a subtask from its parent, optionally converting it into a standalone task.
 - **Key Options:**
-  - Subtask ID
-  - Convert to standalone task flag
-  - Skip file regeneration flag
-- **Usage:** Delete unnecessary subtasks or promote a subtask to a top-level task.
+  - `-i, --id <id>`: The ID of the subtask to remove.
+  - `-c, --convert`: Turn the subtask into a regular top-level task instead of deleting it.
 
 ## Dependency Management
 
@@ -224,39 +199,35 @@ Task Master is a task management system designed for efficient project managemen
 
 - **MCP Tool:** `add_dependency`
 - **CLI Command:** `task-master add-dependency [options]`
-- **Description:** Defines a dependency, making one task a prerequisite for another.
+- **Description:** Define a dependency, making one task a prerequisite for another.
 - **Key Options:**
-  - Task ID
-  - Dependency task ID
-- **Usage:** Establish the correct order of execution between tasks.
+  - `-i, --id <id>`: The ID of the task that will depend on another.
+  - `-d, --depends-on <id>`: The ID of the task that must be completed first.
 
 ### Remove Dependency
 
 - **MCP Tool:** `remove_dependency`
 - **CLI Command:** `task-master remove-dependency [options]`
-- **Description:** Removes a dependency relationship between two tasks.
+- **Description:** Remove a dependency relationship between two tasks.
 - **Key Options:**
-  - Task ID
-  - Dependency task ID
-- **Usage:** Update task relationships when the order of execution changes.
+  - `-i, --id <id>`: The ID of the task to remove a prerequisite from.
+  - `-d, --depends-on <id>`: The ID of the task that should no longer be a prerequisite.
 
 ### Validate Dependencies
 
 - **MCP Tool:** `validate_dependencies`
 - **CLI Command:** `task-master validate-dependencies [options]`
-- **Description:** Checks tasks for dependency issues (like circular references) without making changes.
+- **Description:** Check tasks for dependency issues without making changes.
 - **Key Options:**
-  - Tasks file path
-- **Usage:** Audit the integrity of task dependencies.
+  - `-f, --file <file>`: Path to your 'tasks.json' file.
 
 ### Fix Dependencies
 
 - **MCP Tool:** `fix_dependencies`
 - **CLI Command:** `task-master fix-dependencies [options]`
-- **Description:** Automatically fixes dependency issues in tasks.
+- **Description:** Automatically fix dependency issues in your tasks.
 - **Key Options:**
-  - Tasks file path
-- **Usage:** Clean up dependency errors automatically.
+  - `-f, --file <file>`: Path to your 'tasks.json' file.
 
 ## Analysis & Reporting
 
@@ -264,22 +235,19 @@ Task Master is a task management system designed for efficient project managemen
 
 - **MCP Tool:** `analyze_project_complexity`
 - **CLI Command:** `task-master analyze-complexity [options]`
-- **Description:** Analyzes tasks to determine their complexity and suggest breakdown needs.
+- **Description:** Analyze your tasks to determine their complexity and suggest which ones need to be broken down.
 - **Key Options:**
-  - Output file path
-  - Complexity threshold
-  - Research flag
-- **Usage:** Run before breaking down tasks to identify which ones need the most attention.
-- **Important:** Makes AI calls and can take up to a minute to complete.
+  - `-o, --output <file>`: Where to save the complexity analysis report.
+  - `-t, --threshold <number>`: The minimum complexity score that should trigger a recommendation to expand a task.
+  - `-r, --research`: Enable research role for more accurate complexity analysis.
 
 ### View Complexity Report
 
 - **MCP Tool:** `complexity_report`
 - **CLI Command:** `task-master complexity-report [options]`
-- **Description:** Displays the task complexity analysis report in a readable format.
+- **Description:** Display the task complexity analysis report in a readable format.
 - **Key Options:**
-  - Report file path
-- **Usage:** Review complexity analysis results after running analyze-complexity.
+  - `-f, --file <file>`: Path to the complexity report.
 
 ## File Management
 
@@ -287,11 +255,33 @@ Task Master is a task management system designed for efficient project managemen
 
 - **MCP Tool:** `generate`
 - **CLI Command:** `task-master generate [options]`
-- **Description:** Creates or updates individual Markdown files for each task based on tasks.json.
+- **Description:** Create or update individual Markdown files for each task.
 - **Key Options:**
-  - Output directory
-  - Tasks file path
-- **Usage:** Run after making changes to tasks.json to keep individual task files up to date.
+  - `-o, --output <directory>`: The directory where to save the task files.
+  - `-f, --file <file>`: Path to your 'tasks.json' file.
+
+## Environment Variables Configuration
+
+Taskmaster primarily uses the `.taskmasterconfig` file (in project root) for configuration, managed via `task-master models --setup`.
+
+Environment variables are used only for sensitive API keys related to AI providers:
+
+- **API Keys (Required for corresponding provider):**
+  - `ANTHROPIC_API_KEY`
+  - `PERPLEXITY_API_KEY`
+  - `OPENAI_API_KEY`
+  - `GOOGLE_API_KEY`
+  - `MISTRAL_API_KEY`
+  - `AZURE_OPENAI_API_KEY` (Requires `AZURE_OPENAI_ENDPOINT` too)
+  - `OPENROUTER_API_KEY`
+  - `XAI_API_KEY`
+  - `OLLANA_API_KEY` (Requires `OLLAMA_BASE_URL` too)
+
+- **Endpoints (Optional/Provider Specific):**
+  - `AZURE_OPENAI_ENDPOINT`
+  - `OLLAMA_BASE_URL` (Default: `http://localhost:11434/api`)
+
+Set API keys in your `.env` file (for CLI use) or within the `env` section of your `.cursor/mcp.json` file (for MCP/Cursor integration). All other settings (model choice, max tokens, temperature, log level) are managed in `.taskmasterconfig`.
 
 ## Task Structure Fields
 
@@ -306,20 +296,6 @@ Task objects contain these key fields:
 - **details**: In-depth implementation instructions
 - **testStrategy**: Verification approach
 - **subtasks**: List of smaller, more specific tasks
-
-## Environment Variables Configuration
-
-Taskmaster uses two main configuration mechanisms:
-
-1. **`.taskmasterconfig` File**:
-   - Stores most configuration settings (models, parameters, logging level, etc.)
-   - Managed via `task-master models` command
-   - Located in project root directory
-
-2. **Environment Variables**:
-   - Only for sensitive API keys and specific endpoints
-   - In `.env` file (for CLI) or `.cursor/mcp.json` (for MCP)
-   - Examples: `ANTHROPIC_API_KEY`, `PERPLEXITY_API_KEY`, etc.
 
 ## Workflow Integration
 
