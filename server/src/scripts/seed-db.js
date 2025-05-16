@@ -58,9 +58,9 @@ if (POSTGRES_URL) {
 const umzug = new Umzug({
   migrations: {
     glob: 'src/seeders/*.js',
-    resolve: ({ name, path, context }) => {
+    resolve: async ({ name, path, context }) => {
       // Import the ESM module
-      const migration = require(path);
+      const migration = await import(path);
       return {
         name,
         up: async () => migration.up(context.queryInterface, context.sequelize),

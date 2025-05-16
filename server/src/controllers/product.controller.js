@@ -1,6 +1,7 @@
 import { Product, Category, Producer, Unit, Variant, Stock, Price, Image } from '../models/index.js';
 import sequelize from '../config/database.js';
 import logger from '../config/logger.js';
+import { Op } from 'sequelize';
 
 /**
  * Get all products with pagination
@@ -28,53 +29,76 @@ export const getAllProducts = async (req, res) => {
     
     // Add search filter
     if (req.query.search) {
-      whereClause.name = { $like: `%${req.query.search}%` };
+      whereClause.name = { [Op.like]: `%${req.query.search}%` };
     }
     
     // Add price range filter
     if (req.query.minPrice || req.query.maxPrice) {
       whereClause.price = {};
-      if (req.query.minPrice) whereClause.price.$gte = parseFloat(req.query.minPrice);
-      if (req.query.maxPrice) whereClause.price.$lte = parseFloat(req.query.maxPrice);
+      if (req.query.minPrice) whereClause.price[Op.gte] = parseFloat(req.query.minPrice);
+      if (req.query.maxPrice) whereClause.price[Op.lte] = parseFloat(req.query.maxPrice);
     }
     
     // Log the query we're about to execute
     logger.info(`Executing product query with limit ${limit}, offset ${offset}`);
     
+    // Primeiro, vamos buscar os produtos sem os relacionamentos para garantir que a consulta básica funciona
     const { count, rows } = await Product.findAndCountAll({
       where: whereClause,
       limit,
       offset,
+      order: [['id', 'ASC']]
+    });
+    
+    // Se não houver produtos, retornar array vazio
+    if (count === 0) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          items: [],
+          totalItems: 0,
+          totalPages: 0,
+          page,
+          limit
+        }
+      });
+    }
+    
+    // Agora buscar os produtos com os relacionamentos
+    const productIds = rows.map(p => p.id);
+    const productsWithRelations = await Product.findAll({
+      where: { id: productIds },
       include: [
-        { model: Category, attributes: ['id', 'name'], where: categoryFilter },
-        { model: Producer, attributes: ['id', 'name'], where: producerFilter },
-        { model: Unit, attributes: ['id', 'name', 'moq'] },
-        { model: Image, attributes: ['id', 'url'] }
-      ],
-      order: [['id', 'ASC']],
-      distinct: true // Count only distinct products regardless of joined rows
+        { model: Category, as: 'category', attributes: ['id', 'name'], required: false },
+        { model: Producer, as: 'producer', attributes: ['id', 'name'], required: false },
+        { model: Unit, as: 'unit', attributes: ['id', 'name', 'moq'], required: false },
+        { model: Image, as: 'images', attributes: ['id', 'url'], required: false }
+      ]
     });
     
     // Log the response
-    logger.info(`Found ${count} products, returning ${rows.length} items`);
+    logger.info(`Found ${count} products, returning ${productsWithRelations.length} items`);
     
     return res.status(200).json({
       success: true,
       data: {
-        items: rows,
-      totalItems: count,
-      totalPages: Math.ceil(count / limit),
+        items: productsWithRelations,
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
         page,
         limit
       }
     });
   } catch (error) {
     logger.error('Error fetching products:', error);
-    
+    if (error && error.stack) {
+      console.error('Full stack:', error.stack);
+    }
     // If there's a database connection error, respond with error instead of fallback mock data
     return res.status(500).json({ 
       success: false,
       error: error.message || 'Internal server error',
+      stack: error.stack,
       message: 'Failed to fetch products from database'
     });
   }

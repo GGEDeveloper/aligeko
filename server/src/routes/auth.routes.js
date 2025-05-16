@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import * as authController from '../controllers/auth.controller';
-import * as twoFactorController from '../controllers/twoFactor.controller';
-import { authenticate } from '../middleware/auth.middleware';
-import { validate, validatePassword } from '../middleware/validate.middleware';
+import * as authController from '../controllers/auth.controller.js';
+import * as twoFactorController from '../controllers/twoFactor.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { validate, validatePassword } from '../middleware/validate.middleware.js';
 
 const router = Router();
 

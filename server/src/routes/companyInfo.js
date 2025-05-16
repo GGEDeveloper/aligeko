@@ -1,12 +1,12 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const companyInfoController = require('../controllers/companyInfoController');
-const { authenticate, authorizeAdmin } = require('../middleware/auth');
+import { getCompanyInfo, updateCompanyInfo } from '../controllers/companyInfoController.js';
+import { requireAuth, authorizeAdmin } from '../middleware/auth.js';
 
 // GET company info (público)
-router.get('/', companyInfoController.getCompanyInfo);
+router.get('/', getCompanyInfo);
 
 // PUT company info (apenas admin)
-router.put('/', authenticate, authorizeAdmin, companyInfoController.updateCompanyInfo);
+router.put('/', requireAuth, authorizeAdmin, updateCompanyInfo);
 
-module.exports = router; 
+export default router;

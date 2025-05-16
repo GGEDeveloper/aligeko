@@ -30,14 +30,11 @@ const MainLayout = ({ isAdmin = false }) => {
       flexDirection: 'column', 
       minHeight: '100vh'
     }}>
-      {/* Estrutura com Header que contém o TubelightNavbar */}
-      <div>
-        {/* Shrinking header com scroll animation */}
+      {/* Header with TubelightNavbar */}
+      <header>
         <ShrinkingHeader isAdmin={isAdmin} />
-        
-        {/* TubelightNavbar inserido no header */}
         <TubelightNavbar items={navItems} inHeader={true} />
-      </div>
+      </header>
       
       {/* Main content */}
       <main style={{ 
@@ -49,7 +46,7 @@ const MainLayout = ({ isAdmin = false }) => {
         <Outlet />
       </main>
       
-      {/* Footer always included */}
+      {/* Footer */}
       <FooterSection />
     </div>
   );

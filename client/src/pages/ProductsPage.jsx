@@ -9,7 +9,6 @@ import Pagination from '../components/ui/Pagination';
 import FiltersPanel from '../components/products/FiltersPanel';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ErrorMessage from '../components/ui/ErrorMessage';
-import { categories } from '../utils/categoryData';
 import ProductCard from '../components/products/ProductCard';
 
 // Simple error tracking utility (fallback if modules aren't available)
@@ -194,7 +193,7 @@ const ProductsPage = () => {
   // Render product list in grid mode
   const renderGridView = () => {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 grid-view">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 py-2 grid-view">
         {products.map(product => (
           <ProductCard key={product.id} product={product} viewMode="grid" />
         ))}
@@ -280,16 +279,18 @@ const ProductsPage = () => {
     <div className="container mx-auto px-4 py-8 product-page">
       <h1 className="text-2xl font-bold mb-6">Produtos</h1>
       
-      {/* Category Cards */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        {categories.map((category) => (
-          <CategoryCard 
-            key={category.id}
-            category={category}
-            isActive={selectedCategory === category.id}
-            onClick={() => handleCategoryClick(category.id)}
+      {/* Filters Panel Section */}
+      <div className="mb-8">
+        <FiltersPanel
+            currentFilters={{
+              search: searchQuery,
+              category: selectedCategory,
+              minPrice: priceRange.min,
+              maxPrice: priceRange.max,
+              sort: sortOption
+            }}
+            onFilterChange={handleFilterChange}
           />
-        ))}
       </div>
       
       {/* Search and filter section */}

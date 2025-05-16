@@ -11,13 +11,21 @@ const useRedirectAfterLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  return () => {
-    // Verifica se existe uma rota de origem no estado (geralmente definida pelo ProtectedRoute)
-    const from = location.state?.from || '/dashboard';
-    
-    // Redireciona para a rota apropriada
-    navigate(from, { replace: true });
+  return (user) => {
+    // Se existe uma rota de origem no estado (geralmente definida pelo ProtectedRoute), usa ela
+    const from = location.state?.from;
+    if (from) {
+      navigate(from, { replace: true });
+      return;
+    }
+    // Redireciona para o dashboard correto baseado no papel do usuário
+    if (user?.role === 'admin') {
+      navigate('/admin', { replace: true });
+    } else {
+      navigate('/account', { replace: true });
+    }
   };
+
 };
 
 export default useRedirectAfterLogin; 

@@ -17,87 +17,97 @@ const Product = (sequelize) => {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
-    },
-    code: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      unique: true,
-      comment: 'Product code from GEKO'
-    },
-    code_on_card: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      comment: 'Product code displayed on product card'
-    },
-    ean: {
-      type: DataTypes.STRING(13),
-      allowNull: true,
-      comment: 'EAN barcode'
-    },
-    producer_code: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-      comment: 'Producer/manufacturer product code'
-    },
-    name: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      comment: 'Product name'
-    },
-    short_description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      comment: 'Short product description'
-    },
-    long_description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      comment: 'Detailed product description'
-    },
-    technical_description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      comment: 'Technical specifications'
-    },
-    url: {
-      type: DataTypes.STRING(512),
-      allowNull: true,
-      comment: 'URL to product page'
+      autoIncrement: true,
+      field: 'id'
     },
     vat: {
       type: DataTypes.DECIMAL(5, 2),
       allowNull: true,
-      defaultValue: 23.00,
-      comment: 'VAT rate in percentage (e.g., 23.00)'
-    },
-    status: {
-      type: DataTypes.STRING(20),
-      allowNull: true,
-      defaultValue: 'active',
-      comment: 'Product status (active, inactive, discontinued)'
-    },
-    delivery_time: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      comment: 'Expected delivery time in days'
+      field: 'vat'
     },
     delivery_date: {
       type: DataTypes.DATE,
       allowNull: true,
-      comment: 'Expected delivery date'
+      field: 'delivery_date'
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
+      allowNull: true,
+      field: 'created_at'
     },
     updated_at: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
+      allowNull: true,
+      field: 'updated_at'
+    },
+    producer_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'producer_id'
+    },
+    description_long: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'description_long'
+    },
+    description_short: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'description_short'
+    },
+    description_html: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'description_html'
+    },
+    unit_id: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'unit_id'
+    },
+    category_id: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'category_id'
+    },
+    url: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'url'
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'status'
+    },
+    code: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'code'
+    },
+    code_on_card: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'code_on_card'
+    },
+    ean: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'ean'
+    },
+    producer_code: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'producer_code'
+    },
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'name'
     }
   }, {
     tableName: 'products',
-    timestamps: true,
+    timestamps: false, // Desativar timestamps automáticos já que temos as colunas manualmente
     underscored: true,
     indexes: [
       {

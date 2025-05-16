@@ -1,4 +1,4 @@
-import { sanitize as xssSanitize } from 'xss-filters';
+import xssFilters from 'xss-filters';
 
 /**
  * Recursively sanitize object properties to prevent XSS attacks
@@ -13,7 +13,7 @@ const sanitizeData = (data) => {
   
   // Handle primitives
   if (typeof data !== 'object') {
-    return typeof data === 'string' ? xssSanitize(data) : data;
+    return typeof data === 'string' ? xssFilters.inHTMLData(data) : data;
   }
   
   // Handle arrays

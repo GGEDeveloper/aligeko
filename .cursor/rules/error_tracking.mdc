@@ -30,80 +30,43 @@ None currently.
 
 ## Recent Fixes
 
-### Vercel Deployment URL Redirection Loops (Fixed)
+### Temporary Disabling of 2FA for MVP (Fixed)
 
-- **Date:** [2025-06-15 14:30]
-- **Error Type:** Deployment / Vercel / URL Routing
-- **Environment:** Production
-- **Error Message:** 
-  URL redirection loops with parameters being appended infinitely:
-  ```
-  /?p=/&q=p=/~and~q=p=/~and~q=p=/~and~q=p=/~and~q=p=/
-  ```
-
-- **Root Cause:** 
-  - Complex routing configuration in vercel.json that caused circular redirects
-  - The configuration was attempting to handle both static assets and API routes separately
-  - This complex routing setup created confusion about which handler should process specific URLs
-  - When combined with client-side routing using React Router, it resulted in infinite redirects
-
-- **Resolution:** 
-  1. Simplified the vercel.json configuration to use a single route handler:
-     ```json
-     {
-       "version": 2,
-       "builds": [
-         { 
-           "src": "index.js",
-           "use": "@vercel/node"
-         }
-       ],
-       "routes": [
-         { "src": "/(.*)", "dest": "/index.js" }
-       ],
-       "env": {
-         "NODE_ENV": "production"
-       }
-     }
-     ```
-     
-  2. Made the Express server in index.js responsible for all routing:
-     - API routes handled via Express routes
-     - Static files served with proper MIME types via express.static
-     - Client-side routing handled by the catch-all route sending index.html
-     
-  3. Created comprehensive .vercelignore file to exclude large files and development-only content
-  
-  4. Updated the vercel-build script in package.json to be resilient:
-     ```json
-     "vercel-build": "npm run build:client || echo 'Client build failed but continuing deployment'"
-     ```
-     
-  5. Deployed from the root directory using `vercel --prod`
-
-- **Verification:** 
-  - Successfully deployed application with functioning routes
-  - No redirection loops observed in production environment
-  - Direct URL access works properly (e.g., /products, /about)
-  - Static assets load with correct MIME types
-  - Single-page application routing works as expected
-
+- **Date:** [2025-05-15 16:00]
+- **Error Type:** Feature Toggle / Authentication / 2FA
+- **Environment:** Development, MVP
+- **Error Message:**
+  - Users prompted for 2FA during login, but 2FA is not required for MVP.
+  - 2FA-related UI and API calls caused confusion and unnecessary barriers for users during MVP testing.
+- **Root Cause:**
+  - 2FA was enabled in both backend and frontend, but business requirements changed to disable it for the MVP.
+  - 2FA endpoints and UI were still present, leading to broken flows or redundant prompts.
+- **Resolution:**
+  1. Disabled all 2FA-related API endpoints and hooks in the frontend (`authApi.js`).
+  2. Removed all 2FA logic and UI from the login page (`LoginPage.jsx`).
+  3. Disabled the TwoFactorSettingsPage, replacing it with a placeholder message.
+  4. Preserved all 2FA code by commenting it out, with clear references for future reactivation.
+  5. Updated documentation and cross-referenced with CSRF/authentication error logs.
+- **Verification:**
+  - Login and registration flows tested: no 2FA prompts or errors.
+  - Placeholder message confirmed on 2FA settings page.
+  - Code review confirms all 2FA logic is safely disabled but preserved.
 - **Affected Files:**
-  - `vercel.json` - Simplified configuration to use single route handler
-  - `.vercelignore` - Comprehensive file exclusion rules
-  - `package.json` - Resilient vercel-build script
-  - `index.js` - Express server routing configuration
+  - `client/src/store/api/authApi.js`
+  - `client/src/pages/auth/LoginPage.jsx`
+  - `client/src/pages/auth/TwoFactorSettingsPage.jsx`
+- **Related Issues:**
+  - [CSRF and Authentication Error - 2025-05-15](#csrf-and-authentication-error)
+  - [Registro de Correção de Autenticação e CSRF](mdc:.cursor/memories/9ffa4dc5-838e-4803-9875-3af64bb4c18c)
 
-- **Prevention:**
-  1. Always use simplified vercel.json for Express-based applications
-  2. Let the Express server handle both API routes and static file serving
-  3. Ensure all Express route handlers are properly ordered (API routes before catch-all handler)
-  4. Test direct URL access before finalizing deployment
-  5. Add proper MIME type configuration for static file serving
-  6. Use resilient build scripts that continue deployment even with non-critical failures
-  7. Update deployment documentation with the successful approach for future reference
+- **Prevention & Best Practices:**
+  1. Always document temporary feature removals, including rationale and restoration plan.
+  2. Comment out (not delete) code for features temporarily disabled for business reasons.
+  3. Reference all related error log entries and cross-link with authentication/CSRF issues.
+  4. Add a clear note in the code and docs about when and how to restore the feature.
+  5. Update error tracking docs and README when toggling critical security features.
 
-### Three.js Rendering Error in Hero3DLogo Component (Fixed)
+### Vercel Deployment URL Redirection Loops (Fixed)
 
 - **Date:** [2025-06-12 15:45]
 - **Error Type:** Frontend / 3D Rendering / Library Compatibility
@@ -370,10 +333,6 @@ None currently.
   2. Use consistent patterns across the codebase (either default exports or named exports)
   3. Document the export pattern in module comments
   4. Consider using an ESLint rule to enforce import consistency
-
-## Historical Issues
-
-None yet. Historical issues will be moved here as they become less relevant to current development.
 
 ## Best Practices for Error Prevention
 

@@ -72,5 +72,5 @@ Object.keys(models).forEach(modelName => {
 });
 
 // Export models and Sequelize instance
-export { sequelize, Sequelize, models };
+export { sequelize, Sequelize, models, Category, Producer, Unit, Product, Variant, Stock, Price, Image, Document, ProductProperty };
 export default models; 

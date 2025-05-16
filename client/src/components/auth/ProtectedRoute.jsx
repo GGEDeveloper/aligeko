@@ -23,8 +23,8 @@ const ProtectedRoute = ({ requireAdmin = false }) => {
 
   // Check for admin requirement
   if (requireAdmin && user?.role !== 'admin') {
-    // Redirect to dashboard if user doesn't have admin privileges
-    return <Navigate to="/user/dashboard" replace />;
+    // Redirect to customer dashboard if user doesn't have admin privileges
+    return <Navigate to="/account" replace />;
   }
 
   // Allow access to the protected route

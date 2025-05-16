@@ -1,10 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import MainLayout from '../components/layouts/MainLayout';
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock } from 'react-icons/fa';
 
 const AboutPage = () => {
   return (
-    <div className="bg-neutral-100">
+    <MainLayout>
       {/* Hero Section */}
       <div className="w-full bg-primary-700 text-white py-16 md:py-24">
         <div className="container mx-auto px-4">
@@ -185,7 +185,7 @@ const AboutPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </MainLayout>
   );
 };
 

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import config from '../config/app-config';
+import config from '../config/app-config.js';
 
 // CSRF Token Configuration
 const CSRF_SECRET = process.env.CSRF_SECRET || crypto.randomBytes(32).toString('hex');
@@ -74,9 +74,11 @@ export const setCsrfCookie = (req, res, next) => {
  * List of routes that should be excluded from CSRF protection
  */
 const CSRF_EXCLUDED_ROUTES = [
+  '/v1/auth/login',
+  '/v1/auth/register',
+  '/health',
   '/api/v1/auth/login',
-  '/api/v1/auth/register',
-  '/health'
+  '/api/v1/auth/register'
 ];
 
 /**
@@ -86,13 +88,27 @@ const CSRF_EXCLUDED_ROUTES = [
  * @param {Function} next - Express next middleware function
  */
 export const csrfProtection = (req, res, next) => {
+  // Skip CSRF check for all login and register routes
+  if (req.path.includes('/auth/login') || req.path.includes('/auth/register')) {
+    console.log(`Skipping CSRF check for authentication path: ${req.path}`);
+    return next();
+  }
+  
   // Only check non-GET requests (POST, PUT, DELETE, etc.)
   if (req.method === 'GET') {
     return next();
   }
   
-  // Skip CSRF check for excluded routes
-  if (CSRF_EXCLUDED_ROUTES.some(route => req.path === route)) {
+  // Get the path without the /api prefix if it exists
+  const pathWithoutApi = req.path.startsWith('/api') ? req.path.substring(4) : req.path;
+  
+  // Skip CSRF check for excluded routes (with or without /api prefix)
+  if (CSRF_EXCLUDED_ROUTES.some(route => 
+    req.path === route || 
+    pathWithoutApi === route ||
+    req.path === `/api${route}`
+  )) {
+    console.log(`Skipping CSRF check for path: ${req.path} (matches excluded route)`);
     return next();
   }
   
@@ -100,6 +116,7 @@ export const csrfProtection = (req, res, next) => {
   const token = req.headers[CSRF_HEADER_NAME.toLowerCase()];
   
   if (!token) {
+    console.log(`CSRF token missing for path: ${req.path}`);
     return res.status(403).json({ 
       success: false, 
       error: { 
@@ -110,6 +127,7 @@ export const csrfProtection = (req, res, next) => {
   }
   
   if (!validateToken(token)) {
+    console.log(`Invalid CSRF token for path: ${req.path}`);
     return res.status(403).json({ 
       success: false, 
       error: { 

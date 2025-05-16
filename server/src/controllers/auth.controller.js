@@ -20,9 +20,9 @@ export const register = async (req, res, next) => {
     const { 
       email, 
       password, 
-      firstName, 
-      lastName, 
-      companyName 
+      firstName: first_name, 
+      lastName: last_name, 
+      companyName: company_name 
     } = req.body;
 
     // Check if user already exists
@@ -42,25 +42,44 @@ export const register = async (req, res, next) => {
     const user = await User.create({
       email,
       password,
-      firstName,
-      lastName,
-      companyName,
+      first_name,
+      last_name,
+      company_name,
       role: 'customer',
-      isApproved: false, // Requires admin approval
-      status: 'pending'
+      status: 'pending',
+      two_factor_enabled: false,
+      verification_token: null
     });
 
-    // Remove password from response
+    // Generate tokens
+    console.log('\n=== GERANDO TOKENS ===');
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+    console.log('✅ Tokens gerados com sucesso');
+
+    // Prepare user response
     const userResponse = { ...user.toJSON() };
     delete userResponse.password;
-
+    
+    console.log('\n=== REGISTRO BEM-SUCEDIDO ===');
+    console.log(`Usuário registrado: ${user.email} (${user.role})`);
+    console.log(`ID do usuário: ${user.id}`);
+    
+    // Send success response
     res.status(201).json({
       success: true,
       data: {
         user: userResponse,
-        message: 'Registration successful. Your account is pending approval.'
+        tokens: {
+          accessToken,
+          refreshToken
+        }
       }
     });
+    
+    console.log('\n=== RESPOSTA ENVIADA AO CLIENTE ===');
+    console.log('Status: 201 Created');
+    console.log('Tipo de conteúdo: application/json');
     
     // TODO: Send email notification to admins about new registration
 
@@ -76,13 +95,21 @@ export const register = async (req, res, next) => {
  * @param {Function} next - Express next middleware function
  */
 export const login = async (req, res, next) => {
+  console.log('\n=== NOVA TENTATIVA DE LOGIN ===');
+  console.log('Iniciando processo de login para:', req.body.email);
+  
   try {
     const { email, password } = req.body;
+    console.log('Dados recebidos - Email:', email, 'Senha:', password ? '[PROVIDED]' : '[MISSING]');
+    
+    // Log do corpo completo da requisição para depuração
+    console.log('Corpo completo da requisição:', JSON.stringify(req.body, null, 2));
 
     // Find user by email
     const user = await User.findOne({ where: { email } });
     
     if (!user) {
+      console.log('❌ Usuário não encontrado para o email:', email);
       return res.status(401).json({ 
         success: false, 
         error: { 
@@ -91,81 +118,138 @@ export const login = async (req, res, next) => {
         } 
       });
     }
-
-    // Check if password is correct
-    const isMatch = await user.validatePassword(password);
     
-    if (!isMatch) {
-      return res.status(401).json({ 
-        success: false, 
-        error: { 
-          code: 'INVALID_CREDENTIALS', 
-          message: 'Invalid email or password' 
-        } 
-      });
-    }
+    console.log('\n=== USUÁRIO ENCONTRADO ===');
+    const userData = {
+      id: user.id,
+      email: user.email,
+      status: user.status,
+      role: user.role,
+      passwordHash: user.password ? '***HASH PRESENTE***' : '***SEM SENHA***'
+    };
+    console.log('Dados do usuário:', JSON.stringify(userData, null, 2));
 
-    // Check if user is approved
-    if (!user.isApproved) {
-      return res.status(403).json({ 
-        success: false, 
-        error: { 
-          code: 'ACCOUNT_PENDING', 
-          message: 'Your account is pending approval by an administrator' 
-        } 
-      });
-    }
-
-    // Check if user account is active
+    // Check if user is active
+    console.log('\n=== VERIFICANDO STATUS DO USUÁRIO ===');
+    console.log('Status atual:', user.status);
+    
     if (user.status !== 'active') {
-      return res.status(403).json({ 
-        success: false, 
-        error: { 
-          code: 'ACCOUNT_INACTIVE', 
-          message: 'Your account is inactive. Please contact an administrator.' 
-        } 
-      });
-    }
-
-    // Check if 2FA is enabled
-    if (user.twoFactorEnabled) {
-      return res.status(200).json({
-        success: true,
-        data: {
-          requireTwoFactor: true,
-          userId: user.id,
-          message: 'Please enter your two-factor authentication code'
+      console.log('❌ Usuário não está ativo. Status:', user.status);
+      console.log('O usuário precisa ter status "active" para fazer login.');
+      
+      if (user.status === 'pending') {
+        console.log('\n=== SUGESTÃO ===');
+        console.log('Parece que esta conta está pendente de ativação.');
+        console.log('Verifique se você já confirmou seu email ou entre em contato com o suporte.');
+      }
+      
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'USER_NOT_ACTIVE',
+          message: 'User is not active. Please contact support.'
         }
       });
     }
 
-    // Update last login timestamp
-    await user.update({ lastLogin: new Date() });
-
-    // Generate access token
-    const accessToken = generateAccessToken(user);
+    // Check if password is correct
+    console.log('\n=== VALIDANDO SENHA ===');
+    console.log('Senha fornecida:', password ? '***PRESENTE***' : '***AUSENTE***');
     
-    // Generate refresh token
-    const refreshToken = generateRefreshToken(user);
-
-    // Remove password from response
-    const userResponse = { ...user.toJSON() };
-    delete userResponse.password;
-    delete userResponse.twoFactorSecret;
-    delete userResponse.twoFactorBackupCodes;
-    delete userResponse.resetPasswordToken;
-    delete userResponse.resetPasswordExpires;
-
-    res.status(200).json({
-      success: true,
-      data: {
-        user: userResponse,
-        accessToken,
-        refreshToken
+    if (!password) {
+      console.log('❌ Nenhuma senha fornecida');
+      return res.status(400).json({ 
+        success: false, 
+        error: { 
+          code: 'MISSING_PASSWORD', 
+          message: 'Password is required' 
+        } 
+      });
+    }
+    
+    if (!user.password) {
+      console.log('❌ Nenhum hash de senha encontrado para o usuário');
+      return res.status(500).json({ 
+        success: false, 
+        error: { 
+          code: 'INVALID_ACCOUNT_STATE', 
+          message: 'User account is not properly configured' 
+        } 
+      });
+    }
+    
+    console.log('Comparando senha fornecida com o hash armazenado...');
+    
+    try {
+      const isMatch = await bcrypt.compare(password, user.password);
+      console.log('✅ Resultado da comparação de senha:', isMatch);
+      
+      if (!isMatch) {
+        console.log(`❌ Senha inválida para o usuário: ${user.email}`);
+        console.log('Isso pode acontecer se a senha estiver incorreta ou o hash no banco estiver inválido.');
+        
+        // Log adicional para depuração (não fazer isso em produção)
+        console.log('\n=== DADOS PARA DEPURAÇÃO (NÃO FAZER ISSO EM PRODUÇÃO) ===');
+        console.log(`Senha fornecida: "${password}"`);
+        console.log(`Tamanho: ${password.length} caracteres`);
+        console.log(`Hash armazenado: ${user.password}`);
+        
+        return res.status(401).json({ 
+          success: false, 
+          error: { 
+            code: 'INVALID_CREDENTIALS', 
+            message: 'Invalid email or password' 
+          } 
+        });
       }
-    });
-
+      
+      // Se chegou aqui, a senha está correta
+      console.log('✅ Senha válida!');
+      
+      // Se chegou até aqui, o login foi bem-sucedido
+      console.log('✅ Login bem-sucedido!');
+      
+      // Atualizar último login
+      user.last_login = new Date();
+      await user.save();
+      
+      // Gerar tokens
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+      
+      // Remover dados sensíveis da resposta
+      const userResponse = { ...user.toJSON() };
+      delete userResponse.password;
+      delete userResponse.twoFactorSecret;
+      delete userResponse.twoFactorBackupCodes;
+      delete userResponse.resetPasswordToken;
+      delete userResponse.resetPasswordExpires;
+      
+      // Retornar resposta de sucesso
+      return res.status(200).json({
+        success: true,
+        data: {
+          user: userResponse,
+          tokens: {
+            accessToken,
+            refreshToken
+          }
+        }
+      });
+      
+    } catch (compareError) {
+      console.error('❌ Erro ao comparar senhas:', compareError);
+      return res.status(500).json({
+        success: false,
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.'
+        }
+      });
+    }
+    
   } catch (error) {
+    console.error('❌ Erro durante o processo de login:', error);
     next(error);
   }
 };
@@ -189,12 +273,12 @@ export const refreshToken = async (req, res, next) => {
         } 
       });
     }
-
+    
     // Verify refresh token
     const decoded = jwt.verify(refreshToken, JWT_SECRET);
     
-    // Find user by id
-    const user = await User.findByPk(decoded.id);
+    // Find user by ID from token
+    const user = await User.findByPk(decoded.userId);
     
     if (!user) {
       return res.status(404).json({ 
@@ -205,33 +289,29 @@ export const refreshToken = async (req, res, next) => {
         } 
       });
     }
-
-    // Check if user is approved and active
-    if (!user.isApproved || user.status !== 'active') {
-      return res.status(403).json({ 
-        success: false, 
-        error: { 
-          code: 'ACCOUNT_INACTIVE', 
-          message: 'Your account is inactive or pending approval' 
-        } 
-      });
-    }
-
+    
     // Generate new access token
-    const accessToken = generateAccessToken(user);
-
+    const newAccessToken = generateAccessToken(user);
+    
+    // Generate new refresh token
+    const newRefreshToken = generateRefreshToken(user);
+    
+    // Return new tokens
     res.status(200).json({
       success: true,
-      data: { accessToken }
+      data: {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken
+      }
     });
-
+    
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({ 
         success: false, 
         error: { 
-          code: 'REFRESH_TOKEN_EXPIRED', 
-          message: 'Refresh token expired. Please login again.' 
+          code: 'TOKEN_EXPIRED', 
+          message: 'Refresh token has expired' 
         } 
       });
     }
@@ -240,7 +320,7 @@ export const refreshToken = async (req, res, next) => {
       return res.status(401).json({ 
         success: false, 
         error: { 
-          code: 'INVALID_REFRESH_TOKEN', 
+          code: 'INVALID_TOKEN', 
           message: 'Invalid refresh token' 
         } 
       });
@@ -267,33 +347,29 @@ export const requestPasswordReset = async (req, res, next) => {
       // Don't reveal that email doesn't exist for security
       return res.status(200).json({
         success: true,
-        data: { message: 'If your email exists in our system, you will receive a password reset link.' }
+        message: 'If an account with that email exists, a password reset link has been sent.'
       });
     }
-
-    // Generate password reset token
+    
+    // Generate reset token (expires in 1 hour)
     const resetToken = jwt.sign(
-      { id: user.id },
+      { userId: user.id },
       JWT_SECRET,
       { expiresIn: '1h' }
     );
-
-    // Calculate expiration (1 hour from now)
-    const resetExpires = new Date(Date.now() + 3600000); // 1 hour in milliseconds
-
-    // Update user with reset token and expiration
-    await user.update({
-      resetPasswordToken: resetToken,
-      resetPasswordExpires: resetExpires
-    });
-
-    // TODO: Send password reset email with token
-
+    
+    // Save reset token to user
+    user.reset_password_token = resetToken;
+    user.reset_password_expires = new Date(Date.now() + 3600000); // 1 hour from now
+    await user.save();
+    
+    // TODO: Send email with reset link
+    
     res.status(200).json({
       success: true,
-      data: { message: 'If your email exists in our system, you will receive a password reset link.' }
+      message: 'If an account with that email exists, a password reset link has been sent.'
     });
-
+    
   } catch (error) {
     next(error);
   }
@@ -307,13 +383,27 @@ export const requestPasswordReset = async (req, res, next) => {
  */
 export const resetPassword = async (req, res, next) => {
   try {
-    const { token, password } = req.body;
+    const { token, newPassword } = req.body;
     
-    // Find user by reset token
+    if (!token || !newPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        error: { 
+          code: 'MISSING_FIELDS', 
+          message: 'Token and new password are required' 
+        } 
+      });
+    }
+    
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Find user by ID from token
     const user = await User.findOne({
       where: {
-        resetPasswordToken: token,
-        resetPasswordExpires: { $gt: new Date() }
+        id: decoded.userId,
+        reset_password_token: token,
+        reset_password_expires: { [Op.gt]: new Date() }
       }
     });
     
@@ -321,30 +411,36 @@ export const resetPassword = async (req, res, next) => {
       return res.status(400).json({ 
         success: false, 
         error: { 
-          code: 'INVALID_RESET_TOKEN', 
-          message: 'Password reset token is invalid or has expired' 
+          code: 'INVALID_TOKEN', 
+          message: 'Invalid or expired reset token' 
         } 
       });
     }
-
-    // Hash new password and update user
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
     
-    await user.update({
-      password: hashedPassword,
-      resetPasswordToken: null,
-      resetPasswordExpires: null
-    });
-
+    // Update password
+    user.password = newPassword;
+    user.reset_password_token = null;
+    user.reset_password_expires = null;
+    await user.save();
+    
+    // TODO: Send password changed notification email
+    
     res.status(200).json({
       success: true,
-      data: { message: 'Password has been reset successfully' }
+      message: 'Password has been reset successfully'
     });
-
-    // TODO: Send password changed confirmation email
-
+    
   } catch (error) {
+    if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+      return res.status(400).json({ 
+        success: false, 
+        error: { 
+          code: 'INVALID_TOKEN', 
+          message: 'Invalid or expired reset token' 
+        } 
+      });
+    }
+    
     next(error);
   }
 };
@@ -357,19 +453,31 @@ export const resetPassword = async (req, res, next) => {
  */
 export const getCurrentUser = async (req, res, next) => {
   try {
-    // User is already set in req.user by authenticate middleware
-    const { user } = req;
+    // User is attached to request by auth middleware
+    const user = req.user;
     
-    // Remove password from response
+    if (!user) {
+      return res.status(401).json({ 
+        success: false, 
+        error: { 
+          code: 'UNAUTHORIZED', 
+          message: 'Not authenticated' 
+        } 
+      });
+    }
+    
+    // Remove sensitive data
     const userResponse = { ...user.toJSON() };
     delete userResponse.password;
+    delete userResponse.twoFactorSecret;
     delete userResponse.resetPasswordToken;
     delete userResponse.resetPasswordExpires;
-
+    
     res.status(200).json({
       success: true,
-      data: { user: userResponse }
+      data: userResponse
     });
+    
   } catch (error) {
     next(error);
   }
@@ -382,10 +490,10 @@ export const getCurrentUser = async (req, res, next) => {
  */
 const generateAccessToken = (user) => {
   return jwt.sign(
-    {
-      id: user.id,
+    { 
+      userId: user.id,
       email: user.email,
-      role: user.role
+      role: user.role 
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRATION }
@@ -399,8 +507,8 @@ const generateAccessToken = (user) => {
  */
 const generateRefreshToken = (user) => {
   return jwt.sign(
-    { id: user.id },
+    { userId: user.id },
     JWT_SECRET,
     { expiresIn: JWT_REFRESH_EXPIRATION }
   );
-}; 
+};

@@ -6,10 +6,14 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { rateLimit } from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
-import routes from './routes';
-import { errorHandler } from './middleware/errorHandler';
-import sequelize from './config/database';
-import { csrf, sanitize, logger } from './middleware';
+import routes from './routes/index.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import sequelize from './config/database.js';
+import csrfMiddleware from './middleware/csrf.middleware.js';
+import sanitizeMiddleware from './middleware/sanitize.middleware.js';
+import logger from './utils/logger.js';
+import loggerMiddleware from './middleware/logger.middleware.js';
+const { apiRequestLogger, sensitiveResourceLogger } = loggerMiddleware;
 
 // Load environment variables
 dotenv.config();
@@ -81,8 +85,8 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 // Logging middleware
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev')); // HTTP request logging
-  app.use(logger.apiRequestLogger); // Detailed API request logging
-  app.use(logger.sensitiveResourceLogger); // Security logging for sensitive resources
+  app.use(apiRequestLogger); // Detailed API request logging
+  app.use(sensitiveResourceLogger); // Security logging for sensitive resources
 }
 
 // Rate limiting
@@ -96,17 +100,17 @@ const limiter = rateLimit({
 // Apply rate limiting to all requests
 app.use(limiter);
 
+// Apply input sanitization to all requests
+app.use(sanitizeMiddleware.sanitizeRequest);
+
 // Set CSRF cookie on all requests
-app.use(csrf.setCsrfCookie);
+app.use(csrfMiddleware.setCsrfCookie);
+
+// API routes (antes do CSRF para evitar conflitos com rotas de autenticação)
+app.use('/api', routes);
 
 // Apply CSRF protection to all non-GET requests
-app.use(csrf.csrfProtection);
-
-// Apply input sanitization to all requests
-app.use(sanitize.sanitizeRequest);
-
-// API routes
-app.use('/api', routes);
+app.use(csrfMiddleware.csrfProtection);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -135,4 +139,3 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Export for serverless environments
 export default app;
-module.exports = app; 

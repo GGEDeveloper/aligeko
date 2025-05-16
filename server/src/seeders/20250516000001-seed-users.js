@@ -1,10 +1,9 @@
-'use strict';
-const { v4: uuidv4 } = require('uuid');
-const bcrypt = require('bcryptjs');
+import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcryptjs';
 
-/** @type {import('sequelize-cli').Migration} */
-module.exports = {
-  async up(queryInterface, Sequelize) {
+//** @type {import('sequelize-cli').Migration} */
+
+  async function up(queryInterface, Sequelize) {
     // Add demo admin user
     await queryInterface.bulkInsert('users', [
       {
@@ -58,9 +57,9 @@ module.exports = {
         updated_at: new Date()
       }
     ]);
-  },
+}
+async function down(queryInterface, Sequelize) {
+  await queryInterface.bulkDelete('users', null, {});
+}
 
-  async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('users', null, {});
-  }
-}; 
+export { up, down };

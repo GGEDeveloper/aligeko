@@ -107,7 +107,9 @@ const ShrinkingHeader = ({ isAdmin = false }) => {
             placeholder="Procurar produtos..." 
             style={{
               width: '100%',
-              padding: scrolled ? '0.45rem 1rem' : '0.5rem 1rem', // Less difference
+              paddingTop: scrolled ? '0.45rem' : '0.5rem',
+              paddingBottom: scrolled ? '0.45rem' : '0.5rem',
+              paddingLeft: '1rem',
               paddingRight: '3.5rem',
               border: 'none',
               borderRadius: '8px',
@@ -226,20 +228,10 @@ const ShrinkingHeader = ({ isAdmin = false }) => {
           </Link>
           
           {/* Mobile Menu Trigger - Always visible on small screens */}
-          <button 
+          <button
+            className="md:hidden flex items-center ml-2 bg-none border-none cursor-pointer text-white text-[1.65rem] p-1"
             style={{
-              display: 'none',
-              alignItems: 'center',
-              marginLeft: '0.5rem',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'white',
-              fontSize: '1.65rem',
-              padding: '0.25rem',
-              '@media (max-width: 768px)': {
-                display: 'flex'
-              }
+              // Remove display: 'none' and @media. Use Tailwind for responsive display.
             }}
             onClick={toggleMenu}
           >

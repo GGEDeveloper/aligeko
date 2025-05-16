@@ -119,6 +119,8 @@ function App() {
             <Route path="saved-carts" element={<SavedCartsPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="security" element={<SecurityPage />} />
+            {/* Fallback for unknown /account/* subroutes */}
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
         
@@ -155,6 +157,8 @@ function App() {
             <Route path="reports/customers" element={<CustomerAnalyticsPage />} />
             <Route path="reports/custom" element={<CustomReportBuilder />} />
             <Route path="company-info" element={<CompanyInfoConfig />} />
+            {/* Fallback for unknown /admin/* subroutes */}
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
       </Routes>

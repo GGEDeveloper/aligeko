@@ -30,12 +30,7 @@ import { styled } from '@mui/system';
 import { amber } from '@mui/material/colors';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '../../store/slices/authSlice';
-import { 
-  useGet2FAStatusQuery, 
-  useSetup2FAMutation, 
-  useVerify2FAMutation, 
-  useDisable2FAMutation 
-} from '../../store/api/authApi';
+// 2FA hooks removed for MVP (AliGeko MVP). Security page does not use any 2FA API hooks.
 import CustomerDashboardLayout from '../../components/layouts/CustomerDashboardLayout';
 import LockIcon from '@mui/icons-material/Lock';
 import SecurityIcon from '@mui/icons-material/Security';

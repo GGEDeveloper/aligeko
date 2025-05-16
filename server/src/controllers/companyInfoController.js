@@ -1,7 +1,7 @@
-const CompanyInfo = require('../models/companyInfo');
+import CompanyInfo from '../models/companyInfo.js';
 
 // GET /api/company-info
-exports.getCompanyInfo = async (req, res) => {
+export const getCompanyInfo = async (req, res) => {
   try {
     const info = await CompanyInfo.findOne();
     if (!info) return res.status(404).json({ message: 'Company info not found' });
@@ -12,7 +12,7 @@ exports.getCompanyInfo = async (req, res) => {
 };
 
 // PUT/PATCH /api/company-info
-exports.updateCompanyInfo = async (req, res) => {
+export const updateCompanyInfo = async (req, res) => {
   try {
     let info = await CompanyInfo.findOne();
     if (!info) {

@@ -6,13 +6,13 @@
 
 import express from 'express';
 import FileUploadController from '../controllers/file-upload.controller.js';
-import authMiddleware from '../middleware/auth.middleware.js';
+import { checkAuth } from '../middleware/auth.middleware.js';
 import uploadSecurityMiddleware from '../middleware/upload-security.middleware.js';
 
 const router = express.Router();
 
 // Apply authentication middleware to all routes
-router.use(authMiddleware);
+router.use(checkAuth);
 
 // POST /api/upload/xml - Upload XML file
 // Apply upload security middleware only to upload endpoint

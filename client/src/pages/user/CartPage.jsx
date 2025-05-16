@@ -14,6 +14,7 @@ import { useCart } from '../../hooks/useCart';
 const CartPage = () => {
   const [syncStatus, setSyncStatus] = useState({ loading: false, success: false, error: null });
   const { cartItems, emptyCart, syncCart, isSyncing } = useCart();
+  const safeCartItems = Array.isArray(cartItems) ? cartItems : [];
   const { isAuthenticated } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   
@@ -53,11 +54,11 @@ const CartPage = () => {
         <Col md={8}>
           <h1>Shopping Cart</h1>
           <p className="text-muted">
-            You have {cartItems.length} item{cartItems.length !== 1 ? 's' : ''} in your cart.
+            You have {safeCartItems.length} item{safeCartItems.length !== 1 ? 's' : ''} in your cart.
           </p>
         </Col>
         <Col md={4} className="d-flex align-items-center justify-content-md-end">
-          {cartItems.length > 0 && (
+          {safeCartItems.length > 0 && (
             <Button 
               variant="primary" 
               size="lg" 
@@ -91,7 +92,7 @@ const CartPage = () => {
         </Row>
       )}
       
-      {!isAuthenticated && cartItems.length > 0 && (
+      {!isAuthenticated && safeCartItems.length > 0 && (
         <Row className="mb-3">
           <Col>
             <Alert variant="info">
@@ -102,7 +103,7 @@ const CartPage = () => {
         </Row>
       )}
       
-      {cartItems.length > 0 ? (
+      {safeCartItems.length > 0 ? (
         <Row>
           <Col lg={8} className="mb-4 mb-lg-0">
             <div className="d-flex justify-content-between align-items-center mb-3">

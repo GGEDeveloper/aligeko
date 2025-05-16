@@ -1,5 +1,5 @@
 import express from 'express';
-import * as cartController from '../controllers/cart.controller';
+import * as cartController from '../controllers/cart.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 import asyncHandler from '../utils/asyncHandler.js';
 

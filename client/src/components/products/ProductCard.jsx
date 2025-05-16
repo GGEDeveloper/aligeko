@@ -243,9 +243,9 @@ const ProductCard = ({ product = {}, viewMode = 'grid' }) => {
   // Render grid view product card
   if (!isList) {
     return (
-      <div className="bg-white rounded-xl overflow-hidden flex flex-col h-full product-card hover:shadow-lg transition-all duration-300 border border-neutral-200 transform hover:-translate-y-1">
+      <div className="bg-white rounded-lg overflow-hidden flex flex-col h-full min-h-[250px] max-w-[240px] mx-auto product-card hover:shadow-md transition-all duration-200 border border-neutral-200 transform hover:-translate-y-1">
         {/* Product Image with Overlay */}
-        <div className="relative overflow-hidden product-image-container" style={{ paddingTop: '75%' }}> {/* Aspect ratio 4:3 */}
+        <div className="relative overflow-hidden product-image-container" style={{ paddingTop: '100%' }}> {/* Aspect ratio 1:1, more compact */}
           <Link to={`/products/${product.id}`} className="block absolute inset-0">
             {!imageError ? (
               <>
@@ -509,10 +509,10 @@ const ProductCard = ({ product = {}, viewMode = 'grid' }) => {
   
   // List view product card
   return (
-    <div className="bg-white rounded-xl overflow-hidden product-card hover:shadow-lg transition-all duration-300 border border-neutral-200">
+    <div className="bg-white rounded-lg overflow-hidden flex md:flex-row product-card hover:shadow-md transition-all duration-200 border border-neutral-200 min-h-[140px] max-w-full">
       <div className="flex flex-col md:flex-row">
         {/* Product Image */}
-        <div className="product-image-container">
+        <div className="product-image-container flex-shrink-0 w-full md:w-32 aspect-square bg-neutral-100 flex items-center justify-center">
           <Link to={`/products/${product.id}`} className="block h-full">
             {!imageError ? (
               <>

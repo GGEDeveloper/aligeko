@@ -1,6 +1,6 @@
 import { GekoDataService } from '../services/geko-data-service.js';
-import { SyncHealthService } from '../services/sync-health-service.js';
-import { logger } from '../config/logger.js';
+import SyncHealthService from '../services/sync-health-service.js';
+import logger from '../config/logger.js';
 import config from '../config/config.js';
 import { Op } from 'sequelize';
 

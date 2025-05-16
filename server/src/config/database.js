@@ -42,7 +42,8 @@ const config = {
 
 // Priority: POSTGRES_URL (Vercel) > NEON_DB_URL > individual configuration
 try {
-  if (NODE_ENV === 'production' && POSTGRES_URL) {
+  if (POSTGRES_URL) {
+    console.log('Connecting using POSTGRES_URL');
     console.log('Connecting using POSTGRES_URL in production environment');
     // Use Vercel Postgres connection URL
     sequelize = new Sequelize(POSTGRES_URL, {
@@ -56,12 +57,14 @@ try {
       }
     });
     config.production.use_env_variable = 'POSTGRES_URL';
-  } else if (NEON_DB_URL) {
+  } else if (NEON_DB_URL || process.env.DATABASE_URL) {
+    const url = NEON_DB_URL || process.env.DATABASE_URL;
+    console.log('Connecting using NEON_DB_URL or DATABASE_URL');
     console.log('Connecting using NEON_DB_URL');
     // Use Neon DB URL for production or development with Neon
-    sequelize = new Sequelize(NEON_DB_URL, {
+    sequelize = new Sequelize(url, {
       dialect: 'postgres',
-      logging: false,
+      logging: NODE_ENV === 'development',
       ssl: true,
       dialectOptions: {
         ssl: {

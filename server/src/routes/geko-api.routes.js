@@ -1,7 +1,7 @@
 import express from 'express';
-import gekoApiController from '../controllers/geko-api.controller';
-import { checkAuth, checkRole } from '../middleware/auth.middleware';
-import { authJwt } from '../middleware.js';
+import gekoApiController from '../controllers/geko-api.controller.js';
+import { checkAuth, checkRole } from '../middleware/auth.middleware.js';
+
 
 const router = express.Router();
 
@@ -48,7 +48,7 @@ router.post('/manual-sync', checkAuth, checkRole(['admin']), gekoApiController.r
  */
 router.post(
   '/sync/start',
-  [authJwt.verifyToken, authJwt.isAdmin],
+  checkAuth, checkRole(['admin']),
   gekoApiController.startScheduledSync
 );
 
@@ -61,7 +61,7 @@ router.post(
  */
 router.post(
   '/sync/stop',
-  [authJwt.verifyToken, authJwt.isAdmin],
+  checkAuth, checkRole(['admin']),
   gekoApiController.stopScheduledSync
 );
 
@@ -74,7 +74,7 @@ router.post(
  */
 router.get(
   '/sync/status',
-  [authJwt.verifyToken, authJwt.isAdmin],
+  checkAuth, checkRole(['admin']),
   gekoApiController.getScheduledSyncStatus
 );
 
@@ -87,7 +87,7 @@ router.get(
  */
 router.post(
   '/sync/manual',
-  [authJwt.verifyToken, authJwt.isAdmin],
+  checkAuth, checkRole(['admin']),
   gekoApiController.runManualSync
 );
 
@@ -100,7 +100,7 @@ router.post(
  */
 router.get(
   '/health/recent',
-  [authJwt.verifyToken, authJwt.isAdmin],
+  checkAuth, checkRole(['admin']),
   gekoApiController.getRecentSyncHealth
 );
 
@@ -113,7 +113,7 @@ router.get(
  */
 router.get(
   '/health/stats',
-  [authJwt.verifyToken, authJwt.isAdmin],
+  checkAuth, checkRole(['admin']),
   gekoApiController.getSyncHealthStats
 );
 

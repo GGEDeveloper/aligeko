@@ -1,5 +1,4 @@
 import React from 'react';
-import MainLayout from '../components/layouts/MainLayout';
 import HeroGeometric from '../components/ui/HeroGeometric';
 import ContactForm from '../components/ui/ContactForm';
 import { BsGeoAlt, BsEnvelope, BsTelephone, BsClock } from 'react-icons/bs';
@@ -10,8 +9,7 @@ import { cn } from '../utils/cn';
  */
 const ContatoPage = () => {
   return (
-    <MainLayout>
-      {/* Hero Section with Animated Geometric Elements */}
+    <>      {/* Hero Section with Animated Geometric Elements */}
       <HeroGeometric 
         badge="Entre em Contato"
         title1="Estamos Aqui"
@@ -25,7 +23,7 @@ const ContatoPage = () => {
       />
       
       {/* Main Content Section with Form and Contact Info */}
-      <section className="py-16 bg-neutral-900">
+      <section className="pt-8 pb-16 bg-neutral-900">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             {/* Contact Form Column */}
@@ -161,7 +159,8 @@ const ContatoPage = () => {
           </div>
         </div>
       </section>
-    </MainLayout>
+    
+    </>
   );
 };
 

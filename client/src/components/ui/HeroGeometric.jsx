@@ -87,7 +87,7 @@ function HeroGeometric({
       }}
     >
       <div 
-        className="container mx-auto px-4 py-16 sm:py-24 relative z-10"
+        className="container mx-auto px-4 pt-8 pb-4 sm:pt-12 sm:pb-6 relative z-10"
         style={containerStyle}
       >
         <div className="max-w-3xl mx-auto relative z-20">
@@ -95,7 +95,7 @@ function HeroGeometric({
           <div style={badgeStyle}>
             <span
               className={cn(
-                "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium mb-8",
+                "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium mb-4",
                 darkMode
                   ? "bg-white/10 text-white/80 ring-1 ring-white/20"
                   : "bg-black/10 text-black/80 ring-1 ring-black/20"
@@ -166,39 +166,14 @@ function HeroGeometric({
         </div>
       </div>
       
-      {/* Decorative elements */}
+      {/* Decorative element: single subtle accent */}
       <ElegantShape
         className="top-[5%] right-[10%]"
-        width={350}
-        height={350}
-        rotate={15}
-        delay={0.2}
-        gradient="bg-gradient-to-r from-yellow-500/10 to-transparent"
-      />
-      
-      <ElegantShape
-        className="top-[20%] left-[5%]"
-        width={200}
-        height={200}
-        rotate={-20}
-        delay={0.4}
-      />
-      
-      <ElegantShape
-        className="bottom-[10%] right-[20%]"
-        width={250}
-        height={250}
-        rotate={30}
-        delay={0.6}
-        gradient="bg-gradient-to-r from-yellow-500/5 to-transparent"
-      />
-      
-      <ElegantShape
-        className="bottom-[30%] left-[15%]"
         width={180}
         height={180}
-        rotate={-10}
-        delay={0.8}
+        rotate={10}
+        delay={0.2}
+        gradient="bg-gradient-to-r from-yellow-500/10 to-transparent"
       />
     </div>
   );

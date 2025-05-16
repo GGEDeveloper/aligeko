@@ -27,59 +27,62 @@ User.init({
     type: DataTypes.STRING,
     allowNull: false
   },
-  firstName: {
+  first_name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    field: 'first_name'
   },
-  lastName: {
+  last_name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    field: 'last_name'
   },
   role: {
-    type: DataTypes.ENUM('admin', 'customer', 'staff'),
-    defaultValue: 'customer'
-  },
-  companyName: {
     type: DataTypes.STRING,
-    allowNull: true
-  },
-  isApproved: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: 'customer',
+    field: 'role'
   },
   status: {
-    type: DataTypes.ENUM('active', 'inactive', 'pending'),
-    defaultValue: 'pending'
-  },
-  lastLogin: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  resetPasswordToken: {
     type: DataTypes.STRING,
-    allowNull: true
+    defaultValue: 'pending',
+    field: 'status'
   },
-  resetPasswordExpires: {
+  last_login: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
+    field: 'last_login'
   },
-  twoFactorEnabled: {
+  reset_password_token: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    field: 'reset_password_token'
+  },
+  reset_password_expires: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'reset_password_expires'
+  },
+  two_factor_enabled: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
+    field: 'two_factor_enabled'
   },
-  twoFactorSecret: {
+  two_factor_secret: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: true,
+    field: 'two_factor_secret'
   },
-  twoFactorBackupCodes: {
-    type: DataTypes.JSON,
-    allowNull: true
+  verification_token: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    field: 'verification_token'
   }
 }, {
   sequelize,
   modelName: 'User',
   tableName: 'users',
   timestamps: true,
+  underscored: true,
   hooks: {
     // Hash password before saving
     beforeCreate: async (user) => {

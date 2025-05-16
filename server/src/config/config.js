@@ -1,4 +1,4 @@
 // Import and re-export config from app-config.js
-import config from './app-config';
+import appConfig from './app-config.js';
 
-export default config; 
+export default appConfig;

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import * as customerController from '../controllers/customer.controller';
-import { authenticate as isAuthenticated } from '../middleware/auth.middleware';
+import * as customerController from '../controllers/customer.controller.js';
+import { authenticate as isAuthenticated } from '../middleware/auth.middleware.js';
 import { isAdmin, isManager, isSales, isResourceOwner } from '../middleware/role.js';
 import { Customer } from '../models.js';
 

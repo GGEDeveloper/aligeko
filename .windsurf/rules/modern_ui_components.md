@@ -1,0 +1,881 @@
+---
+trigger: manual
+description:
+globs:
+---
+# Modern UI Components
+
+This rule documents the standard patterns for implementing modern UI components in the AliTools B2B E-commerce platform.
+
+## Overview
+
+This document covers the implementation patterns for modern, interactive UI components that provide a visually appealing and user-friendly experience. These components focus on:
+- Visual appeal through animations and effects
+- User feedback and interactivity
+- Consistent styling and behavior
+- Reusability across the application
+- Performance and accessibility
+
+## Key Components
+
+### ShrinkingHeader
+
+A responsive header component that shrinks on scroll but always maintains visibility.
+
+```jsx
+// ✅ DO: Ensure header maintains minimum visibility
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import Logo from './Logo';
+
+export const ShrinkingHeader = ({ isAdmin = false }) => {
+  const [scrolled, setScrolled] = useState(false);
+  
+  // Track scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const offset = window.scrollY;
+      setScrolled(offset > 60);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  return (
+    <header style={{ 
+      position: 'sticky',
+      top: 0,
+      zIndex: 50,
+      transition: 'all 0.3s ease-in-out',
+      minHeight: '60px' // Ensures minimum height when scrolled
+    }}>
+      <div style={{ 
+        padding: scrolled ? '0.4rem 1.5rem' : '0.6rem 1.5rem',
+        transition: 'all 0.3s ease-in-out',
+        minHeight: scrolled ? '45px' : '60px' // Minimum height based on scroll state
+      }}>
+        {/* Logo - smaller but still visible when scrolled */}
+        <div>
+          <Link to="/">
+            <Logo size={scrolled ? "small" : "medium"} />
+          </Link>
+        </div>
+        
+        {/* Navigation items always visible */}
+        <nav>
+          {navigationItems.map(item => (
+            <Link 
+              key={item.url} 
+              to={item.url}
+              style={{
+                fontSize: scrolled ? '0.75rem' : '0.9rem', // Responsive text
+                opacity: scrolled ? '0.8' : '1' // Never completely hidden
+              }}
+            >
+              {item.icon && <item.icon />}
+              <span>{scrolled ? item.shortName || item.name : item.name}</span>
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </header>
+  );
+};
+
+// ❌ DON'T: Hide navigation elements completely on scroll
+const BadShrinkingHeader = () => {
+  const [scrolled, setScrolled] = useState(false);
+  
+  // Similar scroll tracking...
+  
+  return (
+    <header>
+      <div>
+        <Link to="/">
+          <Logo size={scrolled ? "small" : "medium"} />
+        </Link>
+        
+        <nav>
+          {navigationItems.map(item => (
+            <Link key={item.url} to={item.url}>
+              <item.icon />
+              <span style={{ display: scrolled ? 'none' : 'inline' }}>
+                {item.name}
+              </span>
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </header>
+  );
+};
+```
+
+### ParticleHero
+
+A hero component with animated floating particles for visual interest.
+
+```jsx
+// ✅ DO: Create engaging animations with customizable particles
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+export const ParticleHero = ({ 
+  title, 
+  subtitle, 
+  buttonText, 
+  buttonUrl,
+  logoSrc,
+  particleCount = 10,
+  height = '550px'
+}) => {
+  // State for animation effects
+  const [glowIntensity, setGlowIntensity] = useState(0);
+  
+  // Animation effect
+  useEffect(() => {
+    let frame;
+    let startTime = Date.now();
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      // Create smooth oscillation for glow effect
+      const newIntensity = (Math.sin(elapsed / 800) + 1) / 1.8;
+      setGlowIntensity(newIntensity);
+      
+      frame = requestAnimationFrame(animate);
+    };
+    
+    frame = requestAnimationFrame(animate);
+    
+    return () => cancelAnimationFrame(frame);
+  }, []);
+  
+  // Calculate dynamic glow effect
+  const glowSize = Math.floor(15 + glowIntensity * 25);
+  const glowOpacity = 0.5 + glowIntensity * 0.5;
+  
+  return (
+    <div style={{
+      height,
+      background: 'linear-gradient(135deg, #0A0A0A 0%, #222222 100%)',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {/* Logo with glow effect */}
+      <div style={{
+        position: 'absolute',
+        left: '15%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        animation: 'float 4s ease-in-out infinite'
+      }}>
+        <img 
+          src={logoSrc} 
+          alt="Logo" 
+          style={{
+            width: '300px',
+            height: '300px',
+            filter: `drop-shadow(0 0 ${glowSize}px rgba(255, 204, 0, ${glowOpacity}))`
+          }}
+        />
+      </div>
+      
+      {/* Content */}
+      <div style={{
+        position: 'absolute',
+        right: '10%',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        maxWidth: '500px',
+        zIndex: 3,
+        background: 'rgba(0, 0, 0, 0.75)',
+        backdropFilter: 'blur(8px)',
+        padding: '2rem',
+        borderRadius: '12px'
+      }}>
+        <h1>{title}</h1>
+        <p>{subtitle}</p>
+        
+        <Link 
+          to={buttonUrl} 
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            backgroundColor: '#FFCC00',
+            color: '#000000',
+            textShadow: '0 1px 1px rgba(0, 0, 0, 0.3)' // Ensure text visibility
+          }}
+        >
+          <span>{buttonText}</span>
+        </Link>
+      </div>
+      
+      {/* Particle container */}
+      <div className="particles" />
+      
+      {/* Animations defined in CSS */}
+      <style>{`
+        /* Define keyframe animations for particles */
+        @keyframes float {
+          0% { transform: translate(-50%, -50%); }
+          25% { transform: translate(-48%, -58%); }
+          50% { transform: translate(-50%, -65%); }
+          75% { transform: translate(-52%, -58%); }
+          100% { transform: translate(-50%, -50%); }
+        }
+        
+        /* Particle styling with multiple elements */
+        .particles::before,
+        .particles::after {
+          content: '';
+          position: absolute;
+          border-radius: 50%;
+          background-color: rgba(255, 204, 0, 0.3);
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        
+        /* Add multiple particle animations */
+        @keyframes particle1 {
+          0% { transform: translate(0, 0); }
+          50% { transform: translate(100px, 50px); }
+          100% { transform: translate(0, 0); }
+        }
+        
+        /* Additional particle animation definitions */
+      `}</style>
+    </div>
+  );
+};
+
+// ❌ DON'T: Create static hero sections with no animation
+const StaticHero = () => (
+  <div style={{ height: '500px', background: 'black' }}>
+    <img src="/logo.png" alt="Logo" style={{ width: '200px' }} />
+    <div>
+      <h1>Welcome to Our Site</h1>
+      <p>Some subtitle text here</p>
+      <a href="/products">View Products</a>
+    </div>
+  </div>
+);
+```
+
+### FooterWithThemeToggle
+
+A footer component with integrated dark mode toggle and social links.
+
+```jsx
+// ✅ DO: Implement useful features like theme toggle
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { BsMoon, BsSun } from 'react-icons/bs';
+
+export const FooterWithThemeToggle = () => {
+  // Default to dark mode
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const currentYear = new Date().getFullYear();
+
+  // Apply dark mode when state changes
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark-mode");
+    } else {
+      document.documentElement.classList.remove("dark-mode");
+    }
+    
+    // Apply dark mode on initial render
+    document.documentElement.classList.add("dark-mode");
+  }, [isDarkMode]);
+
+  return (
+    <footer style={{
+      backgroundColor: '#0F0F0F',
+      color: '#E5E5E5'
+    }}>
+      {/* Content sections, navigation, etc. */}
+      <div className="footer-content">
+        {/* Newsletter subscription, links, etc. */}
+      </div>
+      
+      {/* Bottom bar with copyright and social links */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderTop: '1px solid #222222',
+        marginTop: '2rem',
+        paddingTop: '1.5rem'
+      }}>
+        <div>
+          <Logo variant="light" size="small" />
+          <span>&copy; {currentYear} AliTools. All rights reserved.</span>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          {/* Social media links */}
+          <SocialLink href="https://facebook.com" icon={BsFacebook} />
+          <SocialLink href="https://instagram.com" icon={BsInstagram} />
+          
+          {/* Theme toggle button */}
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: isDarkMode ? '#FFCC00' : '#FFFFFF',
+              borderRadius: '9999px',
+              height: '2rem',
+              width: '2rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {isDarkMode ? <BsMoon /> : <BsSun />}
+            <span className="sr-only">Toggle theme</span>
+          </button>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+// Helper component for social links
+const SocialLink = ({ href, icon: Icon }) => (
+  <a 
+    href={href} 
+    target="_blank" 
+    rel="noopener noreferrer"
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '2rem',
+      width: '2rem',
+      borderRadius: '9999px',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)'
+    }}
+  >
+    <Icon />
+    <span className="sr-only">{Icon.name}</span>
+  </a>
+);
+
+// ❌ DON'T: Create footers without accessibility considerations
+const InaccessibleFooter = () => (
+  <footer style={{ backgroundColor: 'black', color: 'white' }}>
+    <div>
+      <p>© 2025 Company Name</p>
+    </div>
+    <div>
+      {/* Missing aria labels and proper contrast */}
+      <a href="#"><img src="/facebook.png" /></a>
+      <a href="#"><img src="/twitter.png" /></a>
+      <button onClick={() => toggleTheme()}>
+        <img src="/theme.png" />
+      </button>
+    </div>
+  </footer>
+);
+```
+
+### HeroGeometric
+
+A hero section component with animated geometric shapes to create visual interest.
+
+```jsx
+// ✅ DO: Create reusable, configurable components
+import React from 'react';
+import { ElegantShape } from './ElegantShape';
+
+export const HeroGeometric = ({
+  title,
+  subtitle,
+  badge,
+  buttonText,
+  buttonLink,
+  backgroundColor = "linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)",
+  overlay = true,
+  shapes = [],
+  className
+}) => {
+  return (
+    <div className={cn("hero-container", className)} 
+      style={{ background: backgroundColor }}>
+      
+      {/* Render shapes or use defaults */}
+      {shapes.length > 0 
+        ? shapes.map((shape, index) => (
+            <ElegantShape key={index} {...shape} />
+          ))
+        : (
+          <>
+            <ElegantShape
+              type="circle"
+              size={150}
+              color="#FFCC00"
+              position={{ top: '10%', left: '5%' }}
+              animation={{ type: 'float', duration: 8 }}
+              opacity={0.5}
+            />
+            {/* Additional default shapes */}
+          </>
+        )
+      }
+      
+      {/* Content with proper semantic markup */}
+      <div className="content-container">
+        {badge && <span className="badge">{badge}</span>}
+        <h1>{title}</h1>
+        <p>{subtitle}</p>
+        
+        {buttonText && buttonLink && (
+          <a href={buttonLink} className="cta-button">
+            {buttonText}
+          </a>
+        )}
+      </div>
+      
+      {overlay && <div className="overlay" />}
+    </div>
+  );
+};
+
+// ❌ DON'T: Create inflexible components with hardcoded values
+const HardcodedHero = () => {
+  return (
+    <div style={{ background: 'black' }}>
+      <div style={{ position: 'absolute', top: '10%', left: '5%' }}>
+        {/* Hardcoded shape */}
+      </div>
+      <h1>Contact Us</h1>
+      <p>Get in touch with our team</p>
+      <a href="#form">Send Message</a>
+    </div>
+  );
+};
+```
+
+### ElegantShape
+
+A reusable component for creating animated decorative shapes.
+
+```jsx
+// ✅ DO: Create flexible components with multiple options
+import React from 'react';
+import { cn } from '../../utils/cn';
+
+export const ElegantShape = ({
+  type = 'circle',
+  size = 100,
+  color = '#FFCC00',
+  position = { top: '0', left: '0' },
+  animation = { type: 'float', duration: 8 },
+  opacity = 0.5,
+  className
+}) => {
+  // Generate animation style based on type
+  const getAnimationStyle = () => {
+    const { type, duration = 8, delay = 0 } = animation;
+    
+    const baseAnimation = {
+      animationDuration: `${duration}s`,
+      animationDelay: `${delay}s`,
+      animationIterationCount: 'infinite',
+      animationTimingFunction: 'ease-in-out',
+    };
+    
+    // Map animation type to CSS animation
+    const animationMap = {
+      float: 'float',
+      pulse: 'pulse',
+      rotate: 'rotate',
+      custom: animation.name || 'float'
+    };
+    
+    return {
+      ...baseAnimation,
+      animationName: animationMap[type] || 'float'
+    };
+  };
+  
+  // Generate shape style based on type
+  const getShapeStyle = () => {
+    // Base styles...
+    // Shape-specific styles based on type...
+  };
+  
+  return (
+    <div 
+      className={cn('elegant-shape', className)}
+      style={getShapeStyle()}
+    />
+  );
+};
+
+// ❌ DON'T: Create separate components for each shape type
+const Circle = ({ size, color }) => (
+  <div style={{ 
+    width: size, 
+    height: size,
+    borderRadius: '50%', 
+    backgroundColor: color 
+  }} />
+);
+
+const Square = ({ size, color }) => (
+  <div style={{ 
+    width: size, 
+    height: size,
+    backgroundColor: color 
+  }} />
+);
+```
+
+### ContactForm
+
+A modern form component with built-in validation and visual feedback.
+
+```jsx
+// ✅ DO: Implement robust validation and feedback
+import React, { useState } from 'react';
+
+const ContactForm = ({ onSubmit, className }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+  
+  // Validation logic
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+    
+    // More validation rules...
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      await onSubmit(formData);
+      setSubmitStatus('success');
+      // Reset form
+    } catch (error) {
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className={cn("glass-effect", className)}>
+      {/* Form fields with error states */}
+      <div className="form-group">
+        <label htmlFor="name">Name</label>
+        <input
+          id="name"
+          type="text"
+          value={formData.name}
+          onChange={(e) => setFormData({...formData, name: e.target.value})}
+          className={errors.name ? "input-error" : ""}
+        />
+        {errors.name && <span className="error-message">{errors.name}</span>}
+      </div>
+      
+      {/* Other form fields */}
+      
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Sending...' : 'Send Message'}
+      </button>
+      
+      {submitStatus === 'success' && (
+        <div className="success-message">Message sent successfully!</div>
+      )}
+      
+      {submitStatus === 'error' && (
+        <div className="error-message">Failed to send message. Please try again.</div>
+      )}
+    </form>
+  );
+};
+
+// ❌ DON'T: Create forms without validation or feedback
+const SimpleForm = () => (
+  <form>
+    <input type="text" placeholder="Name" />
+    <input type="email" placeholder="Email" />
+    <textarea placeholder="Message"></textarea>
+    <button type="submit">Send</button>
+  </form>
+);
+```
+
+## Glassmorphism Effect Pattern
+
+Implement consistent glassmorphism effects using:
+
+```css
+/* ✅ DO: Use a consistent glass effect pattern */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ DO: Create variations with CSS variables */
+.glass-effect-dark {
+  --glass-bg-opacity: 0.05;
+  --glass-border-opacity: 0.1;
+  --glass-blur: 12px;
+  
+  background: rgba(0, 0, 0, var(--glass-bg-opacity));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity));
+}
+
+/* ❌ DON'T: Use inconsistent glassmorphism effects */
+.card1 {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+.card2 {
+  background: rgba(240, 240, 240, 0.3);
+  backdrop-filter: blur(15px);
+}
+```
+
+## Animation Patterns
+
+Define reusable animations:
+
+```css
+/* ✅ DO: Create reusable keyframe animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ✅ DO: Use utility classes for animations */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.animate-rotate {
+  animation: rotate 10s linear infinite;
+}
+
+/* ❌ DON'T: Use inline animation styles */
+/* div style={{ animation: 'custom-float 5s ease-in-out infinite' }} */
+```
+
+## Form Validation Pattern
+
+Use consistent validation approach:
+
+```jsx
+// ✅ DO: Create reusable validation functions
+const validators = {
+  required: (value, fieldName) => 
+    !value.trim() ? `${fieldName} is required` : '',
+  
+  email: (value) => 
+    !/\S+@\S+\.\S+/.test(value) ? 'Please enter a valid email' : '',
+  
+  minLength: (value, min) => 
+    value.length < min ? `Must be at least ${min} characters` : '',
+  
+  phone: (value) => 
+    !/^\+?[0-9]{10,15}$/.test(value) ? 'Please enter a valid phone number' : ''
+};
+
+// Usage in component
+const validateField = (name, value) => {
+  switch (name) {
+    case 'name':
+      return validators.required(value, 'Name');
+    case 'email':
+      return validators.required(value, 'Email') || validators.email(value);
+    case 'phone':
+      return validators.phone(value);
+    case 'message':
+      return validators.required(value, 'Message') || 
+             validators.minLength(value, 10);
+    default:
+      return '';
+  }
+};
+
+// ❌ DON'T: Repeat validation logic in every component
+// if (!email) {
+//   errors.email = 'Email is required';
+// } else if (!/\S+@\S+\.\S+/.test(email)) {
+//   errors.email = 'Email is invalid';
+// }
+```
+
+## Utility Functions
+
+Implement helpful utilities:
+
+```jsx
+// ✅ DO: Use a className utility for merging classes
+// utils/cn.js
+export function cn(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
+// Usage
+<div className={cn(
+  'base-class',
+  isActive && 'active',
+  isDisabled && 'disabled',
+  className
+)} />
+
+// ✅ DO: Create animation utility functions
+// utils/motion.js
+export const animations = {
+  fadeIn: {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 }
+  },
+  slideUp: {
+    hidden: { y: 50, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  },
+  // More animation variants...
+};
+
+export const transition = {
+  duration: 0.5,
+  ease: [0.43, 0.13, 0.23, 0.96]
+};
+```
+
+## Accessibility Best Practices
+
+Ensure components are accessible:
+
+```jsx
+// ✅ DO: Include proper ARIA attributes and keyboard support
+<button
+  aria-label="Submit form"
+  aria-disabled={isSubmitting}
+  disabled={isSubmitting}
+  className={cn('submit-button', isSubmitting && 'submitting')}
+>
+  {isSubmitting ? 'Sending...' : 'Send Message'}
+</button>
+
+// ✅ DO: Provide accessible error messages
+<div className="form-group">
+  <label htmlFor="email">Email</label>
+  <input
+    id="email"
+    type="email"
+    aria-invalid={!!errors.email}
+    aria-describedby={errors.email ? "email-error" : undefined}
+  />
+  {errors.email && (
+    <span id="email-error" role="alert" className="error-message">
+      {errors.email}
+    </span>
+  )}
+</div>
+```
+
+## Testing Strategy
+
+When testing modern UI components:
+
+1. **Visual Testing**: Verify animations and effects work across browsers
+2. **Responsive Testing**: Check behavior across different screen sizes
+3. **Performance Testing**: Ensure animations don't cause jank or lag
+4. **Accessibility Testing**: Check keyboard navigation and screen reader compatibility
+5. **Form Validation**: Test all validation rules and error states
+6. **Animation Behavior**: Test animation timing and behavior on different devices
+
+## Related Rules
+
+- [ui_components.mdc](mdc:.cursor/rules/ui_components.mdc) - General UI component patterns
+- [forms.mdc](mdc:.cursor/rules/forms.mdc) - Form implementation patterns
+- [accessibility.mdc](mdc:.cursor/rules/accessibility.mdc) - Accessibility guidelines
+
+## External References
+
+- [CSS Tricks: A Complete Guide to Backdrop Filter](https://css-tricks.com/almanac/properties/b/backdrop-filter/)
+- [MDN: Using CSS Animations](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Animations/Using_CSS_animations)
+- [Web.dev: Form Validation](https://web.dev/learn/forms/validation/)
+
+---
+
+*Last updated: 2024-06-16*

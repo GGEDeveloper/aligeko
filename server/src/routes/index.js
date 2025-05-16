@@ -6,14 +6,14 @@
 
 import express from 'express';
 import productRoutes from './product.routes.js';
-import categoryRoutes from './category.routes.js';
+
 import authRoutes from './auth.routes.js';
-import userRoutes from './user.routes.js';
+
 import cartRoutes from './cart.routes.js';
 import orderRoutes from './order.routes.js';
 import fileUploadRoutes from './file-upload.routes.js';
-import customerRoutes from './customer.routes';
-import gekoApiRoutes from './geko-api.routes';
+import customerRoutes from './customer.routes.js';
+import gekoApiRoutes from './geko-api.routes.js';
 import companyInfoRoutes from './companyInfo.js';
 // import adminRoutes from './admin.routes';
 
@@ -24,9 +24,9 @@ const API_PREFIX = '/v1';
 
 // Register routes
 router.use(`${API_PREFIX}/products`, productRoutes);
-router.use(`${API_PREFIX}/categories`, categoryRoutes);
+
 router.use(`${API_PREFIX}/auth`, authRoutes);
-router.use(`${API_PREFIX}/users`, userRoutes);
+
 router.use(`${API_PREFIX}/cart`, cartRoutes);
 router.use(`${API_PREFIX}/orders`, orderRoutes);
 router.use(`${API_PREFIX}/upload`, fileUploadRoutes);

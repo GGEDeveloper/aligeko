@@ -4,7 +4,8 @@ import { appendCSRFToken } from '../../utils/csrf';
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api/auth',
+    // Updated to match backend API prefix
+  baseUrl: '/api/v1/auth',
     prepareHeaders: (headers, { getState }) => {
       // Get the token from the auth state
       const token = getState().auth.token;
@@ -82,36 +83,34 @@ export const authApi = createApi({
       }),
     }),
     
-    // 2FA endpoints
-    get2FAStatus: builder.query({
-      query: () => '/2fa/status',
-    }),
-    
-    setup2FA: builder.mutation({
-      query: () => ({
-        url: '/2fa/setup',
-        method: 'POST',
-      }),
-    }),
-    
-    verify2FA: builder.mutation({
-      query: (code) => ({
-        url: '/2fa/verify',
-        method: 'POST',
-        body: { code },
-      }),
-    }),
-    
-    disable2FA: builder.mutation({
-      query: (code) => ({
-        url: '/2fa/disable',
-        method: 'POST',
-        body: { code },
-      }),
-    }),
+    // 2FA endpoints DISABLED for MVP (AliGeko MVP: 2FA temporarily disabled)
+    // get2FAStatus: builder.query({
+    //   query: () => '/api/v1/auth/2fa/status', // Updated endpoint URL
+    // }),
+    // setup2FA: builder.mutation({
+    //   query: () => ({
+    //     url: '/api/v1/auth/2fa/setup', // Updated endpoint URL
+    //     method: 'POST',
+    //   }),
+    // }),
+    // verify2FA: builder.mutation({
+    //   query: (code) => ({
+    //     url: '/api/v1/auth/2fa/verify', // Updated endpoint URL
+    //     method: 'POST',
+    //     body: { code },
+    //   }),
+    // }),
+    // disable2FA: builder.mutation({
+    //   query: (code) => ({
+    //     url: '/2fa/disable',
+    //     method: 'POST',
+    //     body: { code },
+    //   }),
+    // }),
   }),
 });
 
+// 2FA hooks temporarily disabled for MVP (AliGeko MVP)
 export const {
   useLoginMutation,
   useValidate2FAMutation,
@@ -120,8 +119,8 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useRefreshTokenMutation,
-  useGet2FAStatusQuery,
-  useSetup2FAMutation,
-  useVerify2FAMutation,
-  useDisable2FAMutation,
+  // useGet2FAStatusQuery,
+  // useSetup2FAMutation,
+  // useVerify2FAMutation,
+  // useDisable2FAMutation,
 } = authApi; 

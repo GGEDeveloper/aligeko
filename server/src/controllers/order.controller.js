@@ -1,7 +1,7 @@
 import { Order, OrderItem, Customer, Product, Variant, User, Address, Shipment } from '../models.js';
 import { Op } from 'sequelize';
 import sequelize from '../config/database.js';
-import { Cart, CartItem, Payment } from '../models.js';
+import { Cart, CartItem } from '../models.js';
 import { orderConfirmationTemplate, orderShipmentTemplate } from '../utils/emailTemplates.js';
 import nodemailer from 'nodemailer';
 
@@ -423,43 +423,19 @@ const processPayment = async (paymentMethod, paymentDetails, amount, orderId, tr
       }
       
       // Create a payment record
-      await Payment.create({
-        order_id: orderId,
-        amount,
-        method: paymentMethod,
-        status: 'completed',
-        transaction_id: `sim_cc_${Date.now()}`,
-        payment_date: new Date(),
-        details: JSON.stringify(paymentDetails.cardData)
-      }, { transaction });
+      
       
       break;
       
     case 'wire_transfer':
       // Create a payment record with pending status
-      await Payment.create({
-        order_id: orderId,
-        amount,
-        method: paymentMethod,
-        status: 'pending',
-        transaction_id: `wire_${Date.now()}`,
-        payment_date: null,
-        details: JSON.stringify(paymentDetails.wireData)
-      }, { transaction });
+      
       
       break;
       
     case 'purchase_order':
       // Create a payment record with pending status
-      await Payment.create({
-        order_id: orderId,
-        amount,
-        method: paymentMethod,
-        status: 'pending',
-        transaction_id: `po_${paymentDetails.purchaseOrder?.poNumber || Date.now()}`,
-        payment_date: null,
-        details: JSON.stringify(paymentDetails.purchaseOrder)
-      }, { transaction });
+      
       
       break;
       

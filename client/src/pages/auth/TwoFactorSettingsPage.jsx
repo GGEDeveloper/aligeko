@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  useGet2FAStatusQuery, 
-  useSetup2FAMutation,
-  useVerify2FAMutation,
-  useDisable2FAMutation 
-} from '../../store/api/authApi';
+// 2FA hooks removed for MVP (AliGeko MVP). Placeholder page does not use any 2FA API hooks.
 
+// 2FA settings page disabled for MVP (AliGeko MVP)
+/*
 const TwoFactorSettingsPage = () => {
   const [setupStep, setSetupStep] = useState('initial'); // initial, setup, verify, complete
   const [secret, setSecret] = useState('');
@@ -307,4 +304,13 @@ const TwoFactorSettingsPage = () => {
   );
 };
 
-export default TwoFactorSettingsPage; 
+*/
+
+const TwoFactorSettingsPage = () => (
+  <div style={{ padding: 32, textAlign: 'center' }}>
+    <h1>Autenticação em duas etapas está desabilitada para o MVP.</h1>
+    <p>Esta funcionalidade será reativada em versões futuras.</p>
+  </div>
+);
+
+export default TwoFactorSettingsPage;

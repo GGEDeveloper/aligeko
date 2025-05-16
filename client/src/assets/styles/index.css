@@ -206,10 +206,49 @@ footer a:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.product-card img {
+.product-card {
+  min-height: 180px !important;
+  padding: 0.5rem !important;
+}
+
+.grid-view {
+  display: grid !important;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.05rem;
+  row-gap: 0.05rem;
   width: 100%;
-  height: 200px;
-  object-fit: cover;
+}
+.product-card {
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+}
+
+.filters-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+.product-card img {
+  width: 100% !important;
+  height: 160px !important;
+  object-fit: contain !important;
+}
+@media (min-width: 1280px) {
+  .product-card img {
+    height: 120px !important;
+  }
+}
+@media (min-width: 1280px) {
+  .product-card {
+    max-width: 150px !important;
+    min-height: 150px !important;
+    padding: 0.25rem !important;
+  }
+  .product-card img {
+    height: 90px !important;
+  }
 }
 
 /* Custom container */
