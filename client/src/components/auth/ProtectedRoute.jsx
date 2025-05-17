@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectIsAuthenticated, selectCurrentUser } from '../../store/slices/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Protected route component that verifies if the user is authenticated
@@ -17,14 +18,25 @@ const ProtectedRoute = ({ requireAdmin = false }) => {
   const location = useLocation();
 
   if (!isAuthenticated) {
-    // Redirect to login while preserving the original URL for redirect after login
-    return <Navigate to="/auth/login" state={{ from: location.pathname }} replace />;
+    // Redirect to login while preserving the original URL and its state
+    return <Navigate to="/auth/login" state={{ 
+      from: { 
+        pathname: location.pathname,
+        state: {
+          isProtected: true,
+          ...location.state
+        }
+      }
+    }} replace />;
   }
 
   // Check for admin requirement
   if (requireAdmin && user?.role !== 'admin') {
-    // Redirect to customer dashboard if user doesn't have admin privileges
-    return <Navigate to="/account" replace />;
+    // Redirect to customer dashboard with preserved state
+    return <Navigate to="/account" state={{
+      isProtected: true,
+      ...location.state
+    }} replace />;
   }
 
   // Allow access to the protected route

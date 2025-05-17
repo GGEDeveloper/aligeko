@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import './components/checkout/checkout.css';
 import './assets/styles/index.css';
@@ -28,6 +28,7 @@ import RegisterSuccessPage from './pages/auth/RegisterSuccessPage';
 import TwoFactorSettingsPage from './pages/auth/TwoFactorSettingsPage';
 
 // User
+import AccountPage from './pages/account/AccountPage';
 import DashboardPage from './pages/user/DashboardPage';
 import ProfilePage from './pages/user/ProfilePage';
 import OrdersPage from './pages/user/OrdersPage';
@@ -110,18 +111,36 @@ function App() {
             <Route path="checkout/success" element={<CheckoutSuccessPage />} />
           </Route>
           
-          {/* Customer Dashboard Routes */}
-          <Route path="/account" element={<CustomerDashboardLayout />}>
+          {/* Customer dashboard routes */}
+          <Route 
+            path="/account" 
+            element={
+              <ProtectedRoute>
+                <CustomerDashboardLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<DashboardPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="addresses" element={<AddressesPage />} />
             <Route path="saved-carts" element={<SavedCartsPage />} />
+            <Route path="wishlist" element={<WishlistPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="preferences" element={<PreferencesPage />} />
             <Route path="security" element={<SecurityPage />} />
-            {/* Fallback for unknown /account/* subroutes */}
-            <Route path="*" element={<NotFoundPage />} />
+            <Route path="checkout/success" element={<CheckoutSuccessPage />} />
           </Route>
+          
+          {/* Redirect old account paths */}
+          <Route path="/user" element={<Navigate to="/account" replace />} />
+          <Route path="/user/dashboard" element={<Navigate to="/account" replace />} />
+          <Route path="/user/profile" element={<Navigate to="/account/profile" replace />} />
+          <Route path="/user/orders" element={<Navigate to="/account/orders" replace />} />
+          <Route path="/user/addresses" element={<Navigate to="/account/addresses" replace />} />
+          <Route path="/user/saved-carts" element={<Navigate to="/account/saved-carts" replace />} />
+          <Route path="/user/wishlist" element={<Navigate to="/account/wishlist" replace />} />
+          <Route path="/user/preferences" element={<Navigate to="/account/preferences" replace />} />
         </Route>
         
         {/* Protected routes - Admin Layout */}

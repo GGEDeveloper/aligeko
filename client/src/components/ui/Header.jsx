@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout, selectCurrentUser, selectIsAuthenticated } from '../../store/slices/authSlice';
 import Logo from './Logo';
-import { useSelector } from 'react-redux';
-import { selectCurrentUser } from '../../store/slices/authSlice';
 
 // Icons
 import { BsSearch, BsCart3, BsPersonCircle, BsList, BsX, BsTelephone, BsEnvelope } from 'react-icons/bs';
@@ -16,22 +16,49 @@ const Header = ({ isAdmin = false }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const user = useSelector(selectCurrentUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
-
+  
+  // Handle logout
+  const handleLogout = () => {
+    dispatch(logout());
+    // Redirect to home page
   // Get the appropriate account link and text based on user state
   const getAccountLinkInfo = () => {
     if (isAdmin) {
-      return { link: "/admin", text: "Painel Admin" };
-    } else if (user) {
-      return { link: "/account", text: "Minha Conta" };
+      return { 
+        link: "/admin", 
+        text: "Painel Admin",
+        showLogout: true
+      };
+    } else if (user && isAuthenticated) {
+      return { 
+        link: "/account", 
+        text: "Minha Conta",
+        showLogout: true
+      };
     } else {
-      return { link: "/auth/login", text: "Entrar" };
+      return { 
+        link: "/auth/login", 
+        text: "Entrar",
+        showLogout: false
+      };
     }
   };
 
   const accountInfo = getAccountLinkInfo();
+
+  // Handle logout
+  const handleLogout = () => {
+    dispatch(logout());
+    // Redirect to home page
+    navigate('/', { replace: true });
+  };
 
   return (
     <header style={{ 
@@ -220,30 +247,101 @@ const Header = ({ isAdmin = false }) => {
             <span>Carrinho</span>
           </Link>
           
-          <Link 
-            to={accountInfo.link}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              color: 'white',
-              textDecoration: 'none',
-              padding: '0.5rem 0.75rem',
-              borderRadius: '6px',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.color = '#FFCC00';
-              e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.color = 'white';
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
-            <BsPersonCircle size={22} />
-            <span>{accountInfo.text}</span>
-          </Link>
+          {accountInfo.showLogout ? (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '1rem',
+              height: '100%'
+            }}>
+              <Link 
+                to={accountInfo.link}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: 'white',
+                  textDecoration: 'none',
+                  padding: '0.5rem 0.75rem',
+                  borderRadius: '6px',
+                  transition: 'all 0.3s ease',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.color = '#FFCC00';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <BsPersonCircle size={22} />
+                <span>{accountInfo.text}</span>
+              </Link>
+              <button
+                onClick={handleLogout}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: 'white',
+                  backgroundColor: 'transparent',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '6px',
+                  padding: '0.5rem 0.75rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  fontSize: '0.9rem',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.color = '#FFCC00';
+                  e.currentTarget.style.borderColor = '#FFCC00';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <span>Sair</span>
+              </button>
+            </div>
+          ) : (
+            <Link 
+              to={accountInfo.link}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                color: 'white',
+                textDecoration: 'none',
+                padding: '0.5rem 0.75rem',
+                borderRadius: '6px',
+                transition: 'all 0.3s ease',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = '#FFCC00';
+                e.currentTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = 'white';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <BsPersonCircle size={22} />
+              <span>{accountInfo.text}</span>
+            </Link>
+          )}
           
           {/* Mobile Menu Toggle */}
           <button 
