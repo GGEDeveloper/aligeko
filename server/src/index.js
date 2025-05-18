@@ -120,22 +120,36 @@ app.get('/health', (req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-// Start server (only in non-serverless environments)
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
-
-// Database connection
-(async () => {
+// Database connection and server startup
+const startServer = async () => {
   try {
+    // Conectar ao banco de dados
     await sequelize.authenticate();
-    console.log('Database connection has been established successfully.');
+    console.log('✅ Database connection has been established successfully.');
+    
+    // Não sincronizar automaticamente em produção ou desenvolvimento
+    // O banco de dados já está configurado no Neon
+    console.log('ℹ️  Skipping automatic database sync. Database is managed externally.');
+    
+    // Iniciar o servidor apenas em ambiente de desenvolvimento
+    if (process.env.NODE_ENV !== 'production') {
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`🌐 Open http://localhost:${PORT} in your browser`);
+      });
+    }
+    
+    return app;
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    console.error('❌ Unable to connect to the database:', error);
+    process.exit(1); // Encerra o processo com erro
   }
-})();
+};
+
+// Iniciar o servidor apenas se não estivermos em um ambiente de teste
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
 
 // Export for serverless environments
 export default app;

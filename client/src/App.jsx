@@ -4,6 +4,9 @@ import { Toaster } from 'react-hot-toast';
 import './components/checkout/checkout.css';
 import './assets/styles/index.css';
 
+// Error Boundary
+import ErrorBoundary from './components/common/ErrorBoundary';
+
 // Layouts
 import MainLayout from './components/layouts/MainLayout';
 import AdminLayout from './components/layouts/AdminLayout';
@@ -39,6 +42,8 @@ import SecurityPage from './pages/user/SecurityPage';
 import CartPage from './pages/user/CartPage';
 import CheckoutPage from './pages/user/CheckoutPage';
 import CheckoutSuccessPage from './pages/user/CheckoutSuccessPage';
+import WishlistPage from './pages/user/WishlistPage';
+import PreferencesPage from './pages/user/PreferencesPage';
 
 // Product Pages
 import ProductsPage from './pages/ProductsPage';
@@ -73,7 +78,7 @@ import CompanyInfoConfig from './pages/admin/CompanyInfoConfig';
 
 function App() {
   return (
-    <>
+    <ErrorBoundary>
       <Toaster position="top-right" />
       <SessionManager />
       
@@ -181,7 +186,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
-    </>
+    </ErrorBoundary>
   );
 }
 

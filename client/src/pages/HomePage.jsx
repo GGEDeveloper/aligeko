@@ -278,18 +278,43 @@ const HomePage = () => {
             <Link 
               to="/auth/register" 
               style={{ 
-                backgroundColor: '#FFCC00', 
-                color: '#1A1A1A', 
-                padding: '0.75rem 1.5rem', 
-                borderRadius: '0.375rem', 
-                fontWeight: '500', 
-                transition: 'background-color 0.3s',
-                textDecoration: 'none'
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#FFD700',
+                color: '#374151',
+                borderRadius: '8px',
+                fontWeight: 'bold',
+                textDecoration: 'none',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                transition: 'all 0.3s ease-in-out',
+                border: '2px solid #FFC107',
+                fontSize: '1rem',
+                textShadow: '0 1px 2px rgba(0,0,0,0.1)'
               }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#E5B800'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#FFCC00'}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#FFC107';
+                e.currentTarget.style.color = '#000000';
+                e.currentTarget.style.transform = 'translateY(-3px)';
+                e.currentTarget.style.boxShadow = '0 8px 20px rgba(255, 200, 0, 0.4)';
+                e.currentTarget.style.borderColor = '#FFB300';
+                const text = e.currentTarget.querySelector('span');
+                if (text) text.style.color = '#000000';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#FFD700';
+                e.currentTarget.style.color = '#374151';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+                e.currentTarget.style.borderColor = '#FFC107';
+                const text = e.currentTarget.querySelector('span');
+                if (text) text.style.color = '#374151';
+              }}
             >
-              Register Now
+              <span style={{
+                color: '#374151',
+                transition: 'color 0.3s ease-in-out'
+              }}>Register Now</span>
             </Link>
             <Link 
               to="/contactos" 

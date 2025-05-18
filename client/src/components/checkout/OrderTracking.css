@@ -1,104 +1,276 @@
-/* Order Tracking Styles */
-.tracking-timeline {
-  position: relative;
-  padding: 0;
-  margin: 0;
+/* Order Tracking Styles - Modernizado */
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.tracking-timeline::before {
-  content: '';
-  position: absolute;
-  left: 7px;
-  top: 5px;
-  height: calc(100% - 10px);
-  width: 2px;
-  background-color: #dee2e6;
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(25, 118, 210, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0); }
 }
 
-.tracking-step {
-  position: relative;
-  padding-left: 30px;
-  padding-bottom: 20px;
+/* Container Principal */
+.order-tracking-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out;
+  transition: all 0.3s ease;
 }
 
-.tracking-step:last-child {
-  padding-bottom: 0;
-}
-
-.tracking-icon {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 16px;
-  height: 16px;
+/* Cabeçalho */
+.tracking-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
-  justify-content: center;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f1f4ff 100%);
+}
+
+.tracking-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a237e;
+}
+
+/* Linha do Tempo */
+.timeline-container {
+  padding: 24px;
+  position: relative;
+}
+
+/* Passos da Linha do Tempo */
+.timeline-step {
+  position: relative;
+  padding-bottom: 32px;
+  animation: fadeIn 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+/* Linha Vertical */
+.timeline-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 32px;
+  bottom: 0;
+  width: 2px;
+  background: #e0e0e0;
   z-index: 1;
 }
 
-.tracking-icon i {
-  font-size: 16px;
+/* Indicador de Status */
+.status-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tracking-step.completed .tracking-icon i {
-  color: #198754; /* Bootstrap success color */
+.status-indicator.completed {
+  background-color: #4caf50;
+  color: white;
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
 }
 
-.tracking-step.active .tracking-icon i {
-  color: #0d6efd; /* Bootstrap primary color */
+.status-indicator.active {
+  background-color: #1976d2;
+  color: white;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.7);
 }
 
-.tracking-content {
-  padding-left: 10px;
+.status-indicator.pending {
+  background-color: #e0e0e0;
+  color: #757575;
 }
 
-.tracking-content h6 {
-  margin-bottom: 5px;
+/* Conteúdo do Passo */
+.step-content {
+  margin-left: 48px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
 }
 
-/* Print Receipt Styles */
+.step-content:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.step-content.active {
+  border-left: 3px solid #1976d2;
+  background: #f5f9ff;
+}
+
+/* Informações da Transportadora */
+.carrier-info {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f8f9ff;
+  border-radius: 8px;
+  border: 1px solid #e8eaf6;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.carrier-info h3 {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  color: #303f9f;
+  display: flex;
+  align-items: center;
+}
+
+.carrier-info h3 svg {
+  margin-right: 8px;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .tracking-header {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .tracking-header h2 {
+    margin-bottom: 8px;
+  }
+  
+  .timeline-container {
+    padding: 16px;
+  }
+  
+  .step-content {
+    margin-left: 40px;
+    padding: 12px;
+  }
+  
+  .status-indicator {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Efeitos de Hover e Foco */
+.track-package-btn {
+  margin-top: 12px;
+  transition: all 0.3s ease;
+  text-transform: none;
+  font-weight: 500;
+}
+
+.track-package-btn:hover {
+  background-color: rgba(25, 118, 210, 0.04);
+  transform: translateY(-1px);
+}
+
+/* Animações de Entrada */
+.timeline-step:nth-child(1) { animation-delay: 0.1s; }
+.timeline-step:nth-child(2) { animation-delay: 0.2s; }
+.timeline-step:nth-child(3) { animation-delay: 0.3s; }
+.timeline-step:nth-child(4) { animation-delay: 0.4s; }
+.timeline-step:nth-child(5) { animation-delay: 0.5s; }
+
+/* Melhorias de Acessibilidade */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Estilos para o Status */
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: capitalize;
+  display: inline-flex;
+  align-items: center;
+}
+
+.status-badge.completed {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.in-progress {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-badge.pending {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+/* Efeito de brilho para o passo ativo */
+@keyframes glow {
+  0% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(25, 118, 210, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0); }
+}
+
+/* Adiciona uma borda sutil ao redor do container */
+.order-tracking-container {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Melhora a aparência dos botões */
+.MuiButton-contained {
+  text-transform: none;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Efeito de hover suave para os itens da linha do tempo */
+.timeline-step:hover .step-content {
+  transform: translateX(4px);
+}
+
+/* Ajustes para impressão */
 @media print {
-  .receipt-container {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-    font-size: 12px;
+  .order-tracking-container {
+    box-shadow: none;
+    border: none;
   }
   
-  .receipt-container h2 {
-    font-size: 18px;
-    margin-bottom: 5px;
+  .tracking-header {
+    background: none !important;
+    border-bottom: 2px solid #eee;
   }
   
-  .receipt-container h4 {
-    font-size: 14px;
-    margin-bottom: 15px;
+  .step-content {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
   
-  .receipt-container h5 {
-    font-size: 13px;
-    margin-bottom: 10px;
+  .timeline-step:not(:last-child)::after {
+    display: none;
   }
   
-  .receipt-container table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
-  
-  .receipt-container table th,
-  .receipt-container table td {
-    border: 1px solid #dee2e6;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  .receipt-container table th {
-    background-color: #f8f9fa;
-    font-weight: bold;
-  }
-  
+  /* Estilos para a tabela de recibo */
   .receipt-container table tfoot td {
     font-weight: bold;
   }

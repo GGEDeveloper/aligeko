@@ -21,7 +21,19 @@ Each error entry should follow this format:
 
 List of currently active errors that need to be addressed:
 
-None currently.
+1. **Erro de Formatação no Markdown**
+   - **Arquivo**: `/tasks/implementation-steps.md`
+   - **Descrição**: Vários erros de formatação Markdown detectados pelo linter
+   - **Status**: Em andamento
+   - **Prioridade**: Baixa
+   - **Atribuído a**: [Responsável]
+
+2. **Erro de Importação no OrderService**
+   - **Arquivo**: `/client/src/services/orderService.js`
+   - **Descrição**: Falha na importação do módulo 'api'
+   - **Status**: Em andamento
+   - **Prioridade**: Alta
+   - **Atribuído a**: [Responsável]
 
 ## Recent Fixes
 

@@ -122,33 +122,49 @@ const Hero2DFallback = () => {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            padding: '1rem 2.2rem', // Increased padding
-            backgroundColor: '#FFCC00', // Yellow background
-            color: '#000000', // Black text for contrast with yellow background
+            padding: '1rem 2.2rem',
+            backgroundColor: '#FFD700',
+            color: '#374151', // Cinza escuro
             borderRadius: '8px',
             fontWeight: 'bold',
             textDecoration: 'none',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-            transition: 'all 0.3s ease',
-            border: '2px solid #FFCC00',
-            fontSize: '1.3rem', // Larger text
-            textShadow: 'none' // No text shadow to ensure readability
+            transition: 'all 0.3s ease-in-out',
+            border: '2px solid #FFC107',
+            fontSize: '1.3rem',
+            textShadow: '0 1px 2px rgba(0,0,0,0.1)'
           }}
           onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = '#FFD633'; // Lighter yellow on hover
-            e.currentTarget.style.color = '#000000'; // Keep black text
-            e.currentTarget.style.transform = 'translateY(-5px)'; // Even more movement
-            e.currentTarget.style.boxShadow = '0 10px 25px rgba(255, 204, 0, 0.5)'; // Increased shadow
+            e.currentTarget.style.backgroundColor = '#FFC107';
+            e.currentTarget.style.color = '#000000'; // Preto no hover
+            e.currentTarget.style.transform = 'translateY(-3px)';
+            e.currentTarget.style.boxShadow = '0 8px 20px rgba(255, 200, 0, 0.4)';
+            e.currentTarget.style.borderColor = '#FFB300';
+            // Atualiza a cor da seta para preto também
+            const arrow = e.currentTarget.querySelector('svg');
+            if (arrow) arrow.style.color = '#000000';
           }}
           onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = '#FFCC00';
-            e.currentTarget.style.color = '#000000';
+            e.currentTarget.style.backgroundColor = '#FFD700';
+            e.currentTarget.style.color = '#374151'; // Volta para cinza escuro
             e.currentTarget.style.transform = 'translateY(0)';
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+            e.currentTarget.style.borderColor = '#FFC107';
+            // Volta a cor da seta para cinza escuro
+            const arrow = e.currentTarget.querySelector('svg');
+            if (arrow) arrow.style.color = '#374151';
           }}
         >
-          <span>Ver Produtos</span>
-          <BsArrowRight style={{ marginLeft: '0.75rem', fontSize: '1.4rem' }} />
+          <span style={{
+            color: '#374151',
+            transition: 'color 0.3s ease-in-out'
+          }}>Ver Produtos</span>
+          <BsArrowRight style={{ 
+            marginLeft: '0.75rem', 
+            fontSize: '1.4rem',
+            color: '#374151',
+            transition: 'color 0.3s ease-in-out'
+          }} />
         </Link>
       </div>
       
