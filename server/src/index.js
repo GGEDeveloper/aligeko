@@ -50,15 +50,23 @@ app.use(cors({
     
     // List of allowed origins
     const allowedOrigins = [
-      'http://localhost:3000', 
-      'https://alitools-b2b.vercel.app'
+      'http://localhost:3000',
+      'https://alitools-b2b.vercel.app',
+      /^http:\/\/127.0.0.1:\d+$/, // Allow any localhost port
+      /^https:\/\/aligekow-[a-z0-9]+-alitools-projects\.vercel\.app$/
     ];
     
-    // Allow all Vercel preview deployment URLs
-    if (
-      allowedOrigins.includes(origin) || 
-      origin.match(/https:\/\/aligekow-[a-z0-9]+-alitools-projects\.vercel\.app/)
-    ) {
+    // Check if origin is allowed
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (typeof allowed === 'string') {
+        return origin === allowed;
+      } else if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return false;
+    });
+    
+    if (isAllowed) {
       return callback(null, true);
     }
     
