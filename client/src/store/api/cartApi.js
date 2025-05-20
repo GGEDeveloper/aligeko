@@ -1,70 +1,54 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { axiosBaseQuery } from '../../services/axiosBaseQuery';
 
 export const cartApi = createApi({
   reducerPath: 'cartApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api/v1/cart',
-    prepareHeaders: (headers, { getState }) => {
-      // Get the token from the auth state
-      const token = getState().auth.token;
-      
-      // Add authorization header if token exists
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: axiosBaseQuery({ baseUrl: '/v1/cart' }),
   tagTypes: ['Cart'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     getUserCart: builder.query({
-      query: () => `/`,
-      providesTags: ['Cart']
+      query: () => '/',
+      providesTags: ['Cart'],
     }),
-    
     syncCart: builder.mutation({
-      query: (cartData) => ({
+      query: cartData => ({
         url: '/',
         method: 'POST',
-        body: cartData
+        body: cartData,
       }),
-      invalidatesTags: ['Cart']
+      invalidatesTags: ['Cart'],
     }),
-    
     clearCart: builder.mutation({
       query: () => ({
         url: '/',
-        method: 'DELETE'
+        method: 'DELETE',
       }),
-      invalidatesTags: ['Cart']
+      invalidatesTags: ['Cart'],
     }),
-    
     addCartItem: builder.mutation({
-      query: (itemData) => ({
+      query: itemData => ({
         url: '/items',
         method: 'POST',
-        body: itemData
+        body: itemData,
       }),
-      invalidatesTags: ['Cart']
+      invalidatesTags: ['Cart'],
     }),
-    
     updateCartItem: builder.mutation({
-      query: ({ itemId, ...itemData }) => ({
+      query: ({ itemId, ...updates }) => ({
         url: `/items/${itemId}`,
-        method: 'PUT',
-        body: itemData
+        method: 'PATCH',
+        body: updates,
       }),
-      invalidatesTags: ['Cart']
+      invalidatesTags: ['Cart'],
     }),
-    
     removeCartItem: builder.mutation({
-      query: (itemId) => ({
+      query: itemId => ({
         url: `/items/${itemId}`,
-        method: 'DELETE'
+        method: 'DELETE',
       }),
-      invalidatesTags: ['Cart']
-    })
-  })
+      invalidatesTags: ['Cart'],
+    }),
+  }),
 });
 
 export const {
@@ -73,5 +57,6 @@ export const {
   useClearCartMutation,
   useAddCartItemMutation,
   useUpdateCartItemMutation,
-  useRemoveCartItemMutation
-} = cartApi; 
+  useRemoveCartItemMutation,
+} = cartApi;
+
